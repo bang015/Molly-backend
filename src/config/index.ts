@@ -16,6 +16,7 @@ export default{
     password: process.env.DATABASE_PASSWORD,
     host: process.env.DATABASE_HOST,
   },
+  jwtKey: process.env.JWT_KEY,
   api: {
     prefix: '/api',
   },
