@@ -3,9 +3,9 @@ import * as jwt from "jsonwebtoken";
 import jwtKey from "../../config";
 import { IJwtRequest, IJwtInfo } from "../../interfaces/auth";
 
-const checkJWT = (req: IJwtRequest, res: Response, next: NextFunction) => {
-  const token = <string>req.headers["x-access-token"];
-
+export const checkJWT = (req: IJwtRequest, res: Response, next: NextFunction) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
   if (!token) {
     res.status(401).json({ error: "error401" });
   } else {
@@ -15,10 +15,8 @@ const checkJWT = (req: IJwtRequest, res: Response, next: NextFunction) => {
     ) as jwt.JwtPayload;
     const convertedDecoded: IJwtInfo = {
       id: decoded.id,
-      email: decoded.email,
-      // 이 외에 필요한 정보 추가
     };
-
     req.decoded = convertedDecoded;
+    next();
   }
 };

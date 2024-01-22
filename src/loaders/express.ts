@@ -1,32 +1,41 @@
-import express, { Application, Request, Response, NextFunction } from 'express';
-import cors from 'cors';
-import methodOverride from 'method-override'; 
-import { errors } from 'celebrate';
-import morgan from 'morgan';
-import config from '../config';
-import routes from '../api/routes';
+import express, { Application, Request, Response, NextFunction } from "express";
+import cors from "cors";
+import methodOverride from "method-override";
+import { errors } from "celebrate";
+import morgan from "morgan";
+import config from "../config";
+import routes from "../api/routes";
 
-export default({ app }: { app: Application}) => {
-  app.get('/', (req : Request, res : Response) => {
-    res.send('Hello Molly');
+export default ({ app }: { app: Application }) => {
+  app.get("/", (req: Request, res: Response) => {
+    res.send("Hello Molly");
+    console.log("hi");
   });
 
   app.use(cors());
 
-  /* FOR USE RESTful API */ 
+  /* FOR USE RESTful API */
   app.use(methodOverride());
 
   /* Morgan Request Logger */
-  app.use(morgan(process.env.NODE_ENV === 'development' ? 'dev' : 'combined'));
-  
+  app.use(morgan(process.env.NODE_ENV === "development" ? "dev" : "combined"));
+
   /* REQUEST DATA */
   app.use(express.json());
   app.use(
     express.urlencoded({
       extended: false,
-    }),
+    })
   );
-  
+
+    // 캐시 헤더 설정
+  app.use((req, res, next) => {
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+
+    next();
+  });
   /* ROUTER */
   app.use(config.api.prefix, routes);
 
@@ -35,7 +44,7 @@ export default({ app }: { app: Application}) => {
 
   /* catch 404 and forward to error handler */
   app.use((req: Request, res: Response, next: NextFunction) => {
-    const err: any = new Error('Not Found');
+    const err: any = new Error("Not Found");
     err.status = 404;
     next(err);
   });
@@ -48,6 +57,3 @@ export default({ app }: { app: Application}) => {
     });
   });
 };
-
-
-

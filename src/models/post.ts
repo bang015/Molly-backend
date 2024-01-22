@@ -1,35 +1,34 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../config/database";
+import User from "./user";
 
-export default class Image extends Model {
+export default class Post extends Model {
   public id!: number;
-  public name!: string;
-  public type!: string;
-  public path!: string;
+  public userId!: number;
+  public content!: string;
 }
 
-Image.init(
+Post.init(
   {
     id: {
       type: DataTypes.INTEGER.UNSIGNED,
       autoIncrement: true,
       primaryKey: true,
     },
-    name: {
-      type: DataTypes.STRING,
+    user_id: {
+      type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
     },
-    type: {
+    content: {
       type: DataTypes.STRING,
-      allowNull: false,
-    },
-    path: {
-      type: DataTypes.STRING,
-      allowNull: false,
     },
   },
   {
-    tableName: "image",
+    tableName: "post",
     sequelize,
   }
 );
+
+Post.belongsTo(User, {
+  foreignKey: "user_id",
+});

@@ -1,7 +1,7 @@
 import { Model, DataTypes } from "sequelize";
 import bcrypt from "bcrypt";
 import sequelize from "../config/database";
-import Image from "./image";
+import ProfileImage from "./profile-image";
 export default class User extends Model {
   public id!: number;
   public email!: string;
@@ -56,7 +56,7 @@ User.init(
   }
 );
 
-User.belongsTo(Image, { foreignKey: "profile_image" });
+User.belongsTo(ProfileImage, { foreignKey: "profile_image" });
 
 User.beforeCreate(async (user) => {
   const encryptedPw = await bcrypt.hash(user.password, 10);

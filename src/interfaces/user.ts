@@ -11,3 +11,12 @@ export interface IUserInfo {
   nickname?: string;
   name?: string;
 }
+
+export interface IUserModify {
+  id: number;
+  email: string;
+  nickname: string;
+  password?: string;
+  introduce?: string;
+  profile_image?: number;
+}

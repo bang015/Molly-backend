@@ -16,6 +16,11 @@ export default{
     password: process.env.DATABASE_PASSWORD,
     host: process.env.DATABASE_HOST,
   },
+  cloudinaryApi: {
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.API_KEY,
+    api_secret: process.env.API_SECRET,
+  },
   jwtKey: process.env.JWT_KEY,
   api: {
     prefix: '/api',

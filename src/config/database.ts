@@ -1,5 +1,5 @@
-import { Sequelize } from 'sequelize';
-import config from './index';
+import { Sequelize } from "sequelize";
+import config from "./index";
 
 const sequelize = new Sequelize(
   config.database.dbname as string,
@@ -7,19 +7,19 @@ const sequelize = new Sequelize(
   config.database.password as string,
   {
     host: config.database.host,
-    dialect: 'mysql',
+    dialect: "mysql",
     dialectOptions: {
-      timezone: 'Etc/GMT+9',
+      timezone: "Asia/Seoul",
       connectTimeout: 1000,
-      charset: 'utf8mb4',
-      collate: 'utf8mb4_general_ci',
+      charset: "utf8mb4",
+      collate: "utf8mb4_general_ci",
       dateStrings: true,
       typeCast: true,
     },
+    timezone: "+09:00",
     define: {
       timestamps: true,
     },
-    timezone: '+09:00',
   }
 );
 

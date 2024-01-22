@@ -1,18 +1,31 @@
-import { Op } from 'sequelize';
-import User from '../models/user';
-import Image from '../models/image';
-import { IUserforSignUp, IUserInfo } from '../interfaces/user';
+import { Op } from "sequelize";
+import User from "../models/user";
+import Image from "../models/profile-image";
+import { IUserforSignUp, IUserInfo, IUserModify } from "../interfaces/user";
 
-export const createUser =async (userInfo : IUserforSignUp): Promise<void> => {
+export const createUser = async (userInfo: IUserforSignUp): Promise<void> => {
   await User.create({
     email: userInfo.email,
     nickname: userInfo.nickname,
     password: userInfo.password,
-    name : userInfo.name,
+    name: userInfo.name,
   });
 };
 
-export const getUserByUserInfo = async (userInfo: IUserInfo): Promise<User | null> => {
+export const getAllUser = async (): Promise<User[] | null> => {
+  const allUser = await User.findAll({
+    include: [
+      {
+        model: Image,
+        attributes: ["id", "path"],
+      },
+    ],
+  });
+  return allUser;
+};
+export const getUserByUserInfo = async (
+  userInfo: IUserInfo
+): Promise<User | null> => {
   const user = await User.findOne({
     where: {
       [Op.or]: [
@@ -24,9 +37,40 @@ export const getUserByUserInfo = async (userInfo: IUserInfo): Promise<User | nul
     include: [
       {
         model: Image,
-        attributes: ['id', 'path'],
+        attributes: ["id", "path"],
       },
     ],
   });
   return user;
 };
+
+export const modifyUser =async (userInfo:IUserModify): Promise<User | null> => {
+  const existUser: User | null = await User.findByPk(userInfo.id);
+  if(!existUser){
+    return null
+  }
+  const updateFields: Partial<IUserModify> = {};
+  if(userInfo.email){
+    updateFields.email = userInfo.email
+  }
+  if(userInfo.nickname){
+    updateFields.nickname = userInfo.nickname
+  }
+  if(userInfo.introduce){
+    updateFields.introduce = userInfo.introduce
+  }
+  if(userInfo.profile_image){
+    updateFields.profile_image = userInfo.profile_image
+  }
+  console.log(updateFields)
+  try{
+    const user = await existUser.update(updateFields);
+    console.log(user)
+  return user;
+
+  }catch(err){
+    console.log(err)
+    return null
+  }
+  
+}
