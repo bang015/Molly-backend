@@ -20,3 +20,4 @@ export interface IUserModify {
   introduce?: string;
   profile_image?: number;
 }
+

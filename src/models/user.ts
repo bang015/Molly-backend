@@ -2,6 +2,7 @@ import { Model, DataTypes } from "sequelize";
 import bcrypt from "bcrypt";
 import sequelize from "../config/database";
 import ProfileImage from "./profile-image";
+import Follow from "./follow";
 export default class User extends Model {
   public id!: number;
   public email!: string;
@@ -12,6 +13,7 @@ export default class User extends Model {
   public profile_image!: number | null;
   public readonly created_at!: Date;
   public readonly updated_at!: Date;
+  ProfileImage: any;
 }
 
 User.init(
@@ -55,7 +57,6 @@ User.init(
     underscored: true,
   }
 );
-
 User.belongsTo(ProfileImage, { foreignKey: "profile_image" });
 
 User.beforeCreate(async (user) => {

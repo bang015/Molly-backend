@@ -3,6 +3,7 @@ import { celebrate, Joi, Segments } from "celebrate";
 import { IAuthUser, IJwtRequest } from "../../interfaces/auth";
 import { authenticate, authorize, getUserById } from "../../services/auth";
 import { checkJWT } from "../middleware/checkJwt";
+import { following, suggestFollowers } from "../../services/follow";
 const authRouter = Router();
 
 authRouter.post(
@@ -29,8 +30,21 @@ authRouter.get(
   checkJWT,
   async (req: IJwtRequest, res: Response, next: NextFunction) => {
     try {
-      const user = await getUserById(req.decoded?.id);
-      return res.status(200).json(user);
+      const userId = req.decoded?.id;
+      const user = await getUserById(userId);
+      let followed = false;
+      const followedUser = await following(userId!);
+      const followedUserIdList = followedUser.map(
+        (follow) => follow.followingId
+      );
+      if(followedUserIdList.length === 0){
+        followed = true;
+      }
+      const suggestFollowerList = await suggestFollowers(
+        userId!,
+        followedUserIdList
+      );
+      return res.status(200).json({user, suggestFollowerList, followed});
     } catch (err) {
       return next(err);
     }
