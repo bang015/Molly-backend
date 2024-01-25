@@ -3,7 +3,7 @@ import Follow from "../models/follow";
 import ProfileImage from "../models/profile-image";
 import User from "../models/user";
 
-export const following = async (userId: number) => {
+export const selectFollowing = async (userId: number) => {
   try {
     const result = await Follow.findAll({
       attributes: ["followingId"],
@@ -25,7 +25,7 @@ export const following = async (userId: number) => {
     });
     const cleanedResult = result.map((follow) => {
       return {
-        followingId: follow.dataValues.followingId,
+        userId: follow.dataValues.followingId,
         userName: follow.User.dataValues.name,
         userNickname: follow.User.dataValues.nickname,
         profileImagePath: follow.User.ProfileImage
@@ -40,7 +40,7 @@ export const following = async (userId: number) => {
   }
 };
 
-export const follower = async (userId: number) => {
+export const selectFollower = async (userId: number) => {
   try {
     const result = await Follow.findAll({
       attributes: ["followerId"],
@@ -62,7 +62,7 @@ export const follower = async (userId: number) => {
     });
     const cleanedResult = result.map((follow) => {
       return {
-        followerId: follow.dataValues.followerId,
+        userId: follow.dataValues.followerId,
         userName: follow.User.dataValues.name,
         userNickname: follow.User.dataValues.nickname,
         profileImagePath: follow.User.ProfileImage
@@ -107,3 +107,30 @@ export const suggestFollowers = async (
     throw err;
   }
 };
+
+export const addFollowing = async (userId: number, followUserId: number) => {
+  try{
+    const followedUserId = await Follow.create(
+      {
+        followerId: userId,
+        followingId: followUserId
+      }
+    )
+    return followUserId;
+  }catch(err){
+    throw err;
+  }
+}
+
+export const unfollow =async (userId:number, followUserId : number) => {
+  try{
+    await Follow.destroy({
+      where: {
+        followerId: userId,
+        followingId: followUserId,
+      },
+    });
+  }catch(err){
+    throw err
+  }
+}

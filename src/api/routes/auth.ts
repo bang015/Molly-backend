@@ -3,7 +3,7 @@ import { celebrate, Joi, Segments } from "celebrate";
 import { IAuthUser, IJwtRequest } from "../../interfaces/auth";
 import { authenticate, authorize, getUserById } from "../../services/auth";
 import { checkJWT } from "../middleware/checkJwt";
-import { following, suggestFollowers } from "../../services/follow";
+import { selectFollowing, suggestFollowers } from "../../services/follow";
 const authRouter = Router();
 
 authRouter.post(
@@ -33,9 +33,9 @@ authRouter.get(
       const userId = req.decoded?.id;
       const user = await getUserById(userId);
       let followed = false;
-      const followedUser = await following(userId!);
+      const followedUser = await selectFollowing(userId!);
       const followedUserIdList = followedUser.map(
-        (follow) => follow.followingId
+        (follow) => follow.userId
       );
       if(followedUserIdList.length === 0){
         followed = true;
