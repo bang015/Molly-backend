@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from "express";
 import { checkJWT } from "../middleware/checkJwt";
 import { IJwtRequest } from "../../interfaces/auth";
 import { celebrate, Joi, Segments } from "celebrate";
-import { addFollowing, selectFollowing, unfollow } from "../../services/follow";
+import { addFollowing, selectFollowing, suggestFollowers, unfollow } from "../../services/follow";
 
 const followRouter = Router();
 
@@ -29,6 +29,32 @@ followRouter.post(
       }
       return res.status(200).json(followedUserList);
     }catch{
+
+    }
+  }
+)
+
+followRouter.get(
+  '/',
+  checkJWT,
+  async (req: IJwtRequest, res: Response, next: NextFunction) => {
+    try{
+      const userId = req.decoded?.id;
+      let followed = false;
+      const followingUser = await selectFollowing(userId!);
+      const followingUserIdList = followingUser.map(
+        (follow) => follow.userId
+      );
+      if(followingUserIdList.length === 0){
+        followed = true;
+      }
+      const suggestFollowerList = await suggestFollowers(
+        userId!,
+        followingUserIdList
+      );
+
+      return res.status(200).json({suggestFollowerList, followingUser, followed});
+    }catch(err){
 
     }
   }

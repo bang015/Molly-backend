@@ -32,19 +32,8 @@ authRouter.get(
     try {
       const userId = req.decoded?.id;
       const user = await getUserById(userId);
-      let followed = false;
-      const followedUser = await selectFollowing(userId!);
-      const followedUserIdList = followedUser.map(
-        (follow) => follow.userId
-      );
-      if(followedUserIdList.length === 0){
-        followed = true;
-      }
-      const suggestFollowerList = await suggestFollowers(
-        userId!,
-        followedUserIdList
-      );
-      return res.status(200).json({user, suggestFollowerList, followed});
+      
+      return res.status(200).json(user);
     } catch (err) {
       return next(err);
     }
