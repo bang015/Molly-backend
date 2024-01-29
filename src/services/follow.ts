@@ -79,7 +79,8 @@ export const selectFollower = async (userId: number) => {
 
 export const suggestFollowers = async (
   userId: number,
-  followedUserIdList: number[]
+  followedUserIdList: number[],
+  limit: number
 ) => {
   try {
     const result = await User.findAll({
@@ -90,6 +91,7 @@ export const suggestFollowers = async (
       },
       attributes: ["id", "name", "nickname"],
       include: { model: ProfileImage, attributes: ["path"] },
+      limit: limit,
     });
     const cleanedResult = result.map((user) => {
       return {

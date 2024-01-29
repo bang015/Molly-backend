@@ -1,8 +1,9 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../config/database";
 import User from "./user";
+import PostMedia from "./post-media"; // Post 모델에 PostMedia 모델 추가
 
-export default class Post extends Model {
+class Post extends Model {
   public id!: number;
   public userId!: number;
   public content!: string;
@@ -15,7 +16,7 @@ Post.init(
       autoIncrement: true,
       primaryKey: true,
     },
-    user_id: {
+    userId: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
     },
@@ -30,5 +31,9 @@ Post.init(
 );
 
 Post.belongsTo(User, {
-  foreignKey: "user_id",
+  foreignKey: "userId",
 });
+
+Post.hasMany(PostMedia, { foreignKey: "postId" });
+
+export default Post;

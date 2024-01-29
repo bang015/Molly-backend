@@ -22,7 +22,7 @@ export const profileImage = async (
 export const postImage = async (mediaInfo: MediaDetil[]) => {
   try {
     const postData = mediaInfo.map(info => ({
-      PostId: info.postId,
+      postId: info.postId,
       name: info.name,
       path: info.path,
       type: info.type,

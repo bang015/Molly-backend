@@ -4,9 +4,10 @@ import { checkJWT } from "../middleware/checkJwt";
 import { uploadPostMedias } from "../middleware/multer";
 import { IJwtRequest } from "../../interfaces/auth";
 import User from "../../models/user";
-import { findOrCreateTag, postTag, uploadPost } from "../../services/post";
+import { getAllPost, uploadPost } from "../../services/post";
 import { MediaDetil } from "../../interfaces/post";
 import { postImage } from "../../services/image";
+import { findOrCreateTag, postTag } from "../../services/tag";
 
 const postRouter = Router();
 
@@ -44,6 +45,21 @@ postRouter.post(
         await postTag(postTagData);
       } 
     } catch {}
+  }
+);
+
+postRouter.get(
+  "/",
+  async (req : Request, res: Response, next: NextFunction) => {
+    const {page} = req.query as any;
+    try {
+      const allPost = await getAllPost(page);
+      if(allPost){
+        return res.status(200).json(allPost);
+      }
+    }catch (err){
+      throw err;
+    }
   }
 );
 

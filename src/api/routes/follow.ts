@@ -40,6 +40,7 @@ followRouter.get(
   async (req: IJwtRequest, res: Response, next: NextFunction) => {
     try{
       const userId = req.decoded?.id;
+      const limit = parseInt(req.query.limit as string);
       let followed = false;
       const followingUser = await selectFollowing(userId!);
       const followingUserIdList = followingUser.map(
@@ -50,7 +51,8 @@ followRouter.get(
       }
       const suggestFollowerList = await suggestFollowers(
         userId!,
-        followingUserIdList
+        followingUserIdList,
+        limit
       );
 
       return res.status(200).json({suggestFollowerList, followingUser, followed});
