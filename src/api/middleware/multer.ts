@@ -18,6 +18,9 @@ const parser = (purpose: string) =>
         folder: `/${purpose}`,
         format: getExtension(file.originalname), // 파일 확장자 가져오기
         public_id: new Date().valueOf() + getNand(10), // 고유한 public_id 생성
+        transformation: [
+          { width: 897, height: 897, crop: "fill" },
+        ],
       }),
     }),
   });

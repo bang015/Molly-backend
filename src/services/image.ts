@@ -20,16 +20,11 @@ export const profileImage = async (
 };
 
 export const postImage = async (mediaInfo: MediaDetil[]) => {
-  try {
-    const postData = mediaInfo.map(info => ({
-      postId: info.postId,
-      name: info.name,
-      path: info.path,
-      type: info.type,
-    }));
-    PostMedia.bulkCreate(postData);
-  } catch (err) {
-    console.error('Failed to save images:', err);
-    throw new Error('Failed to save images.');
-  }
+  const postData = mediaInfo.map((info) => ({
+    postId: info.postId,
+    name: info.name,
+    path: info.path,
+    type: info.type,
+  }));
+  PostMedia.bulkCreate(postData);
 };
