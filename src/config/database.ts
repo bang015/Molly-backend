@@ -10,13 +10,7 @@ const sequelize = new Sequelize(
     dialect: "mysql",
     dialectOptions: {
       timezone: "Asia/Seoul",
-      connectTimeout: 1000,
-      charset: "utf8mb4",
-      collate: "utf8mb4_general_ci",
-      dateStrings: true,
-      typeCast: true,
     },
-    timezone: "+09:00",
     define: {
       timestamps: true,
     },

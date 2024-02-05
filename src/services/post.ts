@@ -47,6 +47,7 @@ export const getAllPost = async (page: number = 1, limit: number = 30) => {
 export const getMainPost = async (userId: number) => {};
 
 export const getPostByPostId = async (id: number) => {
+
   const result = await Post.findOne({
     attributes: ["id", "userId", "content", "createdAt", "updatedAt"],
     include: [
@@ -60,11 +61,10 @@ export const getPostByPostId = async (id: number) => {
         include: [{ model: ProfileImage, attributes: ["path"] }],
       },
     ],
-    where: { id },
+    where: { id: id },
   });
   if (result) {
     const data = result.dataValues;
-    console.log();
 
     const mediaList = data.PostMedia.map((media: any) => {
       return {

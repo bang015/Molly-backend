@@ -1,7 +1,9 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../config/database";
-import User from "./user";
+// import User from "./user";
+const User = require("./User");
 import PostMedia from "./post-media"; // Post 모델에 PostMedia 모델 추가
+import Comment from "./comment";
 
 class Post extends Model {
   public id!: number;
@@ -19,6 +21,10 @@ Post.init(
     userId: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
+      references: {
+        model: 'User',
+        key: 'id',
+      },
     },
     content: {
       type: DataTypes.STRING,
@@ -30,10 +36,10 @@ Post.init(
   }
 );
 
-Post.belongsTo(User, {
-  foreignKey: "userId",
-});
+// Post.belongsTo(User, {
+//   foreignKey: "userId",
+// });
 
 Post.hasMany(PostMedia, { foreignKey: "postId" });
-
+Post.hasMany(Comment, { foreignKey: "postId" });
 export default Post;

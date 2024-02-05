@@ -69,6 +69,7 @@ postRouter.get(
     const postId = parseInt(req.params.id, 10);
     try{
       if(postId){
+
         const onePost = await getPostByPostId(postId);
         res.status(200).json(onePost);
       }

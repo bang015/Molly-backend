@@ -7,6 +7,7 @@ import PostMedias from "../models/post-media";
 import Tag from "../models/tag";
 import PostTag from "../models/post-tag";
 import Follow from "../models/follow";
+import Comment from "../models/comment";
 export default async (): Promise<Sequelize> => {
   const db = {
     sequelize,
@@ -17,7 +18,8 @@ export default async (): Promise<Sequelize> => {
     PostMedias,
     Tag,
     PostTag,
-    Follow
+    Follow,
+    Comment,
   };
 
   const connection = await db.sequelize.sync();

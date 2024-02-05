@@ -3,7 +3,6 @@ import { celebrate, Joi, Segments } from "celebrate";
 import { IAuthUser, IJwtRequest } from "../../interfaces/auth";
 import { authenticate, authorize, getUserById } from "../../services/auth";
 import { checkJWT } from "../middleware/checkJwt";
-import { selectFollowing, suggestFollowers } from "../../services/follow";
 const authRouter = Router();
 
 authRouter.post(
