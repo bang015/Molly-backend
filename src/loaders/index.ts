@@ -7,6 +7,7 @@ export default async ({ expressApp }: { expressApp: Application }) => {
   await sequelizeLoader();
 
   defineRelationships();
+  
   expressLoader({ app: expressApp });
 
   cloudinaryLoader();

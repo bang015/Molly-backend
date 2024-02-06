@@ -32,7 +32,11 @@ commentRouter.get(
   '/:postId',
   async (req:Request, res: Response, next: NextFunction) => {
     const postId = parseInt(req.params.postId, 10);
-    const response = await getComment(postId);
+    const {page} = req.query as any;
+    const response = await getComment(postId, page);
+    if(response){
+      return res.status(200).json(response);
+    }
   }
 )
 export default commentRouter;

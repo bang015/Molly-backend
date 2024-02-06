@@ -16,7 +16,8 @@ export const createComment = async (
   });
 };
 
-export const getComment = async (postId: number) => {
+export const getComment = async (postId: number, page:number = 1, limit: number = 15) => {
+  const offset = limit * (page - 1);
   const result = await Comment.findAll({
     where: {
       postId: postId,
@@ -28,6 +29,27 @@ export const getComment = async (postId: number) => {
       attributes: ["nickname"],
       include: [{ model: ProfileImage, attributes: ["path"] }],
     },
+    offset,
+    limit,
+    order: [['createdAt', 'DESC']],
   });
-  console.log(result);
+  const commentList = result.map((comment) => {
+    const commentInfo = comment.dataValues;
+    const userInfo = commentInfo.user.dataValues;
+    const profileInfo = userInfo.ProfileImage.dataValues;
+    // const crAt = new Date(commentInfo.createdAt);
+    // const upAt = new Date(commentInfo.updatedAt);
+    return {
+      id: commentInfo.id,
+      postId: commentInfo.postId,
+      userId: commentInfo.userId,
+      content: commentInfo.content,
+      commentId: commentInfo.commentId,
+      createdAt: commentInfo.createdAt,
+      updatedAt: commentInfo.updatedAt,
+      nickname: userInfo.nickname,
+      profileImage: profileInfo.path,
+    };
+  });
+  return commentList;
 };

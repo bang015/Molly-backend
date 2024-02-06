@@ -1,11 +1,5 @@
-import { Model, DataTypes, Sequelize } from "sequelize";
-import bcrypt from "bcrypt";
+import { Model, DataTypes } from "sequelize";
 import sequelize from "../config/database";
-import ProfileImage from "./profile-image";
-import Follow from "./follow";
-import Comment from "./comment";
-
-const mySequelizeInstance: Sequelize = sequelize;
 
 export class User extends Model {
   public id!: number;
@@ -14,8 +8,7 @@ export class User extends Model {
   public name!: string;
   public password!: string;
   public introduce!: string | null;
-  public profileImage!: number | null;
-  ProfileImage: any;
+  public profile_image!: number | null;
 }
 User.init(
   {
@@ -54,16 +47,11 @@ User.init(
   {
     tableName: "user",
     modelName: "User",
-    sequelize: mySequelizeInstance,
+    sequelize,
     timestamps: true,
     underscored: true,
   }
 );
-User.belongsTo(ProfileImage, { foreignKey: "profile_image" });
-// User.hasMany(Comment, { foreignKey: "userId", as: "comments" });
-User.beforeCreate(async (user) => {
-  const encryptedPw = await bcrypt.hash(user.password, 10);
-  user.password = encryptedPw;
-});
+
 
 export default User;

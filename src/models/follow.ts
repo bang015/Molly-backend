@@ -5,7 +5,6 @@ import User from "./user";
 export default class Follow extends Model {
   public followerId!: number;
   public followingId!: number;
-  User: any;
 }
 
 Follow.init(

@@ -23,12 +23,16 @@ export const selectFollowing = async (userId: number) => {
     ],
   });
   const cleanedResult = result.map((follow) => {
+    const followInfo = follow.dataValues;
+    const userInfo = followInfo.User.dataValues;
+    const profileInfo = userInfo.ProfileImage;
+
     return {
-      userId: follow.dataValues.followingId,
-      userName: follow.User.dataValues.name,
-      userNickname: follow.User.dataValues.nickname,
-      profileImagePath: follow.User.ProfileImage
-        ? follow.User.ProfileImage.dataValues.path
+      userId: followInfo.followingId,
+      userName: userInfo.name,
+      userNickname: userInfo.nickname,
+      profileImagePath: profileInfo
+        ? profileInfo.dataValues.path
         : null,
     };
   });
@@ -56,12 +60,15 @@ export const selectFollower = async (userId: number) => {
     ],
   });
   const cleanedResult = result.map((follow) => {
+    const followInfo = follow.dataValues;
+    const userInfo = followInfo.User.dataValues;
+    const profileInfo = userInfo.ProfileImage;
     return {
-      userId: follow.dataValues.followerId,
-      userName: follow.User.dataValues.name,
-      userNickname: follow.User.dataValues.nickname,
-      profileImagePath: follow.User.ProfileImage
-        ? follow.User.ProfileImage.dataValues.path
+      userId: followInfo.followerId,
+      userName: userInfo.name,
+      userNickname: userInfo.nickname,
+      profileImagePath: profileInfo
+        ? profileInfo.dataValues.path
         : null,
     };
   });
@@ -85,12 +92,13 @@ export const suggestFollowers = async (
     limit: limit,
   });
   const cleanedResult = result.map((user) => {
+    const userInfo = user.dataValues;
     return {
-      userId: user.dataValues.id,
-      userName: user.dataValues.name,
-      userNickname: user.dataValues.nickname,
-      profileImagePath: user.ProfileImage
-        ? user.ProfileImage.dataValues.path
+      userId: userInfo.id,
+      userName: userInfo.name,
+      userNickname: userInfo.nickname,
+      profileImagePath: userInfo.profileImage
+        ? userInfo.profileImage.dataValues.path
         : null,
     };
   });

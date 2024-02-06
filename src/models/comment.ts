@@ -45,6 +45,4 @@ Comment.init(
   }
 );
 
-// Comment.belongsTo(User, { as: "User", foreignKey: "userId" });
-// Comment.belongsTo(Post, {foreignKey: "postId", as: "post"});
 export default Comment;
