@@ -1,7 +1,5 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../config/database";
-import { User } from "./user";
-import Post from "./post";
 
 class Comment extends Model {
   public id!: number;
@@ -37,6 +35,10 @@ Comment.init(
     commentId: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: true,
+      references: {
+        model: 'Comment',
+        key: 'id'
+      }
     },
   },
   {
