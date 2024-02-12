@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from "express";
 import { checkJWT } from "../middleware/checkJwt";
 import { IJwtRequest } from "../../interfaces/auth";
 import { Joi, Segments, celebrate } from "celebrate";
-import { createComment, getComment, getSubComment } from "../../services/comment";
+import { checkCommentUser, createComment, deleteComment, getComment, getSubComment } from "../../services/comment";
 
 const commentRouter = Router();
 
@@ -46,6 +46,25 @@ commentRouter.get(
     if(response) {
       return res.status(200).json(response);
     }
+  }
+);
+
+commentRouter.delete(
+  "/:id",
+  checkJWT,
+  async (req: IJwtRequest, res: Response, next: NextFunction) => {
+    const userId = req.decoded?.id;
+    const id = parseInt(req.params.id, 10);
+    if(userId){
+      const checkUserId = await checkCommentUser(id, userId);
+      if(checkUserId){
+        const delet = await deleteComment(id);
+        if(delet > 0){
+          return res.status(200).json(id);
+        }
+      }
+    }
+    return res.status(401).json(null);
   }
 )
 export default commentRouter;

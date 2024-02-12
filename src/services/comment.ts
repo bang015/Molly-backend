@@ -145,3 +145,24 @@ export const getSubComment = async (
   });
   return comment;
 };
+
+export const checkCommentUser = async(id: number, userId: number) => {
+  const result = await Comment.findByPk(id)
+  if(result){
+    if(result.dataValues.userId === userId){
+      return true;
+    }else{
+      return false;
+    }
+  }
+  return false
+};
+
+export const deleteComment = async(id: number) => {
+  const result = await Comment.destroy({
+    where: {
+      id: id
+    }
+  });
+  return result;
+}
