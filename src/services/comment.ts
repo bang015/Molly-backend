@@ -146,23 +146,69 @@ export const getSubComment = async (
   return comment;
 };
 
-export const checkCommentUser = async(id: number, userId: number) => {
-  const result = await Comment.findByPk(id)
-  if(result){
-    if(result.dataValues.userId === userId){
+export const checkCommentUser = async (id: number, userId: number) => {
+  const result = await Comment.findByPk(id);
+  if (result) {
+    if (result.dataValues.userId === userId) {
       return true;
-    }else{
+    } else {
       return false;
     }
   }
-  return false
+  return false;
 };
 
-export const deleteComment = async(id: number) => {
+export const getCommentById = async (id: number) => {
+  const comment = await Comment.findOne({
+    where: {
+      id: id,
+    },
+    include: {
+      model: User,
+      as: "user",
+      attributes: ["nickname"],
+      include: [{ model: ProfileImage, attributes: ["path"] }],
+    },
+  });
+
+  if (comment) {
+    const subcommentCount = await Comment.count({
+      where: {
+        commentId: id,
+      },
+    });
+    const commentInfo = comment.dataValues;
+    const userInfo = commentInfo.user.dataValues;
+    const profileInfo = userInfo.ProfileImage.dataValues;
+    const result = {
+      id: commentInfo.id,
+      postId: commentInfo.postId,
+      userId: commentInfo.userId,
+      content: commentInfo.content,
+      commentId: commentInfo.commentId,
+      createdAt: commentInfo.createdAt,
+      updatedAt: commentInfo.updatedAt,
+      nickname: userInfo.nickname,
+      profileImage: profileInfo.path,
+      subcommentCount: subcommentCount,
+    };
+    return result;
+  }
+};
+
+export const deleteComment = async (id: number) => {
   const result = await Comment.destroy({
     where: {
-      id: id
-    }
+      id: id,
+    },
   });
   return result;
-}
+};
+
+export const updateComment = async (id: number, content: string) => {
+  const result = await Comment.update(
+    { content: content },
+    { where: { id: id } }
+  );
+  return result[0];
+};
