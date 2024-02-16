@@ -14,6 +14,3 @@ Follow.init(
     sequelize,
   }
 );
-
-Follow.belongsTo(User, { foreignKey: "followerId" });
-Follow.belongsTo(User, { foreignKey: "followingId" });

@@ -1,16 +1,13 @@
 import { Model, DataTypes } from "sequelize";
 import sequelize from "../config/database";
 
-class PostMedia extends Model {
+class Like extends Model {
   public id!: number;
   public postId!: number;
-  public name!: string;
-  public type!: string;
-  public path!: string;
-
+  public userId!: number;
 }
 
-PostMedia.init(
+Like.init(
   {
     id: {
       type: DataTypes.INTEGER.UNSIGNED,
@@ -20,24 +17,24 @@ PostMedia.init(
     postId: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
+      references: {
+        model: "Post",
+        key: "id",
+      },
     },
-    name: {
-      type: DataTypes.STRING,
+    userId: {
+      type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
-    },
-    type: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    path: {
-      type: DataTypes.STRING,
-      allowNull: false,
+      references: {
+        model: "User",
+        key: "id",
+      },
     },
   },
   {
-    tableName: "post_media",
+    tableName: "like",
     sequelize,
   }
 );
 
-export default PostMedia;
+export default Like;

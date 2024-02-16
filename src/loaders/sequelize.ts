@@ -8,6 +8,7 @@ import Tag from "../models/tag";
 import PostTag from "../models/post-tag";
 import Follow from "../models/follow";
 import Comment from "../models/comment";
+import Like from "../models/like";
 export default async (): Promise<Sequelize> => {
   const db = {
     sequelize,
@@ -20,6 +21,7 @@ export default async (): Promise<Sequelize> => {
     PostTag,
     Follow,
     Comment,
+    Like
   };
 
   const connection = await db.sequelize.sync();

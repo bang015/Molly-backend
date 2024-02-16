@@ -60,5 +60,14 @@ followRouter.get(
 
     }
   }
+);
+
+followRouter.get(
+  '/:id',
+  async (req: Request, res: Response) => {
+    const id = parseInt(req.params.id, 10);
+    const result = await selectFollowing(id);
+    return res.status(200).json(result);
+  }
 )
 export default followRouter;

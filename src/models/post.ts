@@ -34,6 +34,4 @@ Post.init(
   }
 );
 
-Post.hasMany(PostMedia, { foreignKey: "postId" });
-Post.hasMany(Comment, { foreignKey: "postId" });
 export default Post;
