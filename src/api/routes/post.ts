@@ -4,7 +4,7 @@ import { checkJWT } from "../middleware/checkJwt";
 import { uploadPostMedias } from "../middleware/multer";
 import { IJwtRequest } from "../../interfaces/auth";
 import User from "../../models/user";
-import { getAllPost, getPostByPostId, uploadPost } from "../../services/post";
+import { getAllPost, getPostByPostId, postUserCheck, uploadPost } from "../../services/post";
 import { MediaDetil } from "../../interfaces/post";
 import { postImage } from "../../services/image";
 import { findOrCreateTag, postTag } from "../../services/tag";
@@ -75,6 +75,20 @@ postRouter.get(
       }
     }catch(err){
       return err;
+    }
+  }
+);
+
+postRouter.delete(
+  "/:id",
+  async(req: IJwtRequest, res: Response) => {
+    const userId = req.decoded?.id;
+    const postId = parseInt(req.params.id, 10);
+    if(userId){
+      const check = await postUserCheck(postId, userId);
+      if(check){
+        // const postDelete
+      }
     }
   }
 )

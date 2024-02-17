@@ -87,3 +87,21 @@ export const getPostByPostId = async (id: number) => {
     return null;
   }
 };
+
+export const postUserCheck = async(postId: number, userId: number) => {
+  const result = await Post.findOne({
+    where: {
+      postId,
+      userId
+    }
+  });
+  return !!result;
+};
+
+export const postDelete = async(postId: number) => {
+  await Post.destroy({
+    where: {
+      postId
+    }
+  });
+};
