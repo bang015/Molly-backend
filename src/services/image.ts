@@ -26,5 +26,6 @@ export const postImage = async (mediaInfo: MediaDetil[]) => {
     path: info.path,
     type: info.type,
   }));
-  PostMedia.bulkCreate(postData);
+  const result = await PostMedia.bulkCreate(postData);
+  return result;
 };

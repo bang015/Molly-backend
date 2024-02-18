@@ -44,10 +44,59 @@ export const getAllPost = async (page: number = 1, limit: number = 30) => {
   return postList;
 };
 
-export const getMainPost = async (userId: number) => {};
+export const getMainPost = async (
+  userIds: number[],
+  page: number = 1,
+  limit: number = 5
+) => {
+  const offset = limit * (page - 1);
+
+  const result = await Post.findAll({
+    where: {
+      userId: userIds,
+    },
+    include: [
+      {
+        model: PostMedia,
+        attributes: ["id", "path"],
+      },
+      {
+        model: User,
+        attributes: ["nickname"],
+        include: [{ model: ProfileImage, attributes: ["path"] }],
+      },
+    ],
+    offset,
+    limit,
+    order: [["createdAt", "DESC"]],
+  });
+  if (result) {
+    const post = result.map((post) => {
+      const data = post.dataValues;
+      const mediaList = data.PostMedia.map((media: any) => {
+        return {
+          mediaId: media.dataValues.id,
+          mediaPath: media.dataValues.path,
+        };
+      });
+      return {
+        id: data.id,
+        userId: data.userId,
+        content: data.content,
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt,
+        nickname: data.User.dataValues.nickname,
+        profileImage: data.User.ProfileImage,
+        mediaList: mediaList,
+      };
+    });
+    return post;
+  } else {
+    return null;
+  }
+};
 
 export const getPostByPostId = async (id: number) => {
-
   const result = await Post.findOne({
     attributes: ["id", "userId", "content", "createdAt", "updatedAt"],
     include: [
@@ -88,20 +137,20 @@ export const getPostByPostId = async (id: number) => {
   }
 };
 
-export const postUserCheck = async(postId: number, userId: number) => {
+export const postUserCheck = async (postId: number, userId: number) => {
   const result = await Post.findOne({
     where: {
-      postId,
-      userId
-    }
+      id: postId,
+      userId,
+    },
   });
   return !!result;
 };
 
-export const postDelete = async(postId: number) => {
+export const postDelete = async (postId: number) => {
   await Post.destroy({
     where: {
-      postId
-    }
+      id: postId,
+    },
   });
 };
