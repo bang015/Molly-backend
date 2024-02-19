@@ -65,7 +65,7 @@ postRouter.post(
   }
 );
 postRouter.get(
-  "/:userId",
+  "/main/:userId",
   async(req: Request, res: Response) => {
     const userId = parseInt(req.params.userId, 10);
     const {page} = req.query as any;

@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from "express";
 import { checkJWT } from "../middleware/checkJwt";
 import { IJwtRequest } from "../../interfaces/auth";
 import { Joi, Segments, celebrate } from "celebrate";
-import { checkCommentUser, createComment, deleteComment, getComment, getCommentById, getSubComment, updateComment } from "../../services/comment";
+import { checkCommentUser, createComment, deleteComment, getComment, getCommentById, getMyCommentByPost, getSubComment, updateComment } from "../../services/comment";
 
 const commentRouter = Router();
 
@@ -23,21 +23,23 @@ commentRouter.post(
     res.status(200).json(newComment);
   }
 );
-
+//get comment
 commentRouter.get(
-  "/:postId",
+  "/:userId/:postId",
   async (req: Request, res: Response, next: NextFunction) => {
+    const userId = parseInt(req.params.userId, 10);
     const postId = parseInt(req.params.postId, 10);
     const { page } = req.query as any;
-    const response = await getComment(postId, page);
+
+    const response = await getComment( postId, userId, page);
     if (response) {
       return res.status(200).json(response);
     }
   }
 );
-
+//get subComment
 commentRouter.get(
-  "/:postId/:id",
+  "/sub/:postId/:id",
   async (req: Request, res: Response, next: NextFunction) => {
     const postId = parseInt(req.params.postId, 10);
     const id = parseInt(req.params.id, 10);
@@ -48,6 +50,16 @@ commentRouter.get(
     }
   }
 );
+//get myCommentbyPost
+commentRouter.get(
+  "/my/:userId/:postId",
+  async (req: Request, res: Response) => {
+    const userId = parseInt(req.params.userId, 10);
+    const postId = parseInt(req.params.postId, 10);
+    const response = await getMyCommentByPost(userId, postId);
+    return res.status(200).json(response);
+  }
+)
 commentRouter.patch(
   "/:id",
   checkJWT,

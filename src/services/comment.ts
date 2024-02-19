@@ -1,3 +1,4 @@
+import { Op } from "sequelize";
 import Comment from "../models/comment";
 import ProfileImage from "../models/profile-image";
 import User from "../models/user";
@@ -26,7 +27,10 @@ export const createComment = async (
   if (result) {
     const commentInfo = result.dataValues;
     const userInfo = commentInfo.user.dataValues;
-    const profileInfo = userInfo.ProfileImage.dataValues;
+    const profileInfo = userInfo.ProfileImage
+      ? userInfo.ProfileImage.dataValues
+      : null;
+    console.log(userInfo);
     const subcommentCount = await Comment.count({
       where: {
         commentId: commentInfo.id,
@@ -41,7 +45,7 @@ export const createComment = async (
       createdAt: commentInfo.createdAt,
       updatedAt: commentInfo.updatedAt,
       nickname: userInfo.nickname,
-      profileImage: profileInfo.path,
+      profileImage: profileInfo ? profileInfo.path : null,
       subcommentCount: subcommentCount,
     };
     return comment;
@@ -52,6 +56,7 @@ export const createComment = async (
 
 export const getComment = async (
   postId: number,
+  userId: number,
   page: number = 1,
   limit: number = 15
 ) => {
@@ -59,6 +64,7 @@ export const getComment = async (
   const result = await Comment.findAll({
     where: {
       postId: postId,
+      userId: { [Op.ne]: userId },
       commentId: null,
     },
     include: {
@@ -82,7 +88,9 @@ export const getComment = async (
     result.map(async (comment) => {
       const commentInfo = comment.dataValues;
       const userInfo = commentInfo.user.dataValues;
-      const profileInfo = userInfo.ProfileImage.dataValues;
+      const profileInfo = userInfo.ProfileImage
+        ? userInfo.ProfileImage.dataValues
+        : null;
       const subcommentCount = await Comment.count({
         where: {
           commentId: commentInfo.id,
@@ -97,14 +105,58 @@ export const getComment = async (
         createdAt: commentInfo.createdAt,
         updatedAt: commentInfo.updatedAt,
         nickname: userInfo.nickname,
-        profileImage: profileInfo.path,
+        profileImage: profileInfo ? profileInfo.path : null,
         subcommentCount: subcommentCount,
       };
     })
   );
   return { commentList, totalPages };
 };
-
+export const getMyCommentByPost = async (userId: number, postId: number) => {
+  const result = await Comment.findAll({
+    where: {
+      postId: postId,
+      userId: userId,
+      commentId: null,
+    },
+    include: {
+      model: User,
+      as: "user",
+      attributes: ["nickname"],
+      include: [{ model: ProfileImage, attributes: ["path"] }],
+    },
+    order: [["createdAt", "DESC"]],
+  });
+  if (result) {
+    const commentList = await Promise.all(
+      result.map(async (comment) => {
+        const commentInfo = comment.dataValues;
+        const userInfo = commentInfo.user.dataValues;
+        const profileInfo = userInfo.ProfileImage
+          ? userInfo.ProfileImage.dataValues
+          : null;
+        const subcommentCount = await Comment.count({
+          where: {
+            commentId: commentInfo.id,
+          },
+        });
+        return {
+          id: commentInfo.id,
+          postId: commentInfo.postId,
+          userId: commentInfo.userId,
+          content: commentInfo.content,
+          commentId: commentInfo.commentId,
+          createdAt: commentInfo.createdAt,
+          updatedAt: commentInfo.updatedAt,
+          nickname: userInfo.nickname,
+          profileImage: profileInfo ? profileInfo.path : null,
+          subcommentCount: subcommentCount,
+        };
+      })
+    );
+    return { commentList };
+  }
+};
 export const getSubComment = async (
   postId: number,
   id: number,
@@ -130,7 +182,9 @@ export const getSubComment = async (
   const comment = result.map((comment) => {
     const commentInfo = comment.dataValues;
     const userInfo = commentInfo.user.dataValues;
-    const profileInfo = userInfo.ProfileImage.dataValues;
+    const profileInfo = userInfo.ProfileImage
+      ? userInfo.ProfileImage.dataValues
+      : null;
     return {
       id: commentInfo.id,
       postId: commentInfo.postId,
@@ -140,7 +194,7 @@ export const getSubComment = async (
       createdAt: commentInfo.createdAt,
       updatedAt: commentInfo.updatedAt,
       nickname: userInfo.nickname,
-      profileImage: profileInfo.path,
+      profileImage: profileInfo ? profileInfo.path : null,
     };
   });
   return comment;
@@ -179,7 +233,9 @@ export const getCommentById = async (id: number) => {
     });
     const commentInfo = comment.dataValues;
     const userInfo = commentInfo.user.dataValues;
-    const profileInfo = userInfo.ProfileImage.dataValues;
+    const profileInfo = userInfo.ProfileImage
+      ? userInfo.ProfileImage.dataValues
+      : null;
     const result = {
       id: commentInfo.id,
       postId: commentInfo.postId,
@@ -189,7 +245,7 @@ export const getCommentById = async (id: number) => {
       createdAt: commentInfo.createdAt,
       updatedAt: commentInfo.updatedAt,
       nickname: userInfo.nickname,
-      profileImage: profileInfo.path,
+      profileImage: profileInfo ? profileInfo.path : null,
       subcommentCount: subcommentCount,
     };
     return result;
