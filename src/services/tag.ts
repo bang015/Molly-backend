@@ -16,3 +16,20 @@ export const postTag = async (
 ) => {
   PostTag.bulkCreate(postTagData);
 };
+
+export const getPostTag = async (postId: number) => {
+  const result = await PostTag.findAll({
+    where: {
+      PostId: postId
+    }
+  });
+  return result
+}
+
+export const postTagRemove = async(postId: number) => {
+  await PostTag.destroy({
+    where:{
+      PostId: postId
+    }
+  });
+}

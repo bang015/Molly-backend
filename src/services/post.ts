@@ -147,6 +147,15 @@ export const postUserCheck = async (postId: number, userId: number) => {
   return !!result;
 };
 
+export const postUpdate = async(postId:number, content: string) => {
+  await Post.update(
+    {content: content},
+    {where: {
+      id: postId
+    }}
+  );
+};
+
 export const postDelete = async (postId: number) => {
   await Post.destroy({
     where: {

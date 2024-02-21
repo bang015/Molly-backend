@@ -9,12 +9,13 @@ import {
   getMainPost,
   getPostByPostId,
   postDelete,
+  postUpdate,
   postUserCheck,
   uploadPost,
 } from "../../services/post";
 import { MediaDetil } from "../../interfaces/post";
 import { postImage } from "../../services/image";
-import { findOrCreateTag, postTag } from "../../services/tag";
+import { findOrCreateTag, getPostTag, postTag, postTagRemove } from "../../services/tag";
 import { selectFollowing } from "../../services/follow";
 
 const postRouter = Router();
@@ -48,6 +49,7 @@ postRouter.post(
           postDelete(postId);
           return res.status(401).json("게시물 업로드를 실패했습니다.");
         }
+        
         if (req.body.hashtags) {
           const tagNames = req.body.hashtags;
           const postTagData = [];
@@ -64,6 +66,40 @@ postRouter.post(
     }
   }
 );
+postRouter.patch(
+  "/",
+  checkJWT,
+  uploadPostMedias,
+  async(req: IJwtRequest, res: Response) => {
+    try{
+      const userId = req.decoded?.id;
+      const postId= parseInt(req.body.postId);
+      const {content} = req.body;
+      const {hashtags} = req.body;
+      if(userId){
+        const checkUser = await postUserCheck(postId,userId);
+        if(checkUser){
+          postUpdate(postId, content);
+          postTagRemove(postId);
+          if (hashtags) {
+            const tagNames = hashtags;
+            const postTagData = [];
+            for (const tag of tagNames) {
+              const tagId = await findOrCreateTag(tag);
+              postTagData.push({ PostId: postId, TagId: tagId });
+            }
+            await postTag(postTagData);
+          }
+        }else{
+          return res.status(401).json("권한이 부족합니다.")
+        }
+      }
+      return res.status(200).json("게시물이 수정 되었습니다.");
+    }catch{
+      return res.status(401).json("게시물 수정를 실패했습니다.");
+    }
+  }
+)
 postRouter.get(
   "/main/:userId",
   async(req: Request, res: Response) => {
