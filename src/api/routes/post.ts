@@ -76,10 +76,11 @@ postRouter.patch(
       const postId= parseInt(req.body.postId);
       const {content} = req.body;
       const {hashtags} = req.body;
+      let updatedPost;
       if(userId){
         const checkUser = await postUserCheck(postId,userId);
         if(checkUser){
-          postUpdate(postId, content);
+          updatedPost = await postUpdate(postId, content);
           postTagRemove(postId);
           if (hashtags) {
             const tagNames = hashtags;
@@ -94,7 +95,7 @@ postRouter.patch(
           return res.status(401).json("권한이 부족합니다.")
         }
       }
-      return res.status(200).json("게시물이 수정 되었습니다.");
+      return res.status(200).json({postId, updatedPost});
     }catch{
       return res.status(401).json("게시물 수정를 실패했습니다.");
     }

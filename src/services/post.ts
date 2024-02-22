@@ -148,12 +148,20 @@ export const postUserCheck = async (postId: number, userId: number) => {
 };
 
 export const postUpdate = async(postId:number, content: string) => {
-  await Post.update(
+  const [update] = await Post.update(
     {content: content},
     {where: {
       id: postId
     }}
   );
+  if(update === 1) {
+    const result = await Post.findOne({
+      where: {
+        id: postId
+      }
+    });
+    return result?.dataValues.content
+  }
 };
 
 export const postDelete = async (postId: number) => {
