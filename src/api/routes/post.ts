@@ -113,6 +113,7 @@ postRouter.get(
     };
     userIds.push(userId);
     const response = await getMainPost(userIds, page);
+    console.log(response)
     return res.status(200).json(response);
   }
 )
@@ -150,7 +151,10 @@ postRouter.delete("/:id", checkJWT, async (req: IJwtRequest, res: Response) => {
   if (userId) {
     const check = await postUserCheck(postId, userId);
     if (check) {
-      postDelete(postId);
+      const response = await postDelete(postId);
+      if(response > 0) {
+        return res.status(200).json(postId);
+      }
     }
   }
 });

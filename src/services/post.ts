@@ -71,6 +71,12 @@ export const getMainPost = async (
     order: [["createdAt", "DESC"]],
   });
   if (result) {
+    const totalPost = await Post.count({
+      where: {
+        userId: userIds
+      }
+    });
+    const totalPages = Math.ceil(totalPost / limit);
     const post = result.map((post) => {
       const data = post.dataValues;
       const mediaList = data.PostMedia.map((media: any) => {
@@ -90,7 +96,7 @@ export const getMainPost = async (
         mediaList: mediaList,
       };
     });
-    return post;
+    return{ post, totalPages};
   } else {
     return null;
   }
@@ -165,9 +171,10 @@ export const postUpdate = async(postId:number, content: string) => {
 };
 
 export const postDelete = async (postId: number) => {
-  await Post.destroy({
+  const result = await Post.destroy({
     where: {
       id: postId,
     },
   });
+  return result;
 };
