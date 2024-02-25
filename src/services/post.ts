@@ -1,3 +1,4 @@
+import { Op } from "sequelize";
 import Post from "../models/post";
 import PostMedia from "../models/post-media";
 import ProfileImage from "../models/profile-image";
@@ -11,10 +12,19 @@ export const uploadPost = async (userId: number, content: string) => {
   return newPost.id;
 };
 
-export const getAllPost = async (page: number = 1, limit: number = 30) => {
+export const getAllPost = async (
+  userIds: number[],
+  page: number = 1,
+  limit: number = 30
+) => {
   const offset = limit * (page - 1);
   const result = await Post.findAll({
     attributes: ["id", "createdAt"],
+    where: {
+      userId: {
+        [Op.notIn]: userIds,
+      },
+    },
     include: [
       {
         model: PostMedia,
@@ -73,8 +83,8 @@ export const getMainPost = async (
   if (result) {
     const totalPost = await Post.count({
       where: {
-        userId: userIds
-      }
+        userId: userIds,
+      },
     });
     const totalPages = Math.ceil(totalPost / limit);
     const post = result.map((post) => {
@@ -96,7 +106,7 @@ export const getMainPost = async (
         mediaList: mediaList,
       };
     });
-    return{ post, totalPages};
+    return { post, totalPages };
   } else {
     return null;
   }
@@ -153,20 +163,22 @@ export const postUserCheck = async (postId: number, userId: number) => {
   return !!result;
 };
 
-export const postUpdate = async(postId:number, content: string) => {
+export const postUpdate = async (postId: number, content: string) => {
   const [update] = await Post.update(
-    {content: content},
-    {where: {
-      id: postId
-    }}
+    { content: content },
+    {
+      where: {
+        id: postId,
+      },
+    }
   );
-  if(update === 1) {
+  if (update === 1) {
     const result = await Post.findOne({
       where: {
-        id: postId
-      }
+        id: postId,
+      },
     });
-    return result?.dataValues.content
+    return result?.dataValues.content;
   }
 };
 

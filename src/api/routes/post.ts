@@ -15,7 +15,12 @@ import {
 } from "../../services/post";
 import { MediaDetil } from "../../interfaces/post";
 import { postImage } from "../../services/image";
-import { findOrCreateTag, getPostTag, postTag, postTagRemove } from "../../services/tag";
+import {
+  findOrCreateTag,
+  getPostTag,
+  postTag,
+  postTagRemove,
+} from "../../services/tag";
 import { selectFollowing } from "../../services/follow";
 
 const postRouter = Router();
@@ -49,7 +54,7 @@ postRouter.post(
           postDelete(postId);
           return res.status(401).json("게시물 업로드를 실패했습니다.");
         }
-        
+        const post = await getPostByPostId(postId);
         if (req.body.hashtags) {
           const tagNames = req.body.hashtags;
           const postTagData = [];
@@ -59,8 +64,10 @@ postRouter.post(
           }
           await postTag(postTagData);
         }
+        return res
+          .status(200)
+          .json({ post, message: "게시물이 공유 되었습니다." });
       }
-      return res.status(200).json("게시물이 공유 되었습니다.");
     } catch {
       return res.status(401).json("게시물 업로드를 실패했습니다.");
     }
@@ -70,16 +77,16 @@ postRouter.patch(
   "/",
   checkJWT,
   uploadPostMedias,
-  async(req: IJwtRequest, res: Response) => {
-    try{
+  async (req: IJwtRequest, res: Response) => {
+    try {
       const userId = req.decoded?.id;
-      const postId= parseInt(req.body.postId);
-      const {content} = req.body;
-      const {hashtags} = req.body;
+      const postId = parseInt(req.body.postId);
+      const { content } = req.body;
+      const { hashtags } = req.body;
       let updatedPost;
-      if(userId){
-        const checkUser = await postUserCheck(postId,userId);
-        if(checkUser){
+      if (userId) {
+        const checkUser = await postUserCheck(postId, userId);
+        if (checkUser) {
           updatedPost = await postUpdate(postId, content);
           postTagRemove(postId);
           if (hashtags) {
@@ -91,43 +98,54 @@ postRouter.patch(
             }
             await postTag(postTagData);
           }
-        }else{
-          return res.status(401).json("권한이 부족합니다.")
+        } else {
+          return res.status(401).json("권한이 부족합니다.");
         }
       }
-      return res.status(200).json({postId, updatedPost});
-    }catch{
+      return res.status(200).json({ postId, updatedPost });
+    } catch {
       return res.status(401).json("게시물 수정를 실패했습니다.");
     }
   }
-)
-postRouter.get(
-  "/main/:userId",
-  async(req: Request, res: Response) => {
-    const userId = parseInt(req.params.userId, 10);
-    const {page} = req.query as any;
+);
+postRouter.get("/main/", checkJWT, async (req: IJwtRequest, res: Response) => {
+  const userId = req.decoded?.id;
+  const { page } = req.query as any;
+  if (userId) {
     const followedUsers = await selectFollowing(userId);
-    let userIds = []
-    if(followedUsers){
-      userIds = followedUsers.map(follow => follow.userId);
-    };
+    let userIds = [];
+    if (followedUsers) {
+      userIds = followedUsers.map((follow) => follow.userId);
+    }
     userIds.push(userId);
     const response = await getMainPost(userIds, page);
-    console.log(response)
     return res.status(200).json(response);
   }
-)
-postRouter.get("/", async (req: Request, res: Response, next: NextFunction) => {
-  const { page } = req.query as any;
-  try {
-    const allPost = await getAllPost(page);
-    if (allPost) {
-      return res.status(200).json(allPost);
-    }
-  } catch (err) {
-    throw err;
-  }
 });
+postRouter.get(
+  "/",
+  checkJWT,
+  async (req: IJwtRequest, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.decoded?.id;
+      const { page } = req.query as any;
+      if (userId) {
+        const followedUsers = await selectFollowing(userId);
+        let userIds = [];
+        if (followedUsers) {
+          userIds = followedUsers.map((follow) => follow.userId);
+        }
+        userIds.push(userId);
+        const allPost = await getAllPost(userIds, page);
+        if (allPost) {
+          return res.status(200).json(allPost);
+        }
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+);
 
 postRouter.get(
   "/:id",
@@ -152,7 +170,7 @@ postRouter.delete("/:id", checkJWT, async (req: IJwtRequest, res: Response) => {
     const check = await postUserCheck(postId, userId);
     if (check) {
       const response = await postDelete(postId);
-      if(response > 0) {
+      if (response > 0) {
         return res.status(200).json(postId);
       }
     }

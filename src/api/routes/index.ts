@@ -5,6 +5,7 @@ import post from "./post";
 import follow from "./follow";
 import comment from "./comment";
 import like from "./like";
+import Bookmark from "./bookmark";
 const router = Router();
 
 router.use("/users", users);
@@ -13,4 +14,5 @@ router.use("/post", post);
 router.use("/follow", follow);
 router.use("/comment", comment);
 router.use("/like", like);
+router.use("/Bookmark", Bookmark);
 export default router;
