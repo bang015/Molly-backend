@@ -1,7 +1,12 @@
 import { Router, Request, Response, NextFunction, response } from "express";
 import { celebrate, Joi, Segments } from "celebrate";
 import { IUserforSignUp, IUserInfo } from "../../interfaces/user";
-import { createUser, getUserByUserInfo, getAllUser, modifyUser } from "../../services/user";
+import {
+  createUser,
+  getUserByUserInfo,
+  getAllUser,
+  modifyUser,
+} from "../../services/user";
 import { checkJWT } from "../middleware/checkJwt";
 import { IJwtRequest } from "../../interfaces/auth";
 import { uploadProfile } from "../middleware/multer";
@@ -36,25 +41,15 @@ userRouter.post(
 );
 
 userRouter.get(
-  "/",
-  celebrate({
-    [Segments.QUERY]: {
-      id: Joi.number().integer(),
-      email: Joi.string().email(),
-      nickname: Joi.string(),
-    },
-  }),
+  "/:nickname",
   async (req: Request, res: Response, next: NextFunction) => {
-    const { id, email, nickname } = req.query;
+    const nickname = req.params.nickname;
     try {
-      if (!id && !email && !nickname) {
-        const allUser = await getAllUser();
-      }
-      const user = await getUserByUserInfo(req.query as IUserInfo);
+      const user = await getUserByUserInfo({nickname});
       if (user) {
-        return res.status(200).json(user);
+        const { password, ...userInfo} = user.dataValues;
+        return res.status(200).json(userInfo);
       }
-      return res.status(204).end();
     } catch (err) {
       return next(err);
     }
@@ -62,7 +57,7 @@ userRouter.get(
 );
 
 userRouter.patch(
-  '/',
+  "/",
   checkJWT,
   uploadProfile,
   celebrate({
@@ -70,32 +65,32 @@ userRouter.patch(
       nickname: Joi.string(),
       password: Joi.string(),
       name: Joi.string(),
-      introduce: Joi.string().allow('', null),
+      introduce: Joi.string().allow("", null),
     }),
   }),
   async (req: IJwtRequest, res: Response, next: NextFunction) => {
     const userId: number = req.decoded?.id!;
-    let modifyDetail = {id: userId, ...req.body};
-    const exisUser = await getUserByUserInfo({id:modifyDetail.id});
-    try{
-      if(exisUser){
-        if(req.file){
+    let modifyDetail = { id: userId, ...req.body };
+    const exisUser = await getUserByUserInfo({ id: modifyDetail.id });
+    try {
+      if (exisUser) {
+        if (req.file) {
           const imageDetail = {
             name: req.file.filename,
             type: req.file.mimetype,
-            path: req.file.path, 
+            path: req.file.path,
           };
           const newImage = await profileImage(imageDetail);
-          modifyDetail = {...modifyDetail, profile_image:newImage?.id}
+          modifyDetail = { ...modifyDetail, profile_image: newImage?.id };
           const user = await modifyUser(modifyDetail);
-          if(user){
+          if (user) {
             return res.status(200).json(user);
           }
         }
       }
-    }catch(e){
+    } catch (e) {
       return next(e);
     }
   }
-)
+);
 export default userRouter;
