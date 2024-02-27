@@ -22,6 +22,7 @@ import {
   postTagRemove,
 } from "../../services/tag";
 import { selectFollowing } from "../../services/follow";
+import { getBookmarkPost } from "../../services/bookmark";
 
 const postRouter = Router();
 
@@ -158,6 +159,34 @@ postRouter.get(
       }
     } catch (err) {
       return err;
+    }
+  }
+);
+
+postRouter.get(
+  "/my/:userId",
+  async (req: Request, res: Response )=> {
+    const userId = parseInt(req.params.userId, 10);
+    const { page } = req.query as any;
+    try{
+      const post = await getMainPost(userId, page, 12);
+      res.status(200).json(post);
+    }catch{
+
+    }
+  }
+);
+
+postRouter.get(
+  "/bookmark/:userId",
+  async (req: Request, res: Response )=> {
+    const userId = parseInt(req.params.userId, 10);
+    const { page } = req.query as any;
+    try{
+      const post = await getBookmarkPost(userId, page, 12);
+      res.status(200).json(post);
+    }catch{
+
     }
   }
 );

@@ -55,7 +55,7 @@ export const getAllPost = async (
 };
 
 export const getMainPost = async (
-  userIds: number[],
+  userIds: number[] | number,
   page: number = 1,
   limit: number = 5
 ) => {
@@ -114,7 +114,6 @@ export const getMainPost = async (
 
 export const getPostByPostId = async (id: number) => {
   const result = await Post.findOne({
-    attributes: ["id", "userId", "content", "createdAt", "updatedAt"],
     include: [
       {
         model: PostMedia,
@@ -190,3 +189,12 @@ export const postDelete = async (postId: number) => {
   });
   return result;
 };
+
+export const postCount = async(userId: number) => {
+  const result = await Post.count({
+    where: {
+      userId
+    }
+  });
+  return result;
+}

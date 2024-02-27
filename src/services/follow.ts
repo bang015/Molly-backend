@@ -39,7 +39,14 @@ export const selectFollowing = async (userId: number) => {
 
   return cleanedResult;
 };
-
+export const followCount = async (userId : number) => {
+  const result = await Follow.count({
+    where: {
+      followerId : userId
+    }
+  });
+  return result;
+}
 export const selectFollower = async (userId: number) => {
   const result = await Follow.findAll({
     attributes: ["followerId"],
@@ -72,9 +79,16 @@ export const selectFollower = async (userId: number) => {
         : null,
     };
   });
-
   return cleanedResult;
 };
+export const followerCount = async(userId: number) => {
+  const result = await Follow.count({
+    where: {
+      followingId : userId
+    }
+  });
+  return result;
+}
 
 export const suggestFollowers = async (
   userId: number,

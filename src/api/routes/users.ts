@@ -11,6 +11,8 @@ import { checkJWT } from "../middleware/checkJwt";
 import { IJwtRequest } from "../../interfaces/auth";
 import { uploadProfile } from "../middleware/multer";
 import { profileImage } from "../../services/image";
+import { postCount } from "../../services/post";
+import { followCount, followerCount } from "../../services/follow";
 const userRouter = Router();
 
 userRouter.post(
@@ -48,6 +50,13 @@ userRouter.get(
       const user = await getUserByUserInfo({nickname});
       if (user) {
         const { password, ...userInfo} = user.dataValues;
+        const postCnt = await postCount(user.dataValues.id);
+        const followCnt = await followCount(user.dataValues.id);
+        const followerCnt = await followerCount(user.dataValues.id);
+        userInfo.postCount = postCnt;
+        userInfo.followCount = followCnt;
+        userInfo.followerCount = followerCnt;
+
         return res.status(200).json(userInfo);
       }
     } catch (err) {
