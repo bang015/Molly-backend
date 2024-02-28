@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from "express";
 import { checkJWT } from "../middleware/checkJwt";
 import { IJwtRequest } from "../../interfaces/auth";
 import { celebrate, Joi, Segments } from "celebrate";
-import { addFollowing, selectFollowing, suggestFollowers, unfollow } from "../../services/follow";
+import { addFollowing, checkFollowed, selectFollowing, suggestFollowers, unfollow } from "../../services/follow";
 
 const followRouter = Router();
 
@@ -18,16 +18,14 @@ followRouter.post(
     try{
       const userId = req.decoded?.id;
       const {followUserId} = req.body;
-      let followedUserList = await selectFollowing(userId!);
-      const followedChekc = followedUserList.some((user) => user.userId === followUserId);
-      if(followedChekc){
+      let check = await checkFollowed(userId!, followUserId);
+      if(check){
         await unfollow(userId!, followUserId);
-        followedUserList = await selectFollowing(userId!);
       }else{
         await addFollowing(userId!, followUserId);
-        followedUserList = await selectFollowing(userId!);
       }
-      return res.status(200).json(followedUserList);
+      check = await checkFollowed(userId!, followUserId);
+      return res.status(200).json({check, followUserId});
     }catch{
 
     }
@@ -43,19 +41,15 @@ followRouter.get(
       const limit = parseInt(req.query.limit as string);
       let followed = false;
       const followingUser = await selectFollowing(userId!);
-      const followingUserIdList = followingUser.map(
-        (follow) => follow.userId
-      );
-      if(followingUserIdList.length === 0){
+      if(followingUser.length === 0){
         followed = true;
       }
       const suggestFollowerList = await suggestFollowers(
         userId!,
-        followingUserIdList,
         limit
       );
 
-      return res.status(200).json({suggestFollowerList, followingUser, followed});
+      return res.status(200).json({suggestFollowerList, followed});
     }catch(err){
 
     }
@@ -66,8 +60,20 @@ followRouter.get(
   '/:id',
   async (req: Request, res: Response) => {
     const id = parseInt(req.params.id, 10);
-    const result = await selectFollowing(id);
+    const {page} = req.query as any;
+    const result = await selectFollowing(id, page);
     return res.status(200).json(result);
+  }
+);
+
+followRouter.get(
+  "/check/:followUserId",
+  checkJWT,
+  async(req: IJwtRequest, res: Response) => {
+    const userId = req.decoded?.id;
+    const followUserId = parseInt(req.params.followUserId, 10);
+    const check = await checkFollowed(userId!, followUserId);
+    return res.status(200).json(check);
   }
 )
 export default followRouter;

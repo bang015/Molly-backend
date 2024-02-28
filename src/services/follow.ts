@@ -1,9 +1,14 @@
-import { Op } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import Follow from "../models/follow";
 import ProfileImage from "../models/profile-image";
 import User from "../models/user";
 
-export const selectFollowing = async (userId: number) => {
+export const selectFollowing = async (
+  userId: number,
+  page: number = 1,
+  limit: number = 12
+) => {
+  const offset = limit * (page - 1);
   const result = await Follow.findAll({
     attributes: ["followingId"],
     where: {
@@ -21,6 +26,8 @@ export const selectFollowing = async (userId: number) => {
         ],
       },
     ],
+    offset,
+    limit
   });
   const cleanedResult = result.map((follow) => {
     const followInfo = follow.dataValues;
@@ -31,22 +38,20 @@ export const selectFollowing = async (userId: number) => {
       userId: followInfo.followingId,
       userName: userInfo.name,
       userNickname: userInfo.nickname,
-      profileImagePath: profileInfo
-        ? profileInfo.dataValues.path
-        : null,
+      profileImagePath: profileInfo ? profileInfo.dataValues.path : null,
     };
   });
 
   return cleanedResult;
 };
-export const followCount = async (userId : number) => {
+export const followCount = async (userId: number) => {
   const result = await Follow.count({
     where: {
-      followerId : userId
-    }
+      followerId: userId,
+    },
   });
   return result;
-}
+};
 export const selectFollower = async (userId: number) => {
   const result = await Follow.findAll({
     attributes: ["followerId"],
@@ -74,31 +79,28 @@ export const selectFollower = async (userId: number) => {
       userId: followInfo.followerId,
       userName: userInfo.name,
       userNickname: userInfo.nickname,
-      profileImagePath: profileInfo
-        ? profileInfo.dataValues.path
-        : null,
+      profileImagePath: profileInfo ? profileInfo.dataValues.path : null,
     };
   });
   return cleanedResult;
 };
-export const followerCount = async(userId: number) => {
+export const followerCount = async (userId: number) => {
   const result = await Follow.count({
     where: {
-      followingId : userId
-    }
+      followingId: userId,
+    },
   });
   return result;
-}
+};
 
 export const suggestFollowers = async (
   userId: number,
-  followedUserIdList: number[],
   limit: number
 ) => {
   const result = await User.findAll({
     where: {
       id: {
-        [Op.notIn]: [...followedUserIdList, userId],
+        [Op.notIn]:  Sequelize.literal(`(SELECT followingId FROM Follow WHERE followerId = ${userId})`),
       },
     },
     attributes: ["id", "name", "nickname"],
@@ -135,4 +137,14 @@ export const unfollow = async (userId: number, followUserId: number) => {
       followingId: followUserId,
     },
   });
+};
+
+export const checkFollowed = async (userId: number, followUserId: number) => {
+  const result = await Follow.findOne({
+    where: {
+      followerId: userId,
+      followingId: followUserId,
+    },
+  });
+  return !!result;
 };
