@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from "express";
 import { checkJWT } from "../middleware/checkJwt";
 import { IJwtRequest } from "../../interfaces/auth";
 import { celebrate, Joi, Segments } from "celebrate";
-import { addFollowing, checkFollowed, selectFollowing, suggestFollowers, unfollow } from "../../services/follow";
+import { addFollowing, checkFollowed, followCount, selectFollower, selectFollowing, suggestFollowers, unfollow } from "../../services/follow";
 
 const followRouter = Router();
 
@@ -24,8 +24,9 @@ followRouter.post(
       }else{
         await addFollowing(userId!, followUserId);
       }
+      const count = await followCount(userId!);
       check = await checkFollowed(userId!, followUserId);
-      return res.status(200).json({check, followUserId});
+      return res.status(200).json({check, followUserId, count});
     }catch{
 
     }
@@ -60,12 +61,22 @@ followRouter.get(
   '/:id',
   async (req: Request, res: Response) => {
     const id = parseInt(req.params.id, 10);
+    const {query}= req.query as any;
     const {page} = req.query as any;
-    const result = await selectFollowing(id, page);
+    const result = await selectFollowing(id, query, page);
     return res.status(200).json(result);
   }
 );
-
+followRouter.get(
+  '/r/:id',
+  async (req: Request, res: Response) => {
+    const id = parseInt(req.params.id, 10);
+    const {query}= req.query as any;
+    const {page} = req.query as any;
+    const result = await selectFollower(id, query, page);
+    return res.status(200).json(result);
+  }
+);
 followRouter.get(
   "/check/:followUserId",
   checkJWT,

@@ -11,6 +11,8 @@ function defineRelationships() {
   //User
   User.hasMany(Comment, { foreignKey: "userId", as: "comments" });
   User.hasMany(Bookmark, { foreignKey: "userId", as: "bookmark" });
+  User.hasMany(Follow, { foreignKey: "followerId", as: "follower" });
+  User.hasMany(Follow, { foreignKey: "followingId", as: "following" });
   User.belongsTo(ProfileImage, { foreignKey: "profile_image" });
   User.beforeCreate(async (user) => {
     const encryptedPw = await bcrypt.hash(user.password, 10);
@@ -31,8 +33,8 @@ function defineRelationships() {
     foreignKey: "postId",
   });
   //Follow
-  Follow.belongsTo(User, { foreignKey: "followerId" });
-  Follow.belongsTo(User, { foreignKey: "followingId" });
+  Follow.belongsTo(User, { foreignKey: "followerId", as: "follower" });
+  Follow.belongsTo(User, { foreignKey: "followingId", as: "following" });
   //Like
   Like.belongsTo(Post, { foreignKey: "postId" });
   Like.belongsTo(User, { foreignKey: "userId" });

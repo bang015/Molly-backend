@@ -5,19 +5,30 @@ import User from "../models/user";
 
 export const selectFollowing = async (
   userId: number,
+  query?: string,
   page: number = 1,
   limit: number = 12
 ) => {
   const offset = limit * (page - 1);
+  const whereCondition: { [Op.or]?: any } = {};
+  if (query) {
+    whereCondition[Op.or] = [
+      { name: { [Op.like]: `%${query}%` } },
+      { nickname: { [Op.like]: `%${query}%` } },
+    ];
+  }
   const result = await Follow.findAll({
     attributes: ["followingId"],
+
     where: {
       followerId: userId,
     },
     include: [
       {
         model: User,
+        as: "following",
         attributes: ["name", "nickname"],
+        where: whereCondition,
         include: [
           {
             model: ProfileImage,
@@ -27,13 +38,13 @@ export const selectFollowing = async (
       },
     ],
     offset,
-    limit
+    limit,
   });
+
   const cleanedResult = result.map((follow) => {
     const followInfo = follow.dataValues;
-    const userInfo = followInfo.User.dataValues;
+    const userInfo = followInfo.following.dataValues;
     const profileInfo = userInfo.ProfileImage;
-
     return {
       userId: followInfo.followingId,
       userName: userInfo.name,
@@ -41,7 +52,6 @@ export const selectFollowing = async (
       profileImagePath: profileInfo ? profileInfo.dataValues.path : null,
     };
   });
-
   return cleanedResult;
 };
 export const followCount = async (userId: number) => {
@@ -52,7 +62,20 @@ export const followCount = async (userId: number) => {
   });
   return result;
 };
-export const selectFollower = async (userId: number) => {
+export const selectFollower = async (
+  userId: number,
+  query?: string,
+  page: number = 1,
+  limit: number = 12
+) => {
+  const offset = limit * (page - 1);
+  const whereCondition: { [Op.or]?: any } = {};
+  if (query) {
+    whereCondition[Op.or] = [
+      { name: { [Op.like]: `%${query}%` } },
+      { nickname: { [Op.like]: `%${query}%` } },
+    ];
+  }
   const result = await Follow.findAll({
     attributes: ["followerId"],
     where: {
@@ -61,6 +84,8 @@ export const selectFollower = async (userId: number) => {
     include: [
       {
         model: User,
+        as: "follower",
+        where: whereCondition,
         attributes: ["name", "nickname"],
         include: [
           {
@@ -70,10 +95,13 @@ export const selectFollower = async (userId: number) => {
         ],
       },
     ],
+    offset,
+    limit,
   });
+
   const cleanedResult = result.map((follow) => {
     const followInfo = follow.dataValues;
-    const userInfo = followInfo.User.dataValues;
+    const userInfo = followInfo.follower.dataValues;
     const profileInfo = userInfo.ProfileImage;
     return {
       userId: followInfo.followerId,
@@ -93,15 +121,23 @@ export const followerCount = async (userId: number) => {
   return result;
 };
 
-export const suggestFollowers = async (
-  userId: number,
-  limit: number
-) => {
+export const suggestFollowers = async (userId: number, limit: number) => {
   const result = await User.findAll({
     where: {
-      id: {
-        [Op.notIn]:  Sequelize.literal(`(SELECT followingId FROM Follow WHERE followerId = ${userId})`),
-      },
+      [Op.and]: [
+        {
+          id: {
+            [Op.not]: userId,
+          },
+        },
+        {
+          id: {
+            [Op.notIn]: Sequelize.literal(
+              `(SELECT followingId FROM Follow WHERE followerId = ${userId})`
+            ),
+          },
+        },
+      ],
     },
     attributes: ["id", "name", "nickname"],
     include: { model: ProfileImage, attributes: ["path"] },
@@ -109,12 +145,13 @@ export const suggestFollowers = async (
   });
   const cleanedResult = result.map((user) => {
     const userInfo = user.dataValues;
+    console.log(userInfo.ProfileImage);
     return {
       userId: userInfo.id,
       userName: userInfo.name,
       userNickname: userInfo.nickname,
-      profileImagePath: userInfo.profileImage
-        ? userInfo.profileImage.dataValues.path
+      profileImagePath: userInfo.ProfileImage
+        ? userInfo.ProfileImage.dataValues.path
         : null,
     };
   });
