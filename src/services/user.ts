@@ -62,10 +62,8 @@ export const modifyUser =async (userInfo:IUserModify): Promise<User | null> => {
   if(userInfo.profile_image){
     updateFields.profile_image = userInfo.profile_image
   }
-  console.log(updateFields)
   try{
     const user = await existUser.update(updateFields);
-    console.log(user)
   return user;
 
   }catch(err){

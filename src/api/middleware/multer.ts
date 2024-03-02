@@ -14,14 +14,20 @@ const parser = (purpose: string) =>
   multer({
     storage: new CloudinaryStorage({
       cloudinary,
-      params: async (req: any, file: any) => ({
-        folder: `/${purpose}`,
-        format: getExtension(file.originalname), // 파일 확장자 가져오기
-        public_id: new Date().valueOf() + getNand(10), // 고유한 public_id 생성
-        transformation: [
-          { width: 897, height: 897, crop: "fill" },
-        ],
-      }),
+      params: async (req: any, file: any) => {
+        const params: any = {
+          folder: `/${purpose}`,
+          format: getExtension(file.originalname), // 파일 확장자 가져오기
+          public_id: new Date().valueOf() + getNand(10), // 고유한 public_id 생성
+        };
+        // purpose가 "post"일 때만 transformation 설정
+        if (purpose === "post") {
+          params.transformation = [
+            { width: 897, height: 897, crop: "fill" },
+          ];
+        }
+        return params;
+      },
     }),
   });
 

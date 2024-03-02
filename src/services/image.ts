@@ -18,6 +18,16 @@ export const profileImage = async (
   });
   return imageid;
 };
+export const deleteProfileImage = async(profileimgId: number) => {
+  const profileImage = await ProfileImage.findByPk(profileimgId);
+  const imgId = profileImage?.dataValues.name;
+  cloudinary.uploader.destroy(imgId, function (result: any) { console.log(result) });
+  await ProfileImage.destroy({
+    where: {
+      id: profileimgId
+    }
+  });
+};
 
 export const postImage = async (mediaInfo: MediaDetil[]) => {
   const postData = mediaInfo.map((info) => ({

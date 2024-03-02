@@ -10,7 +10,7 @@ import {
 import { checkJWT } from "../middleware/checkJwt";
 import { IJwtRequest } from "../../interfaces/auth";
 import { uploadProfile } from "../middleware/multer";
-import { profileImage } from "../../services/image";
+import { deleteProfileImage, profileImage } from "../../services/image";
 import { postCount } from "../../services/post";
 import { followCount, followerCount } from "../../services/follow";
 const userRouter = Router();
@@ -89,11 +89,16 @@ userRouter.patch(
             type: req.file.mimetype,
             path: req.file.path,
           };
+          console.log(exisUser.dataValues.profile_image);
+          const profileimageId = exisUser.dataValues.profile_image;
+          if(profileimageId){
+            await deleteProfileImage(profileimageId)
+          }
           const newImage = await profileImage(imageDetail);
           modifyDetail = { ...modifyDetail, profile_image: newImage?.id };
           const user = await modifyUser(modifyDetail);
           if (user) {
-            return res.status(200).json(user);
+            return res.status(200).json({user, message: "프로필 사진이 수정되었습니다."});
           }
         }
       }
