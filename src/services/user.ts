@@ -44,31 +44,32 @@ export const getUserByUserInfo = async (
   return user;
 };
 
-export const modifyUser =async (userInfo:IUserModify): Promise<User | null> => {
+export const modifyUser = async (
+  userInfo: IUserModify
+): Promise<User | null> => {
   const existUser: User | null = await User.findByPk(userInfo.id);
-  if(!existUser){
-    return null
+  if (!existUser) {
+    return null;
   }
   const updateFields: Partial<IUserModify> = {};
-  if(userInfo.email){
-    updateFields.email = userInfo.email
+  if (userInfo.email) {
+    updateFields.email = userInfo.email;
   }
-  if(userInfo.nickname){
-    updateFields.nickname = userInfo.nickname
+  if (userInfo.nickname) {
+    updateFields.nickname = userInfo.nickname;
   }
-  if(userInfo.introduce){
-    updateFields.introduce = userInfo.introduce
+  if (userInfo.introduce) {
+    updateFields.introduce = userInfo.introduce;
   }
-  if(userInfo.profile_image){
-    updateFields.profile_image = userInfo.profile_image
+  if (userInfo.profile_image) {
+    updateFields.profile_image = userInfo.profile_image;
   }
-  try{
+  try {
     const user = await existUser.update(updateFields);
-  return user;
-
-  }catch(err){
-    console.log(err)
-    return null
+    delete user.dataValues.password;
+    return user;
+  } catch (err) {
+    console.log(err);
+    return null;
   }
-  
-}
+};

@@ -18,14 +18,16 @@ export const profileImage = async (
   });
   return imageid;
 };
-export const deleteProfileImage = async(profileimgId: number) => {
+export const deleteProfileImage = async (profileimgId: number) => {
   const profileImage = await ProfileImage.findByPk(profileimgId);
   const imgId = profileImage?.dataValues.name;
-  cloudinary.uploader.destroy(imgId, function (result: any) { console.log(result) });
+  cloudinary.uploader.destroy(imgId, function (result: any) {
+    console.log(result);
+  });
   await ProfileImage.destroy({
     where: {
-      id: profileimgId
-    }
+      id: profileimgId,
+    },
   });
 };
 
@@ -38,4 +40,14 @@ export const postImage = async (mediaInfo: MediaDetil[]) => {
   }));
   const result = await PostMedia.bulkCreate(postData);
   return result;
+};
+export const deletePostImage = async (postId: number) => {
+  const postImg = await PostMedia.findAll({
+    where: { postId: postId },
+  });
+  postImg.map((media) => {
+    cloudinary.uploader.destroy(media.dataValues.name, function (result: any) {
+      console.log(result);
+    });
+  })
 };

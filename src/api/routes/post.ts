@@ -14,7 +14,7 @@ import {
   uploadPost,
 } from "../../services/post";
 import { MediaDetil } from "../../interfaces/post";
-import { postImage } from "../../services/image";
+import { deletePostImage, postImage } from "../../services/image";
 import {
   findOrCreateTag,
   getPostTag,
@@ -194,13 +194,13 @@ postRouter.get(
 postRouter.delete("/:id", checkJWT, async (req: IJwtRequest, res: Response) => {
   const userId = req.decoded?.id;
   const postId = parseInt(req.params.id, 10);
-  console.log(userId, postId);
   if (userId) {
     const check = await postUserCheck(postId, userId);
     if (check) {
+      await deletePostImage(postId);
       const response = await postDelete(postId);
       if (response > 0) {
-        return res.status(200).json(postId);
+        return res.status(200).json({postId, message: "게시물이 삭제되었습니다."});
       }
     }
   }

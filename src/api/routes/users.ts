@@ -41,7 +41,31 @@ userRouter.post(
     }
   }
 );
-
+userRouter.get(
+  "/",
+  celebrate({
+    [Segments.QUERY]: {
+      id: Joi.number().integer(),
+      email: Joi.string().email(),
+      nickname: Joi.string(),
+    },
+  }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { id, email, nickname } = req.query;
+    try {
+      if (!id && !email && !nickname) {
+        const allUser = await getAllUser();
+      }
+      const user = await getUserByUserInfo(req.query as IUserInfo);
+      if (user) {
+        return res.status(200).json(user);
+      }
+      return res.status(204).end();
+    } catch (err) {
+      return next(err);
+    }
+  }
+);
 userRouter.get(
   "/:nickname",
   async (req: Request, res: Response, next: NextFunction) => {
@@ -80,6 +104,7 @@ userRouter.patch(
   async (req: IJwtRequest, res: Response, next: NextFunction) => {
     const userId: number = req.decoded?.id!;
     let modifyDetail = { id: userId, ...req.body };
+    let message = "";
     const exisUser = await getUserByUserInfo({ id: modifyDetail.id });
     try {
       if (exisUser) {
@@ -89,17 +114,19 @@ userRouter.patch(
             type: req.file.mimetype,
             path: req.file.path,
           };
-          console.log(exisUser.dataValues.profile_image);
           const profileimageId = exisUser.dataValues.profile_image;
           if(profileimageId){
             await deleteProfileImage(profileimageId)
           }
           const newImage = await profileImage(imageDetail);
           modifyDetail = { ...modifyDetail, profile_image: newImage?.id };
-          const user = await modifyUser(modifyDetail);
-          if (user) {
-            return res.status(200).json({user, message: "프로필 사진이 수정되었습니다."});
-          }
+          message = "프로필 사진이 수정되었습니다.";
+          
+        }
+        const user = await modifyUser(modifyDetail);
+        message = "프로필이 수정되었습니다."
+        if (user) {
+          return res.status(200).json({user, message});
         }
       }
     } catch (e) {
