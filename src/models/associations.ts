@@ -7,6 +7,8 @@ import PostMedia from "./post-media";
 import Follow from "./follow";
 import Like from "./like";
 import Bookmark from "./bookmark";
+import PostTag from "./post-tag";
+import Tag from "./tag";
 function defineRelationships() {
   //User
   User.hasMany(Comment, { foreignKey: "userId", as: "comments" });
@@ -25,6 +27,7 @@ function defineRelationships() {
   Post.hasMany(PostMedia, { foreignKey: "postId" });
   Post.hasMany(Comment, { foreignKey: "postId" });
   Post.hasMany(Bookmark, { foreignKey: "postId" });
+  Post.hasMany(PostTag, { foreignKey: "PostId"});
   //Comment
   Comment.belongsTo(User, { as: "user" });
   Comment.belongsTo(Post, { foreignKey: "postId", as: "post" });
@@ -41,6 +44,8 @@ function defineRelationships() {
   //bookmark
   Bookmark.belongsTo(Post, { foreignKey: "postId" });
   Bookmark.belongsTo(User, { foreignKey: "userId" });
+  //tag
+  Tag.hasMany(PostTag, {foreignKey: "TagId"});
 }
 
 export { defineRelationships };
