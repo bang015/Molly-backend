@@ -3,11 +3,13 @@ import { celebrate, Joi, Segments } from "celebrate";
 import { checkJWT } from "../middleware/checkJwt";
 import { uploadPostMedias } from "../middleware/multer";
 import { IJwtRequest } from "../../interfaces/auth";
+import client from "../../config/redis";
 import User from "../../models/user";
 import {
   getAllPost,
   getMainPost,
   getPostByPostId,
+  getPostByTag,
   postDelete,
   postUpdate,
   postUserCheck,
@@ -17,6 +19,7 @@ import { MediaDetil } from "../../interfaces/post";
 import { deletePostImage, postImage } from "../../services/image";
 import {
   findOrCreateTag,
+  findTagId,
   getPostTag,
   postTag,
   postTagRemove,
@@ -190,7 +193,18 @@ postRouter.get(
     }
   }
 );
-
+postRouter.get(
+  "/tags/:tagName",
+  async(req:Request, res: Response) => {
+    const {tagName} = req.params;
+    const { page } = req.query as any;
+    const tagId = await findTagId(tagName);
+    if( !tagId ){
+      return res.status(401).json({message:"태그를 찾을 수 없습니다."});
+    }
+    const post = await getPostByTag(tagId, page);
+  }
+)
 postRouter.delete("/:id", checkJWT, async (req: IJwtRequest, res: Response) => {
   const userId = req.decoded?.id;
   const postId = parseInt(req.params.id, 10);

@@ -3,6 +3,7 @@ import Post from "../models/post";
 import PostMedia from "../models/post-media";
 import ProfileImage from "../models/profile-image";
 import User from "../models/user";
+import PostTag from "../models/post-tag";
 
 export const uploadPost = async (userId: number, content: string) => {
   const newPost = await Post.create({
@@ -112,6 +113,45 @@ export const getMainPost = async (
   }
 };
 
+export const getPostByTag = async (
+  tagId: number,
+  page: number = 1,
+  limit: number = 30
+) => {
+  const offset = limit * (page - 1);
+  const result = await PostTag.findAll({
+    attributes: ["PostId"],
+    where: { TagId: tagId },
+    include: [
+      {
+        model: Post,
+        include: [{ model: PostMedia, attributes: ["id", "path"] }],
+      },
+    ],
+    offset,
+    limit,
+  });
+  if (result) {
+    const post = result.map((post) => {
+      const data = post.dataValues;
+      const postInfo = data.Post.dataValues;
+      const mediaList = postInfo.PostMedia.map((media: any) => {
+        return {
+          mediaId: media.dataValues.id,
+          mediaPath: media.dataValues.path,
+        };
+      });
+      return {
+        id: postInfo.id,
+        mediaList: mediaList,
+      }
+    });
+    return post;
+  } else {
+    return null;
+  }
+};
+
 export const getPostByPostId = async (id: number) => {
   const result = await Post.findOne({
     include: [
@@ -190,11 +230,11 @@ export const postDelete = async (postId: number) => {
   return result;
 };
 
-export const postCount = async(userId: number) => {
+export const postCount = async (userId: number) => {
   const result = await Post.count({
     where: {
-      userId
-    }
+      userId,
+    },
   });
   return result;
-}
+};

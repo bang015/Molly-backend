@@ -10,6 +10,10 @@ export const findOrCreateTag = async (tagName: string) => {
     return newTag.id;
   }
 };
+export const findTagId = async (tagName: string) => {
+  const existingTag = await Tag.findOne({where: {name: tagName}});
+  return existingTag?.id;
+}
 
 export const postTag = async (
   postTagData: { PostId: number; TagId: number }[]

@@ -44,6 +44,5 @@ export const getSearchResult = async (searchKeyword: string) => {
   const result = [...usersWithType, ...tagsWithType].sort(
     () => Math.random() - 0.5
   );
-  console.log(result);
   return result;
 };

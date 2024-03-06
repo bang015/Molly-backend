@@ -46,6 +46,7 @@ function defineRelationships() {
   Bookmark.belongsTo(User, { foreignKey: "userId" });
   //tag
   Tag.hasMany(PostTag, {foreignKey: "TagId"});
+  PostTag.belongsTo(Post, {foreignKey: "PostId"});
 }
 
 export { defineRelationships };
