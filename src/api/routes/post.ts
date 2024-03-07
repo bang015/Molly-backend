@@ -18,6 +18,8 @@ import {
 import { MediaDetil } from "../../interfaces/post";
 import { deletePostImage, postImage } from "../../services/image";
 import {
+  checkUsedTagByPost,
+  deleteUnusedTag,
   findOrCreateTag,
   findTagId,
   getPostTag,
@@ -92,7 +94,11 @@ postRouter.patch(
         const checkUser = await postUserCheck(postId, userId);
         if (checkUser) {
           updatedPost = await postUpdate(postId, content);
-          postTagRemove(postId);
+          const tags = await checkUsedTagByPost(postId);
+          const del =await postTagRemove(postId); 
+          if(del > 0){
+            deleteUnusedTag(tags);
+          }
           if (hashtags) {
             const tagNames = hashtags;
             const postTagData = [];
@@ -203,6 +209,7 @@ postRouter.get(
       return res.status(401).json({message:"태그를 찾을 수 없습니다."});
     }
     const post = await getPostByTag(tagId, page);
+    return res.status(200).json(post);
   }
 )
 postRouter.delete("/:id", checkJWT, async (req: IJwtRequest, res: Response) => {
