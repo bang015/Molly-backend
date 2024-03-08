@@ -11,8 +11,11 @@ export default ({ app }: { app: Application }) => {
     res.send("Hello Molly");
     console.log("hi");
   });
-
-  app.use(cors());
+  const corsOptions = {
+    origin: `${process.env.REQ_ADDRESS}`,
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+  };
+  app.use(cors(corsOptions));
 
   /* FOR USE RESTful API */
   app.use(methodOverride());
