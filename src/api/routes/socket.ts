@@ -6,11 +6,15 @@ import { Server as HTTPSServer } from "https";
 import { Application } from "express";
 import { Socket } from "socket.io";
 import {
+  MessageRead,
   createChatRoom,
   findExistingChatRoom,
+  getChatRoomList,
   getChatRoomMessage,
   getJoinRoomUser,
+  getLatestMessage,
   getMessageById,
+  getNotReadMessage,
   joinChatRoom,
   sendMessage,
   verifyRoomExists,
@@ -25,7 +29,6 @@ const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
   });
   app.set("socket.io", io);
   io.on("connection", (socket: Socket) => {
-    console.log("접속했습니다.");
     socket.on("create-room", async (data): Promise<void> => {
       const chatUser = [parseInt(data.chatUser)];
       const userId = verifyToken(data.token);
@@ -52,8 +55,16 @@ const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
       if(userId){
         const room = await getChatRoomMessage(data.roomId);
         const user = await getJoinRoomUser(data.roomId, userId);
+        MessageRead(data.roomId, userId);
         socket.emit("joinRoomSuccess",{room, user});
       }
+    });
+    socket.on("leaveRoom", (data) => {
+      socket.leave(`room${data}`);
+    })
+    socket.on("messageRead", (data) => {
+      const userId = verifyToken(data.token);
+      MessageRead(data.roomId, userId);
     })
     socket.on("sendMessage", async(data):Promise<void> => {
       const userId = verifyToken(data.token);
@@ -61,8 +72,38 @@ const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
         const messageId = await sendMessage(data.roomId, userId, data.message);
         if(messageId){
           const message = await getMessageById(messageId);
-          io.to(`room${data.roomId}`).emit("sendMessageSuccess" , message);
+          io.to(`room${data.roomId}`).emit(`sendMessagesuccess` , message);
+          const user = await getJoinRoomUser(data.roomId, userId);
+          io.emit("newMessage", user);
         }
+      }
+    });
+    socket.on("getChatRoomList", async (data):Promise<void> => {
+      const userId = verifyToken(data);
+      if(userId){
+        const room = await getChatRoomList(userId);
+        socket.emit(`getChatRoomList${userId}`, room);
+      }
+    });
+    socket.on("getRoomInfo", async (data):Promise<void> => {
+      const userId = verifyToken(data.token);
+      if(userId){
+        const user = await getJoinRoomUser(data.roomId, userId);
+        const _message = await getNotReadMessage(data.roomId, userId);
+        const latestMessage = await getLatestMessage(data.roomId);
+        socket.emit(`getRoomInfo${data.roomId}`, {user,_message,latestMessage});
+      }
+    });
+    socket.on("getNotReadMessage",async (data) => {
+      const userId = verifyToken(data);
+      if(userId){
+        const rooms = await getChatRoomList(userId);
+        const counts = await Promise.all(rooms.map(async (room): Promise<number> => {
+          const _message = await getNotReadMessage(room, userId);
+          return _message;
+      }));
+      const totalUnreadMessages = counts.reduce((acc, cur) => acc + cur, 0);
+      socket.emit("allNotReadMessage", totalUnreadMessages);
       }
     })
   });
