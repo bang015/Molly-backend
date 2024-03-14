@@ -5,7 +5,7 @@ import { IJwtRequest } from "../../interfaces/auth";
 import client from "../../config/redis";
 const searchRouter = Router();
 
-searchRouter.get("/:type", async (req: Request, res: Response) => {
+searchRouter.get("/q/:type", async (req: Request, res: Response) => {
   try {
     const { query } = req.query as any;
     const type = req.params.type;
@@ -71,7 +71,7 @@ searchRouter.post(
   }
 );
 searchRouter.get(
-  "/history",
+  "/history1",
   checkJWT,
   async (req: IJwtRequest, res: Response) => {
     const userId = req.decoded?.id;
