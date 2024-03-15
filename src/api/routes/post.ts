@@ -95,8 +95,8 @@ postRouter.patch(
         if (checkUser) {
           updatedPost = await postUpdate(postId, content);
           const tags = await checkUsedTagByPost(postId);
-          const del =await postTagRemove(postId); 
-          if(del > 0){
+          const del = await postTagRemove(postId);
+          if (del > 0) {
             deleteUnusedTag(tags);
           }
           if (hashtags) {
@@ -172,56 +172,50 @@ postRouter.get(
   }
 );
 
-postRouter.get(
-  "/my/:userId",
-  async (req: Request, res: Response )=> {
-    const userId = parseInt(req.params.userId, 10);
-    const { page } = req.query as any;
-    try{
-      const post = await getMainPost(userId, page, 12);
-      res.status(200).json(post);
-    }catch{
+postRouter.get("/my/:userId", async (req: Request, res: Response) => {
+  const userId = parseInt(req.params.userId, 10);
+  const { page } = req.query as any;
+  try {
+    const post = await getMainPost(userId, page, 12);
+    res.status(200).json(post);
+  } catch {}
+});
 
-    }
+postRouter.get("/bookmark/:userId", async (req: Request, res: Response) => {
+  const userId = parseInt(req.params.userId, 10);
+  const { page } = req.query as any;
+  try {
+    const post = await getBookmarkPost(userId, page, 12);
+    res.status(200).json(post);
+  } catch {}
+});
+postRouter.get("/tags/:tagName", async (req: Request, res: Response) => {
+  const { tagName } = req.params;
+  const { page } = req.query as any;
+  const tagId = await findTagId(tagName);
+  if (!tagId) {
+    return res.status(401).json({ message: "태그를 찾을 수 없습니다." });
   }
-);
-
-postRouter.get(
-  "/bookmark/:userId",
-  async (req: Request, res: Response )=> {
-    const userId = parseInt(req.params.userId, 10);
-    const { page } = req.query as any;
-    try{
-      const post = await getBookmarkPost(userId, page, 12);
-      res.status(200).json(post);
-    }catch{
-
-    }
-  }
-);
-postRouter.get(
-  "/tags/:tagName",
-  async(req:Request, res: Response) => {
-    const {tagName} = req.params;
-    const { page } = req.query as any;
-    const tagId = await findTagId(tagName);
-    if( !tagId ){
-      return res.status(401).json({message:"태그를 찾을 수 없습니다."});
-    }
-    const post = await getPostByTag(tagId, page);
-    return res.status(200).json(post);
-  }
-)
+  const post = await getPostByTag(tagId, page);
+  return res.status(200).json(post);
+});
 postRouter.delete("/:id", checkJWT, async (req: IJwtRequest, res: Response) => {
   const userId = req.decoded?.id;
   const postId = parseInt(req.params.id, 10);
   if (userId) {
     const check = await postUserCheck(postId, userId);
     if (check) {
+      const tags = await checkUsedTagByPost(postId);
+      const del = await postTagRemove(postId);
+      if (del > 0) {
+        deleteUnusedTag(tags);
+      }
       await deletePostImage(postId);
       const response = await postDelete(postId);
       if (response > 0) {
-        return res.status(200).json({postId, message: "게시물이 삭제되었습니다."});
+        return res
+          .status(200)
+          .json({ postId, message: "게시물이 삭제되었습니다." });
       }
     }
   }

@@ -39,19 +39,19 @@ export const getSearchResult = async (searchKeyword: string, type: string) => {
           attributes: [
             "id",
             "name",
-            // [Sequelize.fn("COUNT", Sequelize.col("PostTags.id")), "tagCount"],
+            [Sequelize.fn("COUNT", Sequelize.col("PostTags.id")), "tagCount"],
           ],
           where: {
             name: { [Op.like]: `%${searchKeyword}%` },
           },
-          // include: [
-          //   {
-          //     model: PostTag,
-          //     attributes: [],
-          //     required: false,
-          //   },
-          // ],
-          // group: ["tag.id"],
+          include: [
+            {
+              model: PostTag,
+              attributes: [],
+              required: false,
+            },
+          ],
+          group: ["tag.id"],
         })
       : Promise.resolve([]),
   ]);
