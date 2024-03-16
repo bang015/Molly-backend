@@ -53,19 +53,7 @@ export const getBookmarkPost = async (
     order: [["createdAt", "DESC"]],
   });
   const bookmarkList = result.map((bookmark) => {
-    const bookmarkInfo = bookmark.dataValues;
-    const postInfo = bookmarkInfo.Post.dataValues;
-    const mediaInfo = postInfo.PostMedia
-    const mediaList = mediaInfo.map((media: any) => {
-      return {
-        mediaId: media.id,
-        mediaPath: media.path,
-      };
-    })
-    return {
-      id: postInfo.id,
-      mediaList: mediaList,
-    };
+    return bookmark.toJSON().Post;
   });
   return bookmarkList;
 };

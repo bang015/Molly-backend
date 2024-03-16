@@ -26,29 +26,16 @@ export const createComment = async (
   });
   if (result) {
     const commentInfo = result.dataValues;
-    const userInfo = commentInfo.user.dataValues;
-    const profileInfo = userInfo.ProfileImage
-      ? userInfo.ProfileImage.dataValues
-      : null;
-    console.log(userInfo);
     const subcommentCount = await Comment.count({
       where: {
         commentId: commentInfo.id,
       },
     });
-    const comment = {
-      id: commentInfo.id,
-      postId: commentInfo.postId,
-      userId: commentInfo.userId,
-      content: commentInfo.content,
-      commentId: commentInfo.commentId,
-      createdAt: commentInfo.createdAt,
-      updatedAt: commentInfo.updatedAt,
-      nickname: userInfo.nickname,
-      profileImage: profileInfo ? profileInfo.path : null,
+    const modifiedComment = {
+      ...result.toJSON(),
       subcommentCount: subcommentCount,
     };
-    return comment;
+    return modifiedComment;
   } else {
     return null;
   }
@@ -87,27 +74,16 @@ export const getComment = async (
   const commentList = await Promise.all(
     result.map(async (comment) => {
       const commentInfo = comment.dataValues;
-      const userInfo = commentInfo.user.dataValues;
-      const profileInfo = userInfo.ProfileImage
-        ? userInfo.ProfileImage.dataValues
-        : null;
       const subcommentCount = await Comment.count({
         where: {
           commentId: commentInfo.id,
         },
       });
-      return {
-        id: commentInfo.id,
-        postId: commentInfo.postId,
-        userId: commentInfo.userId,
-        content: commentInfo.content,
-        commentId: commentInfo.commentId,
-        createdAt: commentInfo.createdAt,
-        updatedAt: commentInfo.updatedAt,
-        nickname: userInfo.nickname,
-        profileImage: profileInfo ? profileInfo.path : null,
+      const modifiedComment = {
+        ...comment.toJSON(),
         subcommentCount: subcommentCount,
       };
+      return modifiedComment;
     })
   );
   return { commentList, totalPages };
@@ -131,27 +107,16 @@ export const getMyCommentByPost = async (userId: number, postId: number) => {
     const commentList = await Promise.all(
       result.map(async (comment) => {
         const commentInfo = comment.dataValues;
-        const userInfo = commentInfo.user.dataValues;
-        const profileInfo = userInfo.ProfileImage
-          ? userInfo.ProfileImage.dataValues
-          : null;
         const subcommentCount = await Comment.count({
           where: {
             commentId: commentInfo.id,
           },
         });
-        return {
-          id: commentInfo.id,
-          postId: commentInfo.postId,
-          userId: commentInfo.userId,
-          content: commentInfo.content,
-          commentId: commentInfo.commentId,
-          createdAt: commentInfo.createdAt,
-          updatedAt: commentInfo.updatedAt,
-          nickname: userInfo.nickname,
-          profileImage: profileInfo ? profileInfo.path : null,
+        const modifiedComment = {
+          ...comment.toJSON(),
           subcommentCount: subcommentCount,
         };
+        return modifiedComment;
       })
     );
     return { commentList };
@@ -180,22 +145,7 @@ export const getSubComment = async (
     order: [["createdAt", "DESC"]],
   });
   const comment = result.map((comment) => {
-    const commentInfo = comment.dataValues;
-    const userInfo = commentInfo.user.dataValues;
-    const profileInfo = userInfo.ProfileImage
-      ? userInfo.ProfileImage.dataValues
-      : null;
-    return {
-      id: commentInfo.id,
-      postId: commentInfo.postId,
-      userId: commentInfo.userId,
-      content: commentInfo.content,
-      commentId: commentInfo.commentId,
-      createdAt: commentInfo.createdAt,
-      updatedAt: commentInfo.updatedAt,
-      nickname: userInfo.nickname,
-      profileImage: profileInfo ? profileInfo.path : null,
-    };
+    return comment.toJSON();
   });
   return comment;
 };
@@ -231,24 +181,13 @@ export const getCommentById = async (id: number) => {
         commentId: id,
       },
     });
-    const commentInfo = comment.dataValues;
-    const userInfo = commentInfo.user.dataValues;
-    const profileInfo = userInfo.ProfileImage
-      ? userInfo.ProfileImage.dataValues
-      : null;
-    const result = {
-      id: commentInfo.id,
-      postId: commentInfo.postId,
-      userId: commentInfo.userId,
-      content: commentInfo.content,
-      commentId: commentInfo.commentId,
-      createdAt: commentInfo.createdAt,
-      updatedAt: commentInfo.updatedAt,
-      nickname: userInfo.nickname,
-      profileImage: profileInfo ? profileInfo.path : null,
+    
+    const modifiedComment = {
+      ...comment.toJSON(),
       subcommentCount: subcommentCount,
     };
-    return result;
+    
+    return modifiedComment;
   }
 };
 

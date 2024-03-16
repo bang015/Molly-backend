@@ -38,18 +38,7 @@ export const getAllPost = async (
   });
 
   const postList = result.map((post) => {
-    const postInfo = post.dataValues;
-    const mediaInfo = post.dataValues.PostMedia;
-    const mediaList = mediaInfo.map((media: any) => {
-      return {
-        mediaId: media.id,
-        mediaPath: media.path,
-      };
-    });
-    return {
-      id: postInfo.id,
-      mediaList: mediaList,
-    };
+    return post.toJSON();
   });
 
   return postList;
@@ -89,23 +78,7 @@ export const getMainPost = async (
     });
     const totalPages = Math.ceil(totalPost / limit);
     const post = result.map((post) => {
-      const data = post.dataValues;
-      const mediaList = data.PostMedia.map((media: any) => {
-        return {
-          mediaId: media.dataValues.id,
-          mediaPath: media.dataValues.path,
-        };
-      });
-      return {
-        id: data.id,
-        userId: data.userId,
-        content: data.content,
-        createdAt: data.createdAt,
-        updatedAt: data.updatedAt,
-        nickname: data.User.dataValues.nickname,
-        profileImage: data.User.ProfileImage,
-        mediaList: mediaList,
-      };
+      return post.toJSON();
     });
     return { post, totalPages };
   } else {
@@ -120,7 +93,7 @@ export const getPostByTag = async (
 ) => {
   const offset = limit * (page - 1);
   const result = await PostTag.findAll({
-    attributes: ["PostId"],
+    attributes: [],
     where: { TagId: tagId },
     include: [
       {
@@ -133,18 +106,7 @@ export const getPostByTag = async (
   });
   if (result) {
     const post = result.map((post) => {
-      const data = post.dataValues;
-      const postInfo = data.Post.dataValues;
-      const mediaList = postInfo.PostMedia.map((media: any) => {
-        return {
-          mediaId: media.dataValues.id,
-          mediaPath: media.dataValues.path,
-        };
-      });
-      return {
-        id: postInfo.id,
-        mediaList: mediaList,
-      }
+      return post.toJSON().Post;
     });
     return post;
   } else {
@@ -168,25 +130,7 @@ export const getPostByPostId = async (id: number) => {
     where: { id: id },
   });
   if (result) {
-    const data = result.dataValues;
-
-    const mediaList = data.PostMedia.map((media: any) => {
-      return {
-        mediaId: media.dataValues.id,
-        mediaPath: media.dataValues.path,
-      };
-    });
-    const post = {
-      id: data.id,
-      userId: data.userId,
-      content: data.content,
-      createdAt: data.createdAt,
-      updatedAt: data.updatedAt,
-      nickname: data.User.dataValues.nickname,
-      profileImage: data.User.ProfileImage,
-      mediaList: mediaList,
-    };
-    return post;
+    return result.toJSON();
   } else {
     return null;
   }

@@ -40,18 +40,14 @@ export const selectFollowing = async (
     offset,
     limit,
   });
-
   const cleanedResult = result.map((follow) => {
-    const followInfo = follow.dataValues;
-    const userInfo = followInfo.following.dataValues;
-    const profileInfo = userInfo.ProfileImage;
-    return {
-      userId: followInfo.followingId,
-      userName: userInfo.name,
-      userNickname: userInfo.nickname,
-      profileImagePath: profileInfo ? profileInfo.dataValues.path : null,
+    const result = {
+      id: follow.toJSON().followingId,
+      ...follow.toJSON().following,
     };
+    return result;
   });
+  console.log(cleanedResult)
   return cleanedResult;
 };
 export const followCount = async (userId: number) => {
@@ -100,15 +96,11 @@ export const selectFollower = async (
   });
 
   const cleanedResult = result.map((follow) => {
-    const followInfo = follow.dataValues;
-    const userInfo = followInfo.follower.dataValues;
-    const profileInfo = userInfo.ProfileImage;
-    return {
-      userId: followInfo.followerId,
-      userName: userInfo.name,
-      userNickname: userInfo.nickname,
-      profileImagePath: profileInfo ? profileInfo.dataValues.path : null,
+    const result = {
+      id: follow.toJSON().followerId,
+      ...follow.toJSON().follower,
     };
+    return result;
   });
   return cleanedResult;
 };
@@ -121,7 +113,13 @@ export const followerCount = async (userId: number) => {
   return result;
 };
 
-export const suggestFollowers = async (userId: number, limit: number) => {
+export const suggestFollowers = async (userId: number, limit: number, filter: number[]) => {
+  console.log(userId)
+  const userIdConditions = filter.map(userId => ({
+    id: {
+        [Op.not]: userId // userId와 다른 경우를 나타내는 조건
+    }
+}));
   const result = await User.findAll({
     where: {
       [Op.and]: [
@@ -130,6 +128,7 @@ export const suggestFollowers = async (userId: number, limit: number) => {
             [Op.not]: userId,
           },
         },
+        userIdConditions,
         {
           id: {
             [Op.notIn]: Sequelize.literal(
@@ -144,23 +143,15 @@ export const suggestFollowers = async (userId: number, limit: number) => {
     limit: limit,
   });
   const cleanedResult = result.map((user) => {
-    const userInfo = user.dataValues;
-    console.log(userInfo.ProfileImage);
-    return {
-      userId: userInfo.id,
-      userName: userInfo.name,
-      userNickname: userInfo.nickname,
-      profileImagePath: userInfo.ProfileImage
-        ? userInfo.ProfileImage.dataValues.path
-        : null,
-    };
+    const result = {...user.toJSON(), message: "회원님을 위한 추천"}
+    return result;
   });
 
   return cleanedResult;
 };
 
 export const addFollowing = async (userId: number, followUserId: number) => {
-  const followedUserId = await Follow.create({
+  await Follow.create({
     followerId: userId,
     followingId: followUserId,
   });

@@ -5,7 +5,7 @@ import { Joi, Segments, celebrate } from "celebrate";
 import { checkCommentUser, createComment, deleteComment, getComment, getCommentById, getMyCommentByPost, getSubComment, updateComment } from "../../services/comment";
 
 const commentRouter = Router();
-
+// post comment
 commentRouter.post(
   "/",
   checkJWT,
@@ -60,6 +60,7 @@ commentRouter.get(
     return res.status(200).json(response);
   }
 )
+// edit comment
 commentRouter.patch(
   "/:id",
   checkJWT,
@@ -67,7 +68,6 @@ commentRouter.patch(
     const userId = req.decoded?.id;
     const id = parseInt(req.params.id, 10);
     const {content} = req.body;
-    console.log(userId, id, content)
     if(userId){
       const checkUserId = await checkCommentUser(id, userId);
       if(checkUserId){
@@ -80,7 +80,7 @@ commentRouter.patch(
     }
   }
 );
-
+// delete comment
 commentRouter.delete(
   "/:id",
   checkJWT,

@@ -3,7 +3,6 @@ import { celebrate, Joi, Segments } from "celebrate";
 import { checkJWT } from "../middleware/checkJwt";
 import { uploadPostMedias } from "../middleware/multer";
 import { IJwtRequest } from "../../interfaces/auth";
-import client from "../../config/redis";
 import User from "../../models/user";
 import {
   getAllPost,
@@ -125,9 +124,10 @@ postRouter.get("/main/", checkJWT, async (req: IJwtRequest, res: Response) => {
     const followedUsers = await selectFollowing(userId);
     let userIds = [];
     if (followedUsers) {
-      userIds = followedUsers.map((follow) => follow.userId);
+      userIds = followedUsers.map((follow) => follow.id);
     }
     userIds.push(userId);
+    console.log(userIds)
     const response = await getMainPost(userIds, page);
     return res.status(200).json(response);
   }
@@ -143,7 +143,7 @@ postRouter.get(
         const followedUsers = await selectFollowing(userId);
         let userIds = [];
         if (followedUsers) {
-          userIds = followedUsers.map((follow) => follow.userId);
+          userIds = followedUsers.map((follow) => follow.id);
         }
         userIds.push(userId);
         const allPost = await getAllPost(userIds, page);
