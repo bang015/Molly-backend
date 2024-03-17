@@ -47,7 +47,6 @@ export const selectFollowing = async (
     };
     return result;
   });
-  console.log(cleanedResult)
   return cleanedResult;
 };
 export const followCount = async (userId: number) => {
@@ -113,13 +112,16 @@ export const followerCount = async (userId: number) => {
   return result;
 };
 
-export const suggestFollowers = async (userId: number, limit: number, filter: number[]) => {
-  console.log(userId)
-  const userIdConditions = filter.map(userId => ({
+export const suggestFollowers = async (
+  userId: number,
+  limit: number,
+  filter: number[]
+) => {
+  const userIdConditions = filter.map((userId) => ({
     id: {
-        [Op.not]: userId // userId와 다른 경우를 나타내는 조건
-    }
-}));
+      [Op.not]: userId, // userId와 다른 경우를 나타내는 조건
+    },
+  }));
   const result = await User.findAll({
     where: {
       [Op.and]: [
@@ -140,10 +142,11 @@ export const suggestFollowers = async (userId: number, limit: number, filter: nu
     },
     attributes: ["id", "name", "nickname"],
     include: { model: ProfileImage, attributes: ["path"] },
+    order: Sequelize.literal("RAND()"),
     limit: limit,
   });
   const cleanedResult = result.map((user) => {
-    const result = {...user.toJSON(), message: "회원님을 위한 추천"}
+    const result = { ...user.toJSON(), message: "회원님을 위한 추천" };
     return result;
   });
 

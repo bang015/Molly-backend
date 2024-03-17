@@ -95,9 +95,7 @@ postRouter.patch(
           updatedPost = await postUpdate(postId, content);
           const tags = await checkUsedTagByPost(postId);
           const del = await postTagRemove(postId);
-          if (del > 0) {
-            deleteUnusedTag(tags);
-          }
+
           if (hashtags) {
             const tagNames = hashtags;
             const postTagData = [];
@@ -106,6 +104,9 @@ postRouter.patch(
               postTagData.push({ PostId: postId, TagId: tagId });
             }
             await postTag(postTagData);
+          }
+          if (del > 0) {
+            await deleteUnusedTag(tags);
           }
         } else {
           return res.status(401).json("권한이 부족합니다.");
@@ -127,7 +128,6 @@ postRouter.get("/main/", checkJWT, async (req: IJwtRequest, res: Response) => {
       userIds = followedUsers.map((follow) => follow.id);
     }
     userIds.push(userId);
-    console.log(userIds)
     const response = await getMainPost(userIds, page);
     return res.status(200).json(response);
   }
@@ -208,7 +208,7 @@ postRouter.delete("/:id", checkJWT, async (req: IJwtRequest, res: Response) => {
       const tags = await checkUsedTagByPost(postId);
       const del = await postTagRemove(postId);
       if (del > 0) {
-        deleteUnusedTag(tags);
+        await deleteUnusedTag(tags);
       }
       await deletePostImage(postId);
       const response = await postDelete(postId);

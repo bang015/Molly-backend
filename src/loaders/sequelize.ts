@@ -12,6 +12,8 @@ import Like from "../models/like";
 import ChatRoom from "../models/chat-room";
 import ChatUsers from "../models/chat-users";
 import ChatMessage from "../models/chat-message";
+import Seeder from "./seeder";
+
 export default async (): Promise<Sequelize> => {
   const db = {
     sequelize,
@@ -31,5 +33,6 @@ export default async (): Promise<Sequelize> => {
   };
 
   const connection = await db.sequelize.sync();
+  // Seeder();
   return connection;
 };

@@ -71,9 +71,9 @@ userRouter.get(
   async (req: Request, res: Response, next: NextFunction) => {
     const nickname = req.params.nickname;
     try {
-      const user = await getUserByUserInfo({nickname});
+      const user = await getUserByUserInfo({ nickname });
       if (user) {
-        const { password, ...userInfo} = user.dataValues;
+        const { password, ...userInfo } = user.dataValues;
         const postCnt = await postCount(user.dataValues.id);
         const followCnt = await followCount(user.dataValues.id);
         const followerCnt = await followerCount(user.dataValues.id);
@@ -115,18 +115,18 @@ userRouter.patch(
             path: req.file.path,
           };
           const profileimageId = exisUser.dataValues.profile_image;
-          if(profileimageId){
-            await deleteProfileImage(profileimageId)
+          if (profileimageId) {
+            await deleteProfileImage(profileimageId);
           }
           const newImage = await profileImage(imageDetail);
           modifyDetail = { ...modifyDetail, profile_image: newImage?.id };
           message = "프로필 사진이 수정되었습니다.";
-          
         }
+
         const user = await modifyUser(modifyDetail);
-        message = "프로필이 수정되었습니다."
+        message = "프로필이 수정되었습니다.";
         if (user) {
-          return res.status(200).json({user, message});
+          return res.status(200).json({ user, message });
         }
       }
     } catch (e) {

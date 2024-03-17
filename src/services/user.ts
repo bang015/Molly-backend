@@ -52,8 +52,8 @@ export const modifyUser = async (
     return null;
   }
   const updateFields: Partial<IUserModify> = {};
-  if (userInfo.email) {
-    updateFields.email = userInfo.email;
+  if (userInfo.name) {
+    updateFields.name = userInfo.name;
   }
   if (userInfo.nickname) {
     updateFields.nickname = userInfo.nickname;

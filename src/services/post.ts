@@ -1,4 +1,4 @@
-import { Op } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import Post from "../models/post";
 import PostMedia from "../models/post-media";
 import ProfileImage from "../models/profile-image";
@@ -34,7 +34,7 @@ export const getAllPost = async (
     ],
     offset,
     limit,
-    order: [["createdAt", "DESC"]],
+    order: Sequelize.literal("RAND()"),
   });
 
   const postList = result.map((post) => {
@@ -42,7 +42,7 @@ export const getAllPost = async (
   });
 
   return postList;
-};
+}; 
 
 export const getMainPost = async (
   userIds: number[] | number,

@@ -16,6 +16,7 @@ export interface IUserModify {
   id: number;
   email: string;
   nickname: string;
+  name: string;
   password?: string;
   introduce?: string;
   profile_image?: number;
