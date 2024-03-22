@@ -17,7 +17,7 @@ ChatMessage.init({
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
-            model: "User",
+            model: "user",
             key: "id",
         },
     },
@@ -25,7 +25,7 @@ ChatMessage.init({
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
-            model: "Chat_room",
+            model: "chat_room",
             key: "id",
         },
     },

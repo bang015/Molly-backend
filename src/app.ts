@@ -6,7 +6,9 @@ async function startServer() {
   const app: Application = express();
 
   await loadApp({ expressApp: app });
-  const server = app.listen(config.port, () => {});
+  const server = app.listen(config.port, () => {
+    console.log(`${config.port}열렀다`)
+  });
   webSocket(server, app);
 }
 

@@ -8,7 +8,24 @@ const database_1 = __importDefault(require("../config/database"));
 class Follow extends sequelize_1.Model {
 }
 exports.default = Follow;
-Follow.init({}, {
+Follow.init({
+    followerId: {
+        type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
+        allowNull: false,
+        references: {
+            model: "user",
+            key: "id",
+        },
+    },
+    followingId: {
+        type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
+        allowNull: false,
+        references: {
+            model: "user",
+            key: "id",
+        },
+    },
+}, {
     tableName: "follow",
     sequelize: database_1.default,
 });

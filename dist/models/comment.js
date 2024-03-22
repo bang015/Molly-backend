@@ -21,7 +21,7 @@ Comment.init({
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
-            model: "User",
+            model: "user",
             key: "id",
         },
     },
@@ -33,7 +33,7 @@ Comment.init({
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
         allowNull: true,
         references: {
-            model: 'Comment',
+            model: 'comment',
             key: 'id'
         }
     },

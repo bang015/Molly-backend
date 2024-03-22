@@ -2,6 +2,7 @@ import { Model, DataTypes } from "sequelize";
 import sequelize from "../config/database";
 import PostMedia from "./post-media"; 
 import Comment from "./comment";
+import User from "./user";
 
 class Post extends Model {
   public id!: number;
@@ -33,5 +34,5 @@ Post.init(
     sequelize,
   }
 );
-
+Post.belongsTo(User, { foreignKey: "userId"});
 export default Post;

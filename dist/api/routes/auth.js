@@ -29,4 +29,5 @@ authRouter.get("/", checkJwt_1.checkJWT, async (req, res, next) => {
         return next(err);
     }
 });
+consol
 exports.default = authRouter;

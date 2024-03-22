@@ -17,7 +17,7 @@ Like.init({
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
-            model: "Post",
+            model: "post",
             key: "id",
         },
     },
@@ -25,7 +25,7 @@ Like.init({
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
-            model: "User",
+            model: "user",
             key: "id",
         },
     },

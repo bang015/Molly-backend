@@ -74,7 +74,8 @@ const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
           const message = await getMessageById(messageId);
           io.to(`room${data.roomId}`).emit(`sendMessagesuccess` , message);
           const user = await getJoinRoomUser(data.roomId, userId);
-          io.emit("newMessage", user);
+          console.log(user)
+          io.emit("newMessage", {user, sendUser:userId});
         }
       }
     });

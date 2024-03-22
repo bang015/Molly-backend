@@ -17,7 +17,7 @@ Post.init({
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
         references: {
-            model: 'User',
+            model: 'user',
             key: 'id',
         },
     },
@@ -28,4 +28,5 @@ Post.init({
     tableName: "post",
     sequelize: database_1.default,
 });
+
 exports.default = Post;
