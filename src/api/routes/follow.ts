@@ -69,6 +69,7 @@ followRouter.get(
       console.log(filter)
       const suggestList = await suggestFollowers(userId!, limit, filter);
       const suggestFollowerList = [...sugFollower.filter(Boolean) , ...suggestList]
+      console.log(suggestFollowerList)
       return res.status(200).json({ suggestFollowerList, followed });
     } catch (err) {}
   }
