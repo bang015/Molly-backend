@@ -1,26 +1,37 @@
-import { Model, DataTypes } from "sequelize";
-import sequelize from "../config/database";
+import {
+  AllowNull,
+  AutoIncrement,
+  BelongsToMany,
+  Column,
+  CreatedAt,
+  DataType,
+  Model,
+  PrimaryKey,
+  Table,
+  UpdatedAt,
+} from "sequelize-typescript";
+import Post from "./post";
+import PostTag from "./post-tag";
 
-export default class Tag extends Model {
-  public id!: number;
-  public name!: string;
+@Table({ tableName: "Tag" })
+class Tag extends Model {
+  @PrimaryKey
+  @AutoIncrement
+  @Column(DataType.INTEGER)
+  id: number;
+
+  @Column(DataType.STRING)
+  @AllowNull(false)
+  name: string;
+
+  @CreatedAt
+  createdAt: Date;
+
+  @UpdatedAt
+  updatedAt: Date;
+
+  @BelongsToMany(() => Post, () => PostTag)
+  posts: Post[];
 }
 
-Tag.init(
-  {
-    id: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      autoIncrement: true,
-      primaryKey: true,
-    },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-  },
-  {
-    tableName: "tag",
-    sequelize,
-  }
-);
-
+export default Tag;

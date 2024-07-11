@@ -1,38 +1,65 @@
-import { Model, DataTypes } from "sequelize";
-import sequelize from "../config/database";
-import PostMedia from "./post-media"; 
+import Bookmark from "./bookmark.modal";
 import Comment from "./comment";
+import Like from "./like";
+import PostMedia from "./post-media";
+import PostTag from "./post-tag";
+import Tag from "./tag";
 import User from "./user";
+import {
+  AllowNull,
+  AutoIncrement,
+  BelongsTo,
+  BelongsToMany,
+  Column,
+  CreatedAt,
+  DataType,
+  ForeignKey,
+  HasMany,
+  Model,
+  PrimaryKey,
+  Table,
+  UpdatedAt,
+} from "sequelize-typescript";
 
+@Table({ tableName: "Post" })
 class Post extends Model {
-  public id!: number;
-  public userId!: number;
-  public content!: string;
+  @PrimaryKey
+  @AutoIncrement
+  @Column(DataType.INTEGER)
+  id: number;
+
+  @ForeignKey(() => User)
+  @Column(DataType.INTEGER)
+  @AllowNull(false)
+  userId: number;
+
+  @Column(DataType.TEXT)
+  @AllowNull(false)
+  content: string;
+
+  @CreatedAt
+  createdAt: Date;
+
+  @UpdatedAt
+  updatedAt: Date;
+
+  @BelongsTo(() => User)
+  user: User;
+
+  @HasMany(() => Bookmark)
+  bookmarks: Bookmark[];
+
+  @HasMany(() => PostMedia)
+  postMedias: PostMedia[];
+
+  @HasMany(() => Comment)
+  comments: Comment[];
+
+  @BelongsToMany(() => Tag, () => PostTag)
+  tags: Tag[];
+
+  @BelongsToMany(() => User, () => Like)
+  users: User[];
 }
 
-Post.init(
-  {
-    id: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      autoIncrement: true,
-      primaryKey: true,
-    },
-    userId: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      allowNull: false,
-      references: {
-        model: 'User',
-        key: 'id',
-      },
-    },
-    content: {
-      type: DataTypes.STRING,
-    },
-  },
-  {
-    tableName: "post",
-    sequelize,
-  }
-);
-Post.belongsTo(User, { foreignKey: "userId"});
 export default Post;

@@ -1,21 +1,32 @@
-import { Model, DataTypes } from "sequelize";
-import sequelize from "../config/database";
+import {
+  AutoIncrement,
+  BelongsToMany,
+  Column,
+  CreatedAt,
+  DataType,
+  Model,
+  PrimaryKey,
+  Table,
+  UpdatedAt,
+} from "sequelize-typescript";
+import User from "./user";
+import ChatMembers from "./chat-users";
 
+@Table({ tableName: "ChatRoom" })
 class ChatRoom extends Model {
-  public id!: number;
+  @PrimaryKey
+  @AutoIncrement
+  @Column(DataType.INTEGER)
+  id: number;
+
+  @BelongsToMany(() => User, () => ChatMembers)
+  users: User[];
+
+  @CreatedAt
+  createdAt: Date;
+
+  @UpdatedAt
+  updatedAt: Date;
 }
 
-ChatRoom.init(
-  {
-    id: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      autoIncrement: true,
-      primaryKey: true,
-    },
-  },
-  {
-    tableName: "chat_room",
-    sequelize,
-  }
-);
 export default ChatRoom;

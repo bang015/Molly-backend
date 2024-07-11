@@ -1,49 +1,48 @@
-import { Model, DataTypes } from "sequelize";
-import sequelize from "../config/database";
+import {
+  AllowNull,
+  AutoIncrement,
+  BelongsTo,
+  Column,
+  DataType,
+  Default,
+  ForeignKey,
+  Model,
+  PrimaryKey,
+  Table,
+} from "sequelize-typescript";
+import User from "./user";
+import ChatRoom from "./chat-room";
 
+@Table({ tableName: "ChatMessage" })
 class ChatMessage extends Model {
-  public id!: number;
-  public userId!: number;
-  public roomId!: number;
-  public message!: string;
-  public isRead!: boolean;
+  @PrimaryKey
+  @AutoIncrement
+  @Column(DataType.INTEGER)
+  id: number;
+
+  @ForeignKey(() => User)
+  @Column(DataType.INTEGER)
+  @AllowNull(false)
+  userId: number;
+
+  @BelongsTo(() => User, "userId")
+  user: User;
+
+  @ForeignKey(() => ChatRoom)
+  @Column(DataType.INTEGER)
+  @AllowNull(false)
+  roomId: number;
+
+  @BelongsTo(() => ChatRoom, "roomId")
+  room: User;
+
+  @Column(DataType.TEXT)
+  @AllowNull(false)
+  message: string;
+
+  @Column(DataType.BOOLEAN)
+  @Default(false)
+  isRead: boolean;
 }
 
-ChatMessage.init(
-  {
-    id: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      autoIncrement: true,
-      primaryKey: true,
-    },
-    userId: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      allowNull: false,
-      references: {
-        model: "User",
-        key: "id",
-      },
-    },
-    roomId: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      allowNull: false,
-      references: {
-        model: "Chat_room",
-        key: "id",
-      },
-    },
-    message: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    isRead: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-    },
-  },
-  {
-    tableName: "chat_message",
-    sequelize,
-  }
-);
 export default ChatMessage;

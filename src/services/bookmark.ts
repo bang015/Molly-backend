@@ -1,11 +1,11 @@
-import Bookmark from "../models/bookmark";
+import Bookmark from "../models/bookmark.modal";
 import Post from "../models/post";
 import PostMedia from "../models/post-media";
 
 export const bookmarkPost = async (postId: number, userId: number) => {
   await Bookmark.create({
     postId,
-    userId,
+    userId, 
   });
 };
 export const unBookmarkPost = async (postId: number, userId: number) => {

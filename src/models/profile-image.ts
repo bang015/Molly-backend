@@ -1,35 +1,39 @@
-import { Model, DataTypes } from "sequelize";
-import sequelize from "../config/database";
+import {
+  AllowNull,
+  AutoIncrement,
+  Column,
+  CreatedAt,
+  DataType,
+  Model,
+  PrimaryKey,
+  Table,
+  UpdatedAt,
+} from "sequelize-typescript";
 
-export default class ProfileImage extends Model {
-  public id!: number;
-  public name!: string;
-  public type!: string;
-  public path!: string;
+@Table({ tableName: "ProfileImage" })
+class ProfileImage extends Model {
+  @PrimaryKey
+  @AutoIncrement
+  @Column(DataType.INTEGER)
+  id: number;
+
+  @Column(DataType.STRING)
+  @AllowNull(false)
+  name: string;
+
+  @Column(DataType.STRING)
+  @AllowNull(false)
+  type: string;
+
+  @Column(DataType.STRING)
+  @AllowNull(false)
+  path: string;
+
+  @CreatedAt
+  createdAt: Date;
+
+  @UpdatedAt
+  updatedAt: Date;
 }
 
-ProfileImage.init(
-  {
-    id: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      autoIncrement: true,
-      primaryKey: true,
-    },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    type: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    path: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-  },
-  {
-    tableName: "profile_image",
-    sequelize,
-  }
-);
+export default ProfileImage;

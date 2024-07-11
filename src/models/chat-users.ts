@@ -1,34 +1,40 @@
-import { Model, DataTypes } from "sequelize";
-import sequelize from "../config/database";
+import {
+  AllowNull,
+  AutoIncrement,
+  Column,
+  CreatedAt,
+  DataType,
+  ForeignKey,
+  Model,
+  PrimaryKey,
+  Table,
+  UpdatedAt,
+} from "sequelize-typescript";
+import User from "./user";
+import ChatRoom from "./chat-room";
 
-class ChatUsers extends Model {
-  public userId!: number;
-  public roomId!: number;
+@Table({ tableName: "ChatMembers" })
+class ChatMembers extends Model {
+  @PrimaryKey
+  @AutoIncrement
+  @Column(DataType.INTEGER)
+  id: number;
+
+  @ForeignKey(() => User)
+  @Column(DataType.INTEGER)
+  @AllowNull(false)
+  userId: number;
+
+  @ForeignKey(() => ChatRoom)
+  @Column(DataType.INTEGER)
+  @AllowNull(false)
+  roomId: number;
+
+  @CreatedAt
+  createdAt: Date;
+
+  @UpdatedAt
+  updatedAt: Date;
 }
 
-ChatUsers.init(
-  {
-    userId: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      allowNull: false,
-      references: {
-        model: "User",
-        key: "id",
-      },
-    },
-    roomId: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      allowNull: false,
-      references: {
-        model: "Chat_room",
-        key: "id",
-      },
-    },
-  },
-  {
-    tableName: "chat_users",
-    sequelize,
-  }
-);
-
-export default ChatUsers;
+export default ChatMembers;

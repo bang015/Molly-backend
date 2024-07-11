@@ -1,43 +1,50 @@
-import { Model, DataTypes } from "sequelize";
-import sequelize from "../config/database";
+import {
+  AllowNull,
+  AutoIncrement,
+  BelongsTo,
+  Column,
+  CreatedAt,
+  DataType,
+  ForeignKey,
+  Model,
+  PrimaryKey,
+  Table,
+  UpdatedAt,
+} from "sequelize-typescript";
+import Post from "./post";
 
+@Table({ tableName: "PostMedia" })
 class PostMedia extends Model {
-  public id!: number;
-  public postId!: number;
-  public name!: string;
-  public type!: string;
-  public path!: string;
+  @PrimaryKey
+  @AutoIncrement
+  @Column(DataType.INTEGER)
+  id: number;
 
+  @Column(DataType.STRING)
+  @AllowNull(false)
+  name: string;
+
+  @Column(DataType.STRING)
+  @AllowNull(false)
+  type: string;
+
+  @Column(DataType.STRING)
+  @AllowNull(false)
+  path: string;
+
+  @ForeignKey(() => Post)
+  @Column(DataType.INTEGER)
+  @AllowNull(false)
+  postId: number;
+
+  @CreatedAt
+  createdAt: Date;
+
+  @UpdatedAt
+  updatedAt: Date;
+
+  @BelongsTo(() => Post)
+  post: Post;
 }
-
-PostMedia.init(
-  {
-    id: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      autoIncrement: true,
-      primaryKey: true,
-    },
-    postId: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      allowNull: false,
-    },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    type: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    path: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-  },
-  {
-    tableName: "post_media",
-    sequelize,
-  }
-);
 
 export default PostMedia;
