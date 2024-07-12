@@ -1,13 +1,12 @@
-import { Op } from "sequelize";
-import * as jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
-import User from "../models/user";
-import Image from "../models/profile-image";
-import jwtKey from "../config";
-import { IAuthUser } from "../interfaces/auth";
+import * as jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import User from '../models/user';
+import Image from '../models/profile-image';
+import jwtKey from '../config';
+import { IAuthUser } from '../interfaces/auth';
 
 export const authenticate = async (
-  authInfo: IAuthUser
+  authInfo: IAuthUser,
 ): Promise<User | null> => {
   const user = await User.findOne({
     where: {
@@ -30,29 +29,25 @@ export const authorize = (user: User): string => {
     { id: user.id, email: user.email, nick: user.nickname },
     jwtKey.toString(),
     {
-      expiresIn: "7d",
-      issuer: "bletcher",
-      subject: "userInfo",
-    }
+      expiresIn: '7d',
+      issuer: 'bletcher',
+      subject: 'userInfo',
+    },
   );
   return token;
 };
 
-export const getUserById = async (id?: number): Promise<User | null> => {
-  if (id) {
-    const user = await User.findOne({
-      where: { id },
-      attributes: {
-        exclude: ["password"],
+export const getUserById = async (id: number): Promise<User | null> => {
+  return await User.findOne({
+    where: { id },
+    attributes: {
+      exclude: ['password'],
+    },
+    include: [
+      {
+        model: Image,
+        attributes: ['id', 'path'],
       },
-      include: [
-        {
-          model: Image,
-          attributes: ["id", "path"],
-        },
-      ],
-    });
-    return user;
-  }
-  return null;
+    ],
+  });
 };

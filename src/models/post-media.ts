@@ -20,21 +20,17 @@ class PostMedia extends Model {
   @Column(DataType.INTEGER)
   id: number;
 
-  @Column(DataType.STRING)
-  @AllowNull(false)
+  @Column({ type: DataType.STRING, allowNull: false })
   name: string;
 
-  @Column(DataType.STRING)
-  @AllowNull(false)
+  @Column({ type: DataType.STRING, allowNull: false })
   type: string;
 
-  @Column(DataType.STRING)
-  @AllowNull(false)
+  @Column({ type: DataType.STRING, allowNull: false })
   path: string;
 
   @ForeignKey(() => Post)
-  @Column(DataType.INTEGER)
-  @AllowNull(false)
+  @Column({ type: DataType.INTEGER, allowNull: false })
   postId: number;
 
   @CreatedAt

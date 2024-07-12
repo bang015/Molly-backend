@@ -7,7 +7,7 @@ const sequelize = new Sequelize({
   username: config.database.username as string,
   password: config.database.password as string,
   storage: ':memory:',
-  models: [__dirname + '/models'], // or [Player, Team],
+  models: [__dirname + '/../models'], // or [Player, Team],
 });
 // const sequelize = new Sequelize(
 //   config.database.dbname as string,

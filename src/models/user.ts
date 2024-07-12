@@ -1,6 +1,7 @@
 import {
   AllowNull,
   AutoIncrement,
+  BeforeCreate,
   BelongsTo,
   BelongsToMany,
   Column,
@@ -22,6 +23,7 @@ import Follow from "./follow";
 import ChatRoom from "./chat-room";
 import ChatMembers from "./chat-users";
 import Comment from "./comment";
+import bcrypt from "bcrypt";
 
 @Table({ tableName: "User" })
 export class User extends Model {
@@ -31,30 +33,22 @@ export class User extends Model {
   id: number;
 
   @IsEmail
-  @Column(DataType.STRING)
-  @Unique
-  @AllowNull(false)
+  @Column({ type: DataType.STRING, allowNull: false, unique: true })
   email: string;
 
-  @Column(DataType.STRING)
-  @Unique
-  @AllowNull(false)
+  @Column({ type: DataType.STRING, allowNull: false, unique: true })
   nickname: string;
 
-  @Column(DataType.STRING)
-  @AllowNull(false)
+  @Column({ type: DataType.STRING, allowNull: false })
   name: string;
 
-  @Column(DataType.STRING)
-  @AllowNull(false)
+  @Column({ type: DataType.STRING, allowNull: false })
   password: string;
 
-  @Column(DataType.TEXT)
-  @AllowNull(true)
+  @Column({ type: DataType.TEXT, allowNull: true })
   introduce?: string;
 
-  @Column(DataType.INTEGER)
-  @AllowNull(true)
+  @Column({ type: DataType.INTEGER, allowNull: true })
   profileImageId?: number;
 
   @CreatedAt
@@ -86,6 +80,12 @@ export class User extends Model {
 
   @BelongsToMany(() => ChatRoom, () => ChatMembers)
   ChatRooms: ChatRoom[];
+
+  @BeforeCreate
+  static async encryptPassword(user: User) {
+    const encryptedPw = await bcrypt.hash(user.password, 10);
+    user.password = encryptedPw;
+  }
 }
 
 export default User;

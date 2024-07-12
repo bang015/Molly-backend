@@ -1,4 +1,4 @@
-import { Router, Request, Response, NextFunction, response } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import { celebrate, Joi, Segments } from "celebrate";
 import { IUserforSignUp, IUserInfo } from "../../interfaces/user";
 import {
@@ -8,7 +8,7 @@ import {
   modifyUser,
 } from "../../services/user";
 import { checkJWT } from "../middleware/checkJwt";
-import { IJwtRequest } from "../../interfaces/auth";
+import { IJwtRequest } from "@/interfaces/auth";
 import { uploadProfile } from "../middleware/multer";
 import { deleteProfileImage, profileImage } from "../../services/image";
 import { postCount } from "../../services/post";
@@ -55,6 +55,7 @@ userRouter.get(
     try {
       if (!id && !email && !nickname) {
         const allUser = await getAllUser();
+        return res.status(200).json(allUser);
       }
       const user = await getUserByUserInfo(req.query as IUserInfo);
       if (user) {

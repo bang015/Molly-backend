@@ -1,12 +1,9 @@
 import { Application } from "express";
 import expressLoader from "./express";
-import sequelizeLoader from "./sequelize";
 import cloudinaryLoader from "./cloudinary";
-import {defineRelationships} from "../models/associations";
+import sequelize from "../config/database";
 export default async ({ expressApp }: { expressApp: Application }) => {
-  await sequelizeLoader();
-
-  defineRelationships();
+  await sequelize.sync();
   
   expressLoader({ app: expressApp });
 

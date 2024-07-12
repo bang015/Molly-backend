@@ -13,7 +13,7 @@ authRouter.post(
       password: Joi.string().required(),
     }),
   }),
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response ) => {
     const user = await authenticate(req.body as IAuthUser);
     if (!user) {
       return res.status(401).json({ status: false });
@@ -33,8 +33,8 @@ authRouter.get(
       const user = await getUserById(userId);
       
       return res.status(200).json(user);
-    } catch (err) {
-      return next(err);
+    } catch (e) {
+      return next(e);
     }
   }
 );

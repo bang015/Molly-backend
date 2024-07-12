@@ -14,7 +14,7 @@ import User from "./user";
 import Post from "./post";
 
 @Table({
-  tableName: "bookmark",
+  tableName: "Bookmark",
 })
 class Bookmark extends Model {
   @PrimaryKey

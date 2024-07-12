@@ -21,13 +21,11 @@ class ChatMembers extends Model {
   id: number;
 
   @ForeignKey(() => User)
-  @Column(DataType.INTEGER)
-  @AllowNull(false)
+  @Column({ type: DataType.INTEGER, allowNull: false })
   userId: number;
 
   @ForeignKey(() => ChatRoom)
-  @Column(DataType.INTEGER)
-  @AllowNull(false)
+  @Column({ type: DataType.INTEGER, allowNull: false })
   roomId: number;
 
   @CreatedAt

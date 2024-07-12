@@ -21,13 +21,11 @@ class Like extends Model {
   id: number;
 
   @ForeignKey(() => Post)
-  @Column(DataType.INTEGER)
-  @AllowNull(false)
+  @Column({ type: DataType.INTEGER, allowNull: false })
   postId: number;
 
   @ForeignKey(() => User)
-  @Column(DataType.INTEGER)
-  @AllowNull(false)
+  @Column({ type: DataType.INTEGER, allowNull: false })
   userId: number;
 
   @CreatedAt

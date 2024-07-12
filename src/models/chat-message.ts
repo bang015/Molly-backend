@@ -21,27 +21,26 @@ class ChatMessage extends Model {
   id: number;
 
   @ForeignKey(() => User)
-  @Column(DataType.INTEGER)
-  @AllowNull(false)
+  @Column({ type: DataType.INTEGER, allowNull: false })
   userId: number;
 
   @BelongsTo(() => User, "userId")
   user: User;
 
   @ForeignKey(() => ChatRoom)
-  @Column(DataType.INTEGER)
-  @AllowNull(false)
+  @Column({ type: DataType.INTEGER, allowNull: false })
   roomId: number;
 
   @BelongsTo(() => ChatRoom, "roomId")
   room: User;
 
-  @Column(DataType.TEXT)
-  @AllowNull(false)
+  @Column({
+    type: DataType.TEXT,
+    allowNull: false,
+  })
   message: string;
 
-  @Column(DataType.BOOLEAN)
-  @Default(false)
+  @Column({ type: DataType.BOOLEAN, allowNull: false, defaultValue: false })
   isRead: boolean;
 }
 

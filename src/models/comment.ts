@@ -22,23 +22,20 @@ class Comment extends Model {
   id: number;
 
   @ForeignKey(() => Post)
-  @Column(DataType.INTEGER)
-  @AllowNull(false)
+  @Column({ type: DataType.INTEGER, allowNull: false })
   postId: number;
 
   @BelongsTo(() => Post, "postId")
   post: Post;
 
   @ForeignKey(() => User)
-  @Column(DataType.INTEGER)
-  @AllowNull(false)
+  @Column({ type: DataType.INTEGER, allowNull: false })
   userId: number;
 
   @BelongsTo(() => User, "userId")
   user: User;
 
-  @Column(DataType.TEXT)
-  @AllowNull(false)
+  @Column({ type: DataType.TEXT, allowNull: false })
   content: string;
 
   @CreatedAt
@@ -48,8 +45,7 @@ class Comment extends Model {
   updatedAt: Date;
 
   @ForeignKey(() => Comment)
-  @Column(DataType.INTEGER)
-  @AllowNull(true)
+  @Column({ type: DataType.INTEGER, allowNull: true })
   commentId?: number;
 
   @BelongsTo(() => Comment, { foreignKey: "commentId", as: "parentComment" })

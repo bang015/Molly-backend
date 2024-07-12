@@ -7,5 +7,5 @@ client.on('connect', () => {
 client.on('error', (err: Error) => {
   console.error('Redis Client Error gg', err);
 });
-client.connect().then(); // redis v4 연결 (비동기)
+client.connect().then();
 export default client;

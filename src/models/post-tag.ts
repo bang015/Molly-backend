@@ -21,13 +21,11 @@ class PostTag extends Model {
   id: number;
 
   @ForeignKey(() => Post)
-  @Column(DataType.INTEGER)
-  @AllowNull(false)
+  @Column({ type: DataType.INTEGER, allowNull: false })
   postId: number;
 
   @ForeignKey(() => Tag)
-  @Column(DataType.INTEGER)
-  @AllowNull(false)
+  @Column({ type: DataType.INTEGER, allowNull: false })
   tagId: number;
 
   @CreatedAt
