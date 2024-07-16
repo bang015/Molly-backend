@@ -4,25 +4,28 @@ import { v2 as cloudinary } from "cloudinary";
 import { MediaDetil } from "../interfaces/post";
 import PostMedia from "../models/post-media";
 
-export const profileImage = async (
+export const createprofileImage = async (
   imageInfo: IImageDetail
 ): Promise<ProfileImage | null> => {
-  await ProfileImage.create({
-    name: imageInfo.name,
-    type: imageInfo.type,
-    path: imageInfo.path,
-  });
-  const imageid = await ProfileImage.findOne({
-    where: { name: imageInfo.name },
-    attributes: ["id"],
-  });
-  return imageid;
+  try{
+    await ProfileImage.create({
+      name: imageInfo.name,
+      type: imageInfo.type,
+      path: imageInfo.path,
+    });
+    const imageid = await ProfileImage.findOne({
+      where: { name: imageInfo.name },
+      attributes: ["id"],
+    });
+    return imageid;
+  }catch(e){
+    console.log(e)
+  }
 };
 export const deleteProfileImage = async (profileimgId: number) => {
   const profileImage = await ProfileImage.findByPk(profileimgId);
   const imgId = profileImage?.dataValues.name;
   cloudinary.uploader.destroy(imgId, function (result: any) {
-    console.log(result);
   });
   await ProfileImage.destroy({
     where: {

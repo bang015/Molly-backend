@@ -1,11 +1,11 @@
-import { Op, Sequelize } from "sequelize";
-import Post from "../models/post";
-import PostMedia from "../models/post-media";
-import ProfileImage from "../models/profile-image";
-import User from "../models/user";
-import PostTag from "../models/post-tag";
+import { Op, Sequelize } from 'sequelize';
+import Post from '../models/post';
+import PostMedia from '../models/post-media';
+import ProfileImage from '../models/profile-image';
+import User from '../models/user';
+import PostTag from '../models/post-tag';
 
-export const uploadPost = async (userId: number, content: string) => {
+export const createPost = async (userId: number, content: string) => {
   const newPost = await Post.create({
     userId: userId,
     content: content,
@@ -16,11 +16,11 @@ export const uploadPost = async (userId: number, content: string) => {
 export const getAllPost = async (
   userIds: number[],
   page: number = 1,
-  limit: number = 30
+  limit: number = 30,
 ) => {
   const offset = limit * (page - 1);
   const result = await Post.findAll({
-    attributes: ["id", "createdAt"],
+    attributes: ['id', 'createdAt'],
     where: {
       userId: {
         [Op.notIn]: userIds,
@@ -29,12 +29,12 @@ export const getAllPost = async (
     include: [
       {
         model: PostMedia,
-        attributes: ["id", "path"],
+        attributes: ['id', 'path'],
       },
     ],
     offset,
     limit,
-    order: Sequelize.literal("RAND()"),
+    order: Sequelize.literal('RAND()'),
   });
 
   const postList = result.map((post) => {
@@ -42,12 +42,12 @@ export const getAllPost = async (
   });
 
   return postList;
-}; 
+};
 
 export const getMainPost = async (
   userIds: number[] | number,
   page: number = 1,
-  limit: number = 5
+  limit: number = 5,
 ) => {
   const offset = limit * (page - 1);
 
@@ -58,17 +58,17 @@ export const getMainPost = async (
     include: [
       {
         model: PostMedia,
-        attributes: ["id", "path"],
+        attributes: ['id', 'path'],
       },
       {
         model: User,
-        attributes: ["nickname"],
-        include: [{ model: ProfileImage, attributes: ["path"] }],
+        attributes: ['nickname'],
+        include: [{ model: ProfileImage, attributes: ['path'] }],
       },
     ],
     offset,
     limit,
-    order: [["createdAt", "DESC"]],
+    order: [['createdAt', 'DESC']],
   });
   if (result) {
     const totalPost = await Post.count({
@@ -89,7 +89,7 @@ export const getMainPost = async (
 export const getPostByTag = async (
   tagId: number,
   page: number = 1,
-  limit: number = 30
+  limit: number = 30,
 ) => {
   const offset = limit * (page - 1);
   const result = await PostTag.findAll({
@@ -98,7 +98,7 @@ export const getPostByTag = async (
     include: [
       {
         model: Post,
-        include: [{ model: PostMedia, attributes: ["id", "path"] }],
+        include: [{ model: PostMedia, attributes: ['id', 'path'] }],
       },
     ],
     offset,
@@ -119,12 +119,12 @@ export const getPostByPostId = async (id: number) => {
     include: [
       {
         model: PostMedia,
-        attributes: ["id", "path"],
+        attributes: ['id', 'path'],
       },
       {
         model: User,
-        attributes: ["nickname"],
-        include: [{ model: ProfileImage, attributes: ["path"] }],
+        attributes: ['nickname'],
+        include: [{ model: ProfileImage, attributes: ['path'] }],
       },
     ],
     where: { id: id },
@@ -153,7 +153,7 @@ export const postUpdate = async (postId: number, content: string) => {
       where: {
         id: postId,
       },
-    }
+    },
   );
   if (update === 1) {
     const result = await Post.findOne({
@@ -169,15 +169,6 @@ export const postDelete = async (postId: number) => {
   const result = await Post.destroy({
     where: {
       id: postId,
-    },
-  });
-  return result;
-};
-
-export const postCount = async (userId: number) => {
-  const result = await Post.count({
-    where: {
-      userId,
     },
   });
   return result;

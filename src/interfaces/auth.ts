@@ -1,6 +1,10 @@
-import { Request } from "express";
+import { Request } from 'express';
 
-export interface IAuthUser {
+export interface Token {
+  accessToken: string;
+  refreshToken: string;
+}
+export interface Signin {
   email: string;
   password: string;
 }

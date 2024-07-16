@@ -14,10 +14,10 @@
     "removeComments":true,
     "declaration":true,
     "strictNullChecks":false,
-    "allowSyntheticDefaultImports":true,
-    "paths": {
-      "@/*": ["src/*"]
-    }
+    "sourceMap": true,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false,
   },
   "include": ["./src/**/*"],
   "exclude": ["node_modules"]

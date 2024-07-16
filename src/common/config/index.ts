@@ -21,7 +21,8 @@ export default{
     api_key: process.env.API_KEY,
     api_secret: process.env.API_SECRET,
   },
-  jwtKey: process.env.JWT_KEY,
+  jwtAccessKey: process.env.JWT_ACCESS_SECRET,
+  jwtRefreshKey: process.env.JWT_REFRESH_SECRET,
   api: {
     prefix: '/api',
   },

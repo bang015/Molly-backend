@@ -1,7 +1,7 @@
 import { Router } from "express";
-import users from "./users";
-import auth from "./auth";
-import post from "./post";
+import users from "../../user/user.routes";
+import auth from "../../auth/auth.routes";
+import post from "../../post/post.routes";
 import follow from "./follow";
 import comment from "./comment";
 import like from "./like";

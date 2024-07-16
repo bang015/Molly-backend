@@ -1,24 +1,24 @@
-export interface IUserforSignUp {
+export interface SignupInput {
   email: string;
   nickname: string;
   password: string;
   name: string;
 }
 
-export interface IUserInfo {
+export interface GetUserInput {
   id?: number;
   email?: string;
   nickname?: string;
   name?: string;
 }
 
-export interface IUserModify {
+export interface UserModify {
   id: number;
   email: string;
   nickname: string;
   name: string;
   password?: string;
   introduce?: string;
-  profile_image?: number;
+  profileImageId?: number;
 }
 

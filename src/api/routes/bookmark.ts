@@ -1,15 +1,15 @@
-import { Router, Request, Response, NextFunction } from "express";
-import { checkJWT } from "../middleware/checkJwt";
-import { IJwtRequest } from "../../interfaces/auth";
+import { Router, Request, Response, NextFunction } from 'express';
+import { checkJWT } from '../../common/middleware/checkJwt';
+import { IJwtRequest } from '../../interfaces/auth';
 import {
   bookmarkPost,
   checkPostBookmark,
   unBookmarkPost,
-} from "../../services/bookmark";
+} from '../../services/bookmark';
 
 const bookmarkRouter = Router();
 
-bookmarkRouter.post("/", checkJWT, async (req: IJwtRequest, res: Response) => {
+bookmarkRouter.post('/', checkJWT, async (req: IJwtRequest, res: Response) => {
   const userId = req.decoded?.id;
   const { postId } = req.body;
   if (userId) {
@@ -24,7 +24,7 @@ bookmarkRouter.post("/", checkJWT, async (req: IJwtRequest, res: Response) => {
   }
 });
 bookmarkRouter.get(
-  "/:postId",
+  '/:postId',
   checkJWT,
   async (req: IJwtRequest, res: Response) => {
     const userId = req.decoded?.id;
@@ -33,7 +33,7 @@ bookmarkRouter.get(
       const checkBookmark = await checkPostBookmark(postId, userId);
       return res.status(200).json(checkBookmark);
     }
-  }
+  },
 );
 
 export default bookmarkRouter;

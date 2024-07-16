@@ -26,7 +26,6 @@ export const selectFollowing = async (
     include: [
       {
         model: User,
-        as: "following",
         attributes: ["name", "nickname"],
         where: whereCondition,
         include: [
@@ -49,6 +48,7 @@ export const selectFollowing = async (
   });
   return cleanedResult;
 };
+
 export const followCount = async (userId: number) => {
   const result = await Follow.count({
     where: {

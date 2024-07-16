@@ -32,6 +32,9 @@ class Post extends Model {
   @Column({ type: DataType.INTEGER, allowNull: false })
   userId: number;
 
+  @BelongsTo(() => User)
+  user: User;
+
   @Column({ type: DataType.TEXT, allowNull: false })
   content: string;
 
@@ -40,9 +43,6 @@ class Post extends Model {
 
   @UpdatedAt
   updatedAt: Date;
-
-  @BelongsTo(() => User)
-  user: User;
 
   @HasMany(() => Bookmark)
   bookmarks: Bookmark[];
