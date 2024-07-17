@@ -5,15 +5,19 @@ import { IJwtRequest } from '../../interfaces/auth';
 import client from '../../common/config/redis';
 const searchRouter = Router();
 
-searchRouter.get('/q/:type', async (req: Request, res: Response) => {
-  try {
-    const { query } = req.query as any;
-    const type = req.params.type;
-    console.log(type);
-    const result = await getSearchResult(query, type);
-    return res.status(200).json(result);
-  } catch {}
-});
+searchRouter.get(
+  '/q/:type',
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { query } = req.query as any;
+      const type = req.params.type;
+      const result = await getSearchResult(query, type);
+      return res.status(200).json(result);
+    } catch (e) {
+      return next(e);
+    }
+  },
+);
 
 searchRouter.post(
   '/history',

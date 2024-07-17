@@ -4,6 +4,7 @@ import Image from '../models/profile-image';
 import { GetUserInput, UserModify } from '../interfaces/user';
 import Post from '../models/post';
 import { Sequelize } from 'sequelize-typescript';
+import Follow from '../models/follow';
 
 export const getAllUsers = async (): Promise<User[] | null> => {
   const allUser = await User.findAll({
@@ -36,15 +37,13 @@ export const getUser = async (userInfo: GetUserInput): Promise<User | null> => {
         attributes: [],
       },
       {
-        model: User,
+        model: Follow,
         as: 'followers',
-        through: { attributes: [] },
         attributes: [],
       },
       {
-        model: User,
+        model: Follow,
         as: 'following',
-        through: { attributes: [] },
         attributes: [],
       },
     ],

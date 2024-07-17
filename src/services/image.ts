@@ -1,7 +1,7 @@
 import ProfileImage from "../models/profile-image";
 import { IImageDetail } from "../interfaces/image";
 import { v2 as cloudinary } from "cloudinary";
-import { MediaDetil } from "../interfaces/post";
+import { MediaType } from "../interfaces/post";
 import PostMedia from "../models/post-media";
 
 export const createprofileImage = async (
@@ -34,9 +34,8 @@ export const deleteProfileImage = async (profileimgId: number) => {
   });
 };
 
-export const postImage = async (mediaInfo: MediaDetil[]) => {
+export const postImage = async (mediaInfo: MediaType[]) => {
   const postData = mediaInfo.map((info) => ({
-    postId: info.postId,
     name: info.name,
     path: info.path,
     type: info.type,

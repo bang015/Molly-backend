@@ -3,6 +3,7 @@ import User from "../models/user";
 import Tag from "../models/tag";
 import PostTag from "../models/post-tag";
 import ProfileImage from "../models/profile-image";
+import Post from "../models/post";
 
 export const getSearchResult = async (searchKeyword: string, type: string) => {
   const limit = 50;
@@ -39,19 +40,21 @@ export const getSearchResult = async (searchKeyword: string, type: string) => {
           attributes: [
             "id",
             "name",
-            [Sequelize.fn("COUNT", Sequelize.col("PostTags.id")), "tagCount"],
+            [Sequelize.fn("COUNT", Sequelize.col("posts.id")), "tagCount"],
           ],
           where: {
             name: { [Op.like]: `%${searchKeyword}%` },
           },
           include: [
             {
-              model: PostTag,
+              model: Post,
+              as: 'posts',
               attributes: [],
               required: false,
+              through: { attributes: [] }
             },
           ],
-          group: ["tag.id"],
+          group: ["Tag.id"],
         })
       : Promise.resolve([]),
   ]);

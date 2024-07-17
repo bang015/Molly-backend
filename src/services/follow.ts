@@ -26,6 +26,7 @@ export const selectFollowing = async (
     include: [
       {
         model: User,
+        as: 'following',
         attributes: ["name", "nickname"],
         where: whereCondition,
         include: [
@@ -60,10 +61,10 @@ export const followCount = async (userId: number) => {
 export const selectFollower = async (
   userId: number,
   query?: string,
-  page: number = 1,
-  limit: number = 12
+  page: number |  null = null,
+  limit: number | null= null
 ) => {
-  const offset = limit * (page - 1);
+  const offset = limit && page ? limit * (page - 1) : undefined;
   const whereCondition: { [Op.or]?: any } = {};
   if (query) {
     whereCondition[Op.or] = [
@@ -93,7 +94,6 @@ export const selectFollower = async (
     offset,
     limit,
   });
-
   const cleanedResult = result.map((follow) => {
     const result = {
       id: follow.toJSON().followerId,
@@ -119,7 +119,7 @@ export const suggestFollowers = async (
 ) => {
   const userIdConditions = filter.map((userId) => ({
     id: {
-      [Op.not]: userId, // userId와 다른 경우를 나타내는 조건
+      [Op.not]: userId,
     },
   }));
   const result = await User.findAll({

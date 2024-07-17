@@ -14,18 +14,18 @@ import {
   Table,
   Unique,
   UpdatedAt,
-} from "sequelize-typescript";
-import ProfileImage from "./profile-image";
-import Post from "./post";
-import Bookmark from "./bookmark.modal";
-import Like from "./like";
-import Follow from "./follow";
-import ChatRoom from "./chat-room";
-import ChatMembers from "./chat-users";
-import Comment from "./comment";
-import bcrypt from "bcrypt";
+} from 'sequelize-typescript';
+import ProfileImage from './profile-image';
+import Post from './post';
+import Bookmark from './bookmark.modal';
+import Like from './like';
+import Follow from './follow';
+import ChatRoom from './chat-room';
+import ChatMembers from './chat-users';
+import Comment from './comment';
+import bcrypt from 'bcrypt';
 
-@Table({ tableName: "User" })
+@Table({ tableName: 'User' })
 export class User extends Model {
   @PrimaryKey
   @AutoIncrement
@@ -57,26 +57,26 @@ export class User extends Model {
   @UpdatedAt
   updatedAt: Date;
 
-  @BelongsTo(() => ProfileImage, "profileImageId")
+  @BelongsTo(() => ProfileImage, 'profileImageId')
   profileImage!: ProfileImage;
 
-  @HasMany(() => Post, { onDelete: "CASCADE" })
+  @HasMany(() => Post, { onDelete: 'CASCADE' })
   posts: Post[];
 
-  @HasMany(() => Bookmark, { onDelete: "CASCADE" })
+  @HasMany(() => Bookmark, { onDelete: 'CASCADE' })
   bookmarks: Bookmark[];
 
-  @HasMany(() => Comment, { onDelete: "CASCADE" })
+  @HasMany(() => Comment, { onDelete: 'CASCADE' })
   comments: Comment[];
 
-  @BelongsToMany(() => Post, () => Like)
-  likePosts: Post[];
-
-  @BelongsToMany(() => User, () => Follow, "followerId", "followingId")
+  @HasMany(() => Follow, 'followerId')
   following: User[];
 
-  @BelongsToMany(() => User, () => Follow, "followingId", "followerId")
+  @HasMany(() => Follow, 'followingId')
   followers: User[];
+
+  @BelongsToMany(() => Post, () => Like) 
+  likePosts: Post[];
 
   @BelongsToMany(() => ChatRoom, () => ChatMembers)
   ChatRooms: ChatRoom[];

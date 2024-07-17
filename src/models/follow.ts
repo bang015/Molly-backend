@@ -1,6 +1,7 @@
 import {
   AllowNull,
   AutoIncrement,
+  BelongsTo,
   Column,
   CreatedAt,
   DataType,
@@ -9,10 +10,10 @@ import {
   PrimaryKey,
   Table,
   UpdatedAt,
-} from "sequelize-typescript";
-import User from "./user";
+} from 'sequelize-typescript';
+import User from './user';
 
-@Table({ tableName: "Follow" })
+@Table({ tableName: 'Follow' })
 class Follow extends Model {
   @PrimaryKey
   @AutoIncrement
@@ -23,9 +24,15 @@ class Follow extends Model {
   @Column({ type: DataType.INTEGER, allowNull: false })
   followerId: number;
 
+  @BelongsTo(() => User, 'followerId')
+  follower: User;
+
   @ForeignKey(() => User)
   @Column({ type: DataType.INTEGER, allowNull: false })
   followingId: number;
+
+  @BelongsTo(() => User, 'followingId')
+  following: User;
 
   @CreatedAt
   createdAt: Date;
