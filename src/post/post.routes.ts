@@ -72,32 +72,15 @@ postRouter.patch(
   '/',
   checkJWT,
   uploadPostMedias,
-  async (req: IJwtRequest, res: Response) => {
+  async (req: IJwtRequest, res: Response, next: NextFunction) => {
     try {
       const userId = req.decoded?.id;
       const { postId, content, hashtags } = req.body;
-      let updatedPost;
       await verifyPostUser(postId, userId);
-      updatedPost = await postUpdate(postId, content);
-      const tags = await checkUsedTagByPost(postId);
-      const del = await postTagRemove(postId);
-
-      if (hashtags) {
-        const tagNames = hashtags;
-        const postTagData = [];
-        for (const tag of tagNames) {
-          const tagId = await findOrCreateTag(tag);
-          postTagData.push({ PostId: postId, TagId: tagId });
-        }
-        await postTag(postTagData);
-      }
-      if (del > 0) {
-        await deleteUnusedTag(tags);
-      } else {
-      }
-      return res.status(200).json({ postId, updatedPost });
+      const updatedPost = await postUpdate(postId, content, hashtags || []);
+      return res.status(200).json({ updatedPost });
     } catch (e) {
-      return res.status(401).json('게시물 수정를 실패했습니다.');
+      return next(e);
     }
   },
 );
@@ -121,7 +104,7 @@ postRouter.get(
         return res.status(200).json(response);
       }
     } catch (e) {
-      next(e);
+      return next(e);
     }
   },
 );

@@ -1,4 +1,4 @@
-import { Op, Sequelize } from 'sequelize';
+import { Op, Sequelize, where } from 'sequelize';
 import Post from '../models/post';
 import PostMedia from '../models/post-media';
 import ProfileImage from '../models/profile-image';
@@ -8,6 +8,7 @@ import sequelize from '../common/config/database';
 import { CreatePostInput, MediaType } from '../interfaces/post';
 import Tag from '../models/tag';
 import Bookmark from '../models/bookmark.modal';
+import { deleteUnusedTag } from '../services/tag';
 // 게시물 생성
 export const createPost = async (
   postData: CreatePostInput,
@@ -213,22 +214,57 @@ export const verifyPostUser = async (postId: number, userId: number) => {
   }
 };
 // 게시물 수정
-export const postUpdate = async (postId: number, content: string) => {
-  const [update] = await Post.update(
-    { content: content },
-    {
-      where: {
-        id: postId,
-      },
-    },
-  );
-  if (update === 1) {
-    const result = await Post.findOne({
-      where: {
-        id: postId,
-      },
+export const postUpdate = async (
+  postId: number,
+  content: string,
+  hashtags: string[],
+) => {
+  const transaction = await sequelize.transaction();
+  try {
+    const [updatedPost] = await Post.update(
+      { content },
+      { where: { id: postId }, transaction },
+    );
+
+    const existingTag = await PostTag.findAll({
+      where: { postId },
+      attributes: ['tagId'],
+    }).then((tags) => tags.map((t) => t.toJSON().tagId));
+    await PostTag.destroy({
+      where: { postId },
+      transaction,
+    }).then(async (destroyTag) => {
+      if (destroyTag > 0) {
+        await deleteUnusedTag(existingTag);
+      }
     });
-    return result?.dataValues.content;
+    const newTags = await Promise.all(
+      hashtags.map((tagName) =>
+        Tag.findOrCreate({
+          where: { name: tagName },
+          defaults: { name: tagName },
+          transaction,
+        }).then(([tag, created]) => tag),
+      ),
+    );
+    await PostTag.bulkCreate(
+      newTags.map((tag) => ({
+        postId,
+        tagId: tag.dataValues.id,
+      })),
+      { transaction },
+    );
+    await transaction.commit();
+    if (updatedPost > 0) {
+      return await Post.findOne({
+        where: { id: postId },
+        attributes: ['id', 'content'],
+      }).then((post) => post.get());
+    }
+  } catch (e) {
+    console.log(e);
+    await transaction.rollback();
+    throw Error('게시물 수정을 실패했습니다.');
   }
 };
 // 게시물 삭제

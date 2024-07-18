@@ -34,12 +34,12 @@ commentRouter.post(
 );
 //get comment
 commentRouter.get(
-  '/:userId/:postId',
-  async (req: Request, res: Response, next: NextFunction) => {
-    const userId = parseInt(req.params.userId, 10);
+  '/:postId',
+  checkJWT,
+  async (req: IJwtRequest, res: Response, next: NextFunction) => {
+    const userId = req.decoded.id;
     const postId = parseInt(req.params.postId, 10);
     const { page } = req.query as any;
-
     const response = await getComment(postId, userId, page);
     if (response) {
       return res.status(200).json(response);
@@ -61,9 +61,11 @@ commentRouter.get(
 );
 //get myCommentbyPost
 commentRouter.get(
-  '/my/:userId/:postId',
-  async (req: Request, res: Response) => {
-    const userId = parseInt(req.params.userId, 10);
+  '/my/:postId',
+  checkJWT,
+  async (req: IJwtRequest, res: Response) => {
+    console.log(2);
+    const userId = req.decoded.id;
     const postId = parseInt(req.params.postId, 10);
     const response = await getMyCommentByPost(userId, postId);
     return res.status(200).json(response);
