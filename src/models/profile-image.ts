@@ -1,22 +1,8 @@
-import {
-  AllowNull,
-  AutoIncrement,
-  Column,
-  CreatedAt,
-  DataType,
-  Model,
-  PrimaryKey,
-  Table,
-  UpdatedAt,
-} from "sequelize-typescript";
+import { Column, DataType, Table } from 'sequelize-typescript';
+import { BaseModel } from '../common/models/base.model';
 
-@Table({ tableName: "ProfileImage" })
-class ProfileImage extends Model {
-  @PrimaryKey
-  @AutoIncrement
-  @Column(DataType.INTEGER)
-  id: number;
-
+@Table({ tableName: 'ProfileImage' })
+class ProfileImage extends BaseModel {
   @Column({ type: DataType.STRING, allowNull: false })
   name: string;
 
@@ -25,12 +11,6 @@ class ProfileImage extends Model {
 
   @Column({ type: DataType.STRING, allowNull: false })
   path: string;
-
-  @CreatedAt
-  createdAt: Date;
-
-  @UpdatedAt
-  updatedAt: Date;
 }
 
 export default ProfileImage;

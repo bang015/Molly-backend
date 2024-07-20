@@ -1,37 +1,28 @@
 import {
-  AllowNull,
-  AutoIncrement,
   BelongsTo,
   Column,
   DataType,
-  Default,
   ForeignKey,
-  Model,
-  PrimaryKey,
   Table,
-} from "sequelize-typescript";
-import User from "./user";
-import ChatRoom from "./chat-room";
+} from 'sequelize-typescript';
+import User from './user';
+import ChatRoom from './chat-room';
+import { BaseModel } from '../common/models/base.model';
 
-@Table({ tableName: "ChatMessage" })
-class ChatMessage extends Model {
-  @PrimaryKey
-  @AutoIncrement
-  @Column(DataType.INTEGER)
-  id: number;
-
+@Table({ tableName: 'ChatMessage' })
+class ChatMessage extends BaseModel {
   @ForeignKey(() => User)
   @Column({ type: DataType.INTEGER, allowNull: false })
   userId: number;
 
-  @BelongsTo(() => User, "userId")
+  @BelongsTo(() => User, 'userId')
   user: User;
 
   @ForeignKey(() => ChatRoom)
   @Column({ type: DataType.INTEGER, allowNull: false })
-  roomId: number;
+  roomId: number; 
 
-  @BelongsTo(() => ChatRoom, "roomId")
+  @BelongsTo(() => ChatRoom, 'roomId')
   room: User;
 
   @Column({

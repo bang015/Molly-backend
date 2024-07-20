@@ -6,6 +6,7 @@ import { checkJWT } from '../common/middleware/checkJwt';
 import { IJwtRequest } from '../interfaces/auth';
 import { uploadProfileImage } from '../common/middleware/multer';
 import { deleteProfileImage, createprofileImage } from '../services/image';
+import { v2 as cloudinary } from 'cloudinary';
 
 const userRouter = Router();
 
@@ -55,7 +56,7 @@ userRouter.patch(
       let message = '';
       const user = await getUser({ id: modifyDetail.id });
       if (!user) {
-        return res.status(204).end();
+        return res.status(404).end();
       }
       if (req.file) {
         const imageDetail = {
@@ -72,13 +73,14 @@ userRouter.patch(
 
       const updatedUser = await modifyUser(modifyDetail);
       message = '프로필이 수정되었습니다.';
-      console.log(updatedUser);
       if (updatedUser) {
         const result = await getUser({ id: updatedUser.id });
         return res.status(200).json({ result, message });
       }
     } catch (e) {
-      console.log(e);
+      const file = req.file as Express.Multer.File;
+      cloudinary.uploader.destroy(file.filename, function (result: any) {});
+      console.log('routes:' + e);
       return next(e);
     }
   },

@@ -1,47 +1,30 @@
 import {
-  AutoIncrement,
   BelongsTo,
   Column,
-  CreatedAt,
   DataType,
   ForeignKey,
-  Model,
-  PrimaryKey,
   Table,
-  UpdatedAt,
-} from "sequelize-typescript";
-import User from "./user";
-import Post from "./post";
+} from 'sequelize-typescript';
+import User from './user';
+import Post from './post';
+import { BaseModel } from '../common/models/base.model';
 
 @Table({
-  tableName: "Bookmark",
+  tableName: 'Bookmark',
 })
-class Bookmark extends Model {
-  @PrimaryKey
-  @AutoIncrement
-  @Column({
-    type: DataType.INTEGER,
-  })
-  id: number;
-
+class Bookmark extends BaseModel {
   @ForeignKey(() => Post)
   @Column({ type: DataType.INTEGER, allowNull: false })
   postId: number;
 
-  @BelongsTo(() => Post, "postId")
+  @BelongsTo(() => Post, 'postId')
   post: Post;
 
   @ForeignKey(() => User)
   @Column({ type: DataType.INTEGER, allowNull: false })
   userId: number;
 
-  @BelongsTo(() => User, "userId")
+  @BelongsTo(() => User, 'userId')
   user: User;
-
-  @CreatedAt
-  createdAt: Date;
-
-  @UpdatedAt
-  updatedAt: Date;
 }
 export default Bookmark;

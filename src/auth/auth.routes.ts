@@ -24,8 +24,8 @@ authRouter.post(
         req.body as SignupInput,
       );
       return res.status(200).json({ accessToken, refreshToken });
-    } catch (err) {
-      next(err);
+    } catch (e) {
+      next(e);
     }
   },
 );
@@ -57,6 +57,9 @@ authRouter.get(
     try {
       const userId = req.decoded?.id;
       const user = await getUser({ id: userId });
+      if(!user){
+        return res.status(404).end();
+      }
       return res.status(200).json(user);
     } catch (e) {
       return next(e);
@@ -70,7 +73,6 @@ authRouter.post(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { refreshToken } = req.body;
-      console.log(refreshToken);
       if (!refreshToken) {
         return res.status(400).json({ message: 'Refresh token is required' });
       }

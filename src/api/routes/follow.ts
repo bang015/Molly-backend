@@ -61,18 +61,15 @@ followRouter.get(
           }
         }),
       );
-      console.log(sugFollower.filter(Boolean));
       const filter = sugFollower.filter(Boolean).map((user) => {
         return user.id;
       });
       limit = limit - sugFollower.filter(Boolean).length;
-      console.log(filter);
       const suggestList = await suggestFollowers(userId!, limit, filter);
       const suggestFollowerList = [
         ...sugFollower.filter(Boolean),
         ...suggestList,
       ];
-      console.log(suggestFollowerList);
       return res.status(200).json({ suggestFollowerList, followed });
     } catch (err) {}
   },

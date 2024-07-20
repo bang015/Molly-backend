@@ -51,16 +51,15 @@ postRouter.post(
         },
       );
       const postData = { userId, content };
-      const post = await createPost(postData, medias, hashtags || []);
+      const newPost = await createPost(postData, medias, hashtags || []);
+      const post = await getPost(newPost.id);
       return res
         .status(200)
         .json({ post, message: '게시물이 공유 되었습니다.' });
     } catch (e) {
       const files = req.files as Express.Multer.File[];
       files.map((media) => {
-        cloudinary.uploader.destroy(media.filename, function (result: any) {
-          console.log(result);
-        });
+        cloudinary.uploader.destroy(media.filename, function (result: any) {});
       });
       return next(e);
     }
@@ -87,7 +86,7 @@ postRouter.patch(
 
 // 메인 게시물
 postRouter.get(
-  '/main/',
+  '/main',
   checkJWT,
   async (req: IJwtRequest, res: Response, next: NextFunction) => {
     try {
@@ -180,6 +179,8 @@ postRouter.get(
     }
   },
 );
+
+// 게시물 태그 검색
 postRouter.get(
   '/tags/:tagName',
   async (req: Request, res: Response, next: NextFunction) => {
@@ -194,6 +195,7 @@ postRouter.get(
   },
 );
 
+// 게시물 삭제
 postRouter.delete(
   '/:id',
   checkJWT,
@@ -202,18 +204,11 @@ postRouter.delete(
       const userId = req.decoded?.id;
       const postId = parseInt(req.params.id, 10);
       await verifyPostUser(postId, userId);
-      const tags = await checkUsedTagByPost(postId);
-      const del = await postTagRemove(postId);
-      if (del > 0) {
-        await deleteUnusedTag(tags);
-      }
       await deletePostImage(postId);
-      const response = await postDelete(postId);
-      if (response > 0) {
-        return res
-          .status(200)
-          .json({ postId, message: '게시물이 삭제되었습니다.' });
-      }
+      await postDelete(postId);
+      return res
+        .status(200)
+        .json({ postId, message: '게시물이 삭제되었습니다.' });
     } catch (e) {
       return next(e);
     }

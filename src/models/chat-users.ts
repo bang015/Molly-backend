@@ -1,25 +1,10 @@
-import {
-  AllowNull,
-  AutoIncrement,
-  Column,
-  CreatedAt,
-  DataType,
-  ForeignKey,
-  Model,
-  PrimaryKey,
-  Table,
-  UpdatedAt,
-} from "sequelize-typescript";
-import User from "./user";
-import ChatRoom from "./chat-room";
+import { Column, DataType, ForeignKey, Table } from 'sequelize-typescript';
+import User from './user';
+import ChatRoom from './chat-room';
+import { BaseModel } from '../common/models/base.model';
 
-@Table({ tableName: "ChatMembers" })
-class ChatMembers extends Model {
-  @PrimaryKey
-  @AutoIncrement
-  @Column(DataType.INTEGER)
-  id: number;
-
+@Table({ tableName: 'ChatMembers' })
+class ChatMembers extends BaseModel {
   @ForeignKey(() => User)
   @Column({ type: DataType.INTEGER, allowNull: false })
   userId: number;
@@ -27,12 +12,6 @@ class ChatMembers extends Model {
   @ForeignKey(() => ChatRoom)
   @Column({ type: DataType.INTEGER, allowNull: false })
   roomId: number;
-
-  @CreatedAt
-  createdAt: Date;
-
-  @UpdatedAt
-  updatedAt: Date;
 }
 
 export default ChatMembers;

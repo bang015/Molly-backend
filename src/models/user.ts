@@ -1,19 +1,12 @@
 import {
-  AllowNull,
-  AutoIncrement,
   BeforeCreate,
   BelongsTo,
   BelongsToMany,
   Column,
-  CreatedAt,
   DataType,
   HasMany,
   IsEmail,
-  Model,
-  PrimaryKey,
   Table,
-  Unique,
-  UpdatedAt,
 } from 'sequelize-typescript';
 import ProfileImage from './profile-image';
 import Post from './post';
@@ -24,14 +17,10 @@ import ChatRoom from './chat-room';
 import ChatMembers from './chat-users';
 import Comment from './comment';
 import bcrypt from 'bcrypt';
+import { BaseModel } from '../common/models/base.model';
 
 @Table({ tableName: 'User' })
-export class User extends Model {
-  @PrimaryKey
-  @AutoIncrement
-  @Column(DataType.INTEGER)
-  id: number;
-
+export class User extends BaseModel {
   @IsEmail
   @Column({ type: DataType.STRING, allowNull: false, unique: true })
   email: string;
@@ -51,16 +40,13 @@ export class User extends Model {
   @Column({ type: DataType.INTEGER, allowNull: true })
   profileImageId?: number;
 
-  @CreatedAt
-  createdAt: Date;
-
-  @UpdatedAt
-  updatedAt: Date;
-
-  @BelongsTo(() => ProfileImage, 'profileImageId')
+  @BelongsTo(() => ProfileImage, {
+    foreignKey: 'profileImageId',
+    onDelete: 'CASCADE',
+  })
   profileImage!: ProfileImage;
 
-  @HasMany(() => Post, { onDelete: 'CASCADE' })
+  @HasMany(() => Post)
   posts: Post[];
 
   @HasMany(() => Bookmark, { onDelete: 'CASCADE' })
@@ -75,7 +61,7 @@ export class User extends Model {
   @HasMany(() => Follow, 'followingId')
   followers: User[];
 
-  @BelongsToMany(() => Post, () => Like) 
+  @BelongsToMany(() => Post, () => Like)
   likePosts: Post[];
 
   @BelongsToMany(() => ChatRoom, () => ChatMembers)

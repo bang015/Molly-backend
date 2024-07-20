@@ -42,7 +42,7 @@ export const createPost = async (
     });
     await Promise.all(postTagPromises);
     await transaction.commit();
-    return newPost;
+    return newPost.get();
   } catch (e) {
     await transaction.rollback();
     throw Error('게시물 업로드를 실패했습니다.');
@@ -233,11 +233,8 @@ export const postUpdate = async (
     await PostTag.destroy({
       where: { postId },
       transaction,
-    }).then(async (destroyTag) => {
-      if (destroyTag > 0) {
-        await deleteUnusedTag(existingTag);
-      }
     });
+    await deleteUnusedTag(existingTag);
     const newTags = await Promise.all(
       hashtags.map((tagName) =>
         Tag.findOrCreate({
@@ -262,17 +259,27 @@ export const postUpdate = async (
       }).then((post) => post.get());
     }
   } catch (e) {
-    console.log(e);
     await transaction.rollback();
     throw Error('게시물 수정을 실패했습니다.');
   }
 };
 // 게시물 삭제
 export const postDelete = async (postId: number) => {
-  const result = await Post.destroy({
-    where: {
-      id: postId,
-    },
-  });
-  return result;
+  try {
+    const existingTag = await PostTag.findAll({
+      where: { postId },
+      attributes: ['tagId'],
+    }).then((tags) => tags.map((t) => t.toJSON().tagId));
+    const result = await Post.destroy({
+      where: {
+        id: postId,
+      },
+    });
+    if(result > 0){
+      await deleteUnusedTag(existingTag);
+    }
+    return result;
+  } catch (e) {
+    throw Error('게시물 삭제를 실패했습니다.');
+  }
 };

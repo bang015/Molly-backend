@@ -1,31 +1,29 @@
-import ProfileImage from "../models/profile-image";
-import { IImageDetail } from "../interfaces/image";
-import { v2 as cloudinary } from "cloudinary";
-import { MediaType } from "../interfaces/post";
-import PostMedia from "../models/post-media";
+import ProfileImage from '../models/profile-image';
+import { IImageDetail } from '../interfaces/image';
+import { v2 as cloudinary } from 'cloudinary';
+import { MediaType } from '../interfaces/post';
+import PostMedia from '../models/post-media';
 
 export const createprofileImage = async (
-  imageInfo: IImageDetail
+  imageInfo: IImageDetail,
 ): Promise<ProfileImage | null> => {
-  try{
-    await ProfileImage.create({
+  try {
+    const result = await ProfileImage.create({
       name: imageInfo.name,
       type: imageInfo.type,
       path: imageInfo.path,
     });
-    const imageid = await ProfileImage.findOne({
-      where: { name: imageInfo.name },
-      attributes: ["id"],
-    });
-    return imageid;
-  }catch(e){
-    console.log(e)
+    return result.get().id;
+  } catch (e) {
+    console.log(e);
+    throw Error('프로필 수정을 실패했습니다.');
   }
 };
 export const deleteProfileImage = async (profileimgId: number) => {
   const profileImage = await ProfileImage.findByPk(profileimgId);
   const imgId = profileImage?.dataValues.name;
   cloudinary.uploader.destroy(imgId, function (result: any) {
+    console.log(result)
   });
   await ProfileImage.destroy({
     where: {
@@ -43,13 +41,16 @@ export const postImage = async (mediaInfo: MediaType[]) => {
   const result = await PostMedia.bulkCreate(postData);
   return result;
 };
+
+// 게시물 이미지 삭제
 export const deletePostImage = async (postId: number) => {
-  const postImg = await PostMedia.findAll({
+  const media = await PostMedia.findAll({
     where: { postId: postId },
   });
-  postImg.map((media) => {
-    cloudinary.uploader.destroy(media.dataValues.name, function (result: any) {
-      console.log(result);
-    });
-  })
+  media.map((media) => {
+    cloudinary.uploader.destroy(
+      media.dataValues.name,
+      function (result: any) {},
+    );
+  });
 };

@@ -39,7 +39,6 @@ const generateTokens = (payload: { userId: number }) => {
 };
 
 const generateAccessToken = (payload: { userId: number }): string => {
-  console.log(payload);
   const token = jwt.sign(payload, config.jwtAccessKey.toString(), {
     expiresIn: '10m',
     issuer: 'molly',

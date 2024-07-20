@@ -18,7 +18,7 @@ export const getAllUsers = async (): Promise<User[] | null> => {
   return allUser;
 };
 export const getUser = async (userInfo: GetUserInput): Promise<User | null> => {
-  const user =  await User.findOne({
+  const user = await User.findOne({
     where: {
       [Op.or]: [
         { id: userInfo.id || null },
@@ -53,13 +53,16 @@ export const getUser = async (userInfo: GetUserInput): Promise<User | null> => {
       include: [
         [Sequelize.fn('COUNT', Sequelize.col('posts.id')), 'postCount'],
         [Sequelize.fn('COUNT', Sequelize.col('followers.id')), 'followerCount'],
-        [Sequelize.fn('COUNT', Sequelize.col('following.id')), 'followingCount'],
+        [
+          Sequelize.fn('COUNT', Sequelize.col('following.id')),
+          'followingCount',
+        ],
       ],
     },
-    group: ["User.id"],
+    group: ['User.id'],
   });
-  if(!user){
-    return null
+  if (!user) {
+    return null;
   }
   return user.get();
 };
@@ -87,7 +90,8 @@ export const modifyUser = async (
   try {
     const user = await existUser.update(updateFields);
     return user.get();
-  } catch (err) {
+  } catch (e) {
+    console.log('modify:' + e);
     return null;
   }
 };

@@ -1,48 +1,32 @@
-import Bookmark from "./bookmark.modal";
-import Comment from "./comment";
-import Like from "./like";
-import PostMedia from "./post-media";
-import PostTag from "./post-tag";
-import Tag from "./tag";
-import User from "./user";
+import { BaseModel } from '../common/models/base.model';
+import Bookmark from './bookmark.modal';
+import Comment from './comment';
+import Like from './like';
+import PostMedia from './post-media';
+import PostTag from './post-tag';
+import Tag from './tag';
+import User from './user';
 import {
-  AllowNull,
-  AutoIncrement,
   BelongsTo,
   BelongsToMany,
   Column,
-  CreatedAt,
   DataType,
   ForeignKey,
   HasMany,
-  Model,
-  PrimaryKey,
   Table,
-  UpdatedAt,
-} from "sequelize-typescript";
+} from 'sequelize-typescript';
 
-@Table({ tableName: "Post" })
-class Post extends Model {
-  @PrimaryKey
-  @AutoIncrement
-  @Column(DataType.INTEGER)
-  id: number;
-
+@Table({ tableName: 'Post' })
+class Post extends BaseModel {
   @ForeignKey(() => User)
   @Column({ type: DataType.INTEGER, allowNull: false })
   userId: number;
 
-  @BelongsTo(() => User)
+  @BelongsTo(() => User, { onDelete: 'CASCADE' })
   user: User;
 
   @Column({ type: DataType.TEXT, allowNull: false })
   content: string;
-
-  @CreatedAt
-  createdAt: Date;
-
-  @UpdatedAt
-  updatedAt: Date;
 
   @HasMany(() => Bookmark)
   bookmarks: Bookmark[];

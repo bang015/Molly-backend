@@ -64,7 +64,6 @@ commentRouter.get(
   '/my/:postId',
   checkJWT,
   async (req: IJwtRequest, res: Response) => {
-    console.log(2);
     const userId = req.decoded.id;
     const postId = parseInt(req.params.postId, 10);
     const response = await getMyCommentByPost(userId, postId);

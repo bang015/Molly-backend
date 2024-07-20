@@ -1,25 +1,15 @@
 import {
-  AllowNull,
-  AutoIncrement,
   BelongsTo,
   Column,
-  CreatedAt,
   DataType,
   ForeignKey,
-  Model,
-  PrimaryKey,
   Table,
-  UpdatedAt,
-} from "sequelize-typescript";
-import Post from "./post";
+} from 'sequelize-typescript';
+import Post from './post';
+import { BaseModel } from '../common/models/base.model';
 
-@Table({ tableName: "PostMedia" })
-class PostMedia extends Model {
-  @PrimaryKey
-  @AutoIncrement
-  @Column(DataType.INTEGER)
-  id: number;
-
+@Table({ tableName: 'PostMedia' })
+class PostMedia extends BaseModel {
   @Column({ type: DataType.STRING, allowNull: false })
   name: string;
 
@@ -33,13 +23,7 @@ class PostMedia extends Model {
   @Column({ type: DataType.INTEGER, allowNull: false })
   postId: number;
 
-  @CreatedAt
-  createdAt: Date;
-
-  @UpdatedAt
-  updatedAt: Date;
-
-  @BelongsTo(() => Post)
+  @BelongsTo(() => Post, { onDelete: 'CASCADE' })
   post: Post;
 }
 
