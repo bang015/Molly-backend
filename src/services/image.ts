@@ -13,7 +13,8 @@ export const createprofileImage = async (
       type: imageInfo.type,
       path: imageInfo.path,
     });
-    return result.get().id;
+    console.log(result.get().id)
+    return result.get();
   } catch (e) {
     console.log(e);
     throw Error('프로필 수정을 실패했습니다.');
@@ -21,10 +22,8 @@ export const createprofileImage = async (
 };
 export const deleteProfileImage = async (profileimgId: number) => {
   const profileImage = await ProfileImage.findByPk(profileimgId);
-  const imgId = profileImage?.dataValues.name;
-  cloudinary.uploader.destroy(imgId, function (result: any) {
-    console.log(result)
-  });
+  const id = profileImage?.dataValues.name;
+  cloudinary.uploader.destroy(id, function (result: any) {});
   await ProfileImage.destroy({
     where: {
       id: profileimgId,

@@ -68,7 +68,7 @@ userRouter.patch(
           await deleteProfileImage(user.profileImageId);
         }
         const newImage = await createprofileImage(imageDetail);
-        modifyDetail = { ...modifyDetail, profileImageId: newImage?.id };
+        modifyDetail = { ...modifyDetail, profileImageId: newImage.id };
       }
 
       const updatedUser = await modifyUser(modifyDetail);

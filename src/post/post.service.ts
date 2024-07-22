@@ -80,6 +80,7 @@ export const explorePostList = async (
 
   return postList;
 };
+
 // 게시물
 export const postList = async (
   userIds: number[] | number,
@@ -116,6 +117,7 @@ export const postList = async (
   });
   return { post, totalPages };
 };
+
 // 게시물 태그 검색
 export const getPostByTag = async (
   tagName: string,
@@ -123,13 +125,14 @@ export const getPostByTag = async (
   limit: number = 20,
 ) => {
   const offset = limit * (page - 1);
-  const result = await Tag.findAll({
+  const result = await Tag.findOne({
     attributes: [],
     where: { name: tagName },
     include: [
       {
         model: Post,
         as: 'posts',
+        through: {attributes: []},
         include: [{ model: PostMedia, attributes: ['id', 'path'] }],
       },
     ],
@@ -139,12 +142,13 @@ export const getPostByTag = async (
   if (!result) {
     throw Error('게시물이 존재하지않습니다.');
   }
-  const post = result.map((post) => {
-    return post.toJSON().Post;
-  });
+  const post = result.get('posts').map(post => {
+    return post.toJSON()
+  })
   return post;
 };
 
+// 북마크
 export const bookmarkPostList = async (
   userId: number,
   page: number = 1,
@@ -175,10 +179,11 @@ export const bookmarkPostList = async (
     throw Error('게시물이 존재하지않습니다.');
   }
   const bookmarkList = result.map((bookmark) => {
-    return bookmark.toJSON().Post;
+    return bookmark.get('Post');
   });
   return bookmarkList;
 };
+
 // 게시물 상세정보
 export const getPost = async (id: number) => {
   const result = await Post.findOne({
@@ -201,6 +206,7 @@ export const getPost = async (id: number) => {
   }
   return result.toJSON();
 };
+
 // 게시물 권한 확인
 export const verifyPostUser = async (postId: number, userId: number) => {
   const post = await Post.findOne({
@@ -213,6 +219,7 @@ export const verifyPostUser = async (postId: number, userId: number) => {
     throw Error('권한이 없습니다.');
   }
 };
+
 // 게시물 수정
 export const postUpdate = async (
   postId: number,
@@ -225,7 +232,6 @@ export const postUpdate = async (
       { content },
       { where: { id: postId }, transaction },
     );
-
     const existingTag = await PostTag.findAll({
       where: { postId },
       attributes: ['tagId'],
@@ -263,6 +269,7 @@ export const postUpdate = async (
     throw Error('게시물 수정을 실패했습니다.');
   }
 };
+
 // 게시물 삭제
 export const postDelete = async (postId: number) => {
   try {
@@ -275,7 +282,7 @@ export const postDelete = async (postId: number) => {
         id: postId,
       },
     });
-    if(result > 0){
+    if (result > 0) {
       await deleteUnusedTag(existingTag);
     }
     return result;

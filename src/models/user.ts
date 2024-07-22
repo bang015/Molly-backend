@@ -40,10 +40,7 @@ export class User extends BaseModel {
   @Column({ type: DataType.INTEGER, allowNull: true })
   profileImageId?: number;
 
-  @BelongsTo(() => ProfileImage, {
-    foreignKey: 'profileImageId',
-    onDelete: 'CASCADE',
-  })
+  @BelongsTo(() => ProfileImage, 'profileImageId')
   profileImage!: ProfileImage;
 
   @HasMany(() => Post)

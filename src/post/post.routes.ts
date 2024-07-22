@@ -16,13 +16,6 @@ import {
 } from './post.service';
 import { MediaType } from '../interfaces/post';
 import { deletePostImage } from '../services/image';
-import {
-  checkUsedTagByPost,
-  deleteUnusedTag,
-  findOrCreateTag,
-  postTag,
-  postTagRemove,
-} from '../services/tag';
 import { selectFollowing } from '../services/follow';
 import { v2 as cloudinary } from 'cloudinary';
 import { getUser } from '../user/user.service';
@@ -90,18 +83,16 @@ postRouter.get(
   checkJWT,
   async (req: IJwtRequest, res: Response, next: NextFunction) => {
     try {
-      const userId = req.decoded?.id;
+      const userId = req.decoded.id;
       const { page } = req.query as any;
-      if (userId) {
-        const followedUsers = await selectFollowing(userId);
-        let userIds = [];
-        if (followedUsers) {
-          userIds = followedUsers.map((follow) => follow.id);
-        }
-        userIds.push(userId);
-        const response = await postList(userIds, page);
-        return res.status(200).json(response);
+      const followedUsers = await selectFollowing(userId);
+      let userIds = [];
+      if (followedUsers) {
+        userIds = followedUsers.map((follow) => follow.id);
       }
+      userIds.push(userId);
+      const response = await postList(userIds, page);
+      return res.status(200).json(response);
     } catch (e) {
       return next(e);
     }
@@ -114,19 +105,17 @@ postRouter.get(
   checkJWT,
   async (req: IJwtRequest, res: Response, next: NextFunction) => {
     try {
-      const userId = req.decoded?.id;
+      const userId = req.decoded.id;
       const { page } = req.query as any;
-      if (userId) {
-        const followedUsers = await selectFollowing(userId);
-        let userIds = [];
-        if (followedUsers) {
-          userIds = followedUsers.map((follow) => follow.id);
-        }
-        userIds.push(userId);
-        const allPost = await explorePostList(userIds, page);
-        if (allPost) {
-          return res.status(200).json(allPost);
-        }
+      const followedUsers = await selectFollowing(userId);
+      let userIds = [];
+      if (followedUsers) {
+        userIds = followedUsers.map((follow) => follow.id);
+      }
+      userIds.push(userId);
+      const allPost = await explorePostList(userIds, page);
+      if (allPost) {
+        return res.status(200).json(allPost);
       }
     } catch (e) {
       return next(e);
@@ -140,10 +129,11 @@ postRouter.get(
   async (req: Request, res: Response, next: NextFunction) => {
     const postId = parseInt(req.params.id, 10);
     try {
-      if (postId) {
-        const post = await getPost(postId);
-        res.status(200).json(post);
+      const post = await getPost(postId);
+      if (!post) {
+        return res.status(404).json({ error: '존재하지 않는 게시물입니다.' });
       }
+      return res.status(200).json(post);
     } catch (e) {
       return next(e);
     }

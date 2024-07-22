@@ -3,7 +3,7 @@ import users from "../../user/user.routes";
 import auth from "../../auth/auth.routes";
 import post from "../../post/post.routes";
 import follow from "./follow";
-import comment from "./comment";
+import comment from "../../comment/comment.routes";
 import like from "./like";
 import bookmark from "./bookmark";
 import search from "./search";

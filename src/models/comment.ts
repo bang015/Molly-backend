@@ -5,6 +5,7 @@ import {
   CreatedAt,
   DataType,
   ForeignKey,
+  HasMany,
   PrimaryKey,
   Table,
   UpdatedAt,
@@ -19,14 +20,14 @@ class Comment extends BaseModel {
   @Column({ type: DataType.INTEGER, allowNull: false })
   postId: number;
 
-  @BelongsTo(() => Post, 'postId')
+  @BelongsTo(() => Post, { onDelete: 'CASCADE', foreignKey: 'postId' })
   post: Post;
 
   @ForeignKey(() => User)
   @Column({ type: DataType.INTEGER, allowNull: false })
   userId: number;
 
-  @BelongsTo(() => User, 'userId')
+  @BelongsTo(() => User, { onDelete: 'CASCADE', foreignKey: 'userId' })
   user: User;
 
   @Column({ type: DataType.TEXT, allowNull: false })
@@ -36,8 +37,18 @@ class Comment extends BaseModel {
   @Column({ type: DataType.INTEGER, allowNull: true })
   commentId?: number;
 
-  @BelongsTo(() => Comment, { foreignKey: 'commentId', as: 'parentComment' })
+  @BelongsTo(() => Comment, {
+    onDelete: 'CASCADE',
+    foreignKey: 'commentId',
+    as: 'parentComment',
+  })
   parentComment: Comment;
+
+  @HasMany(() => Comment, {
+    foreignKey: 'commentId',
+    as: 'subComments',
+  })
+  subComments: Comment[];
 }
 
 export default Comment;
