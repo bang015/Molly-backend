@@ -13,12 +13,12 @@ import {
   verifyPostUser,
   createPost,
   bookmarkPostList,
+  deletePostImage
 } from './post.service';
 import { MediaType } from '../interfaces/post';
-import { deletePostImage } from '../services/image';
-import { selectFollowing } from '../services/follow';
 import { v2 as cloudinary } from 'cloudinary';
 import { getUser } from '../user/user.service';
+import { selectFollowing } from '../follow/follow.service';
 
 const postRouter = Router();
 // 게시물 생성

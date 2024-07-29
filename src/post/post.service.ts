@@ -8,7 +8,8 @@ import sequelize from '../common/config/database';
 import { CreatePostInput, MediaType } from '../interfaces/post';
 import Tag from '../models/tag';
 import Bookmark from '../models/bookmark.modal';
-import { deleteUnusedTag } from '../services/tag';
+import { v2 as cloudinary } from 'cloudinary';
+
 // 게시물 생성
 export const createPost = async (
   postData: CreatePostInput,
@@ -132,7 +133,7 @@ export const getPostByTag = async (
       {
         model: Post,
         as: 'posts',
-        through: {attributes: []},
+        through: { attributes: [] },
         include: [{ model: PostMedia, attributes: ['id', 'path'] }],
       },
     ],
@@ -142,9 +143,9 @@ export const getPostByTag = async (
   if (!result) {
     throw Error('게시물이 존재하지않습니다.');
   }
-  const post = result.get('posts').map(post => {
-    return post.toJSON()
-  })
+  const post = result.get('posts').map((post) => {
+    return post.toJSON();
+  });
   return post;
 };
 
@@ -289,4 +290,30 @@ export const postDelete = async (postId: number) => {
   } catch (e) {
     throw Error('게시물 삭제를 실패했습니다.');
   }
+};
+
+export const deleteUnusedTag = async (tags: number[]) => {
+  tags.forEach(async (tag) => {
+    const tagExists = await PostTag.findOne({ where: { TagId: tag } });
+    if (!tagExists) {
+      await Tag.destroy({
+        where: {
+          id: tag,
+        },
+      });
+    }
+  });
+};
+
+// 게시물 이미지 삭제
+export const deletePostImage = async (postId: number) => {
+  const media = await PostMedia.findAll({
+    where: { postId: postId },
+  });
+  media.map((media) => {
+    cloudinary.uploader.destroy(
+      media.dataValues.name,
+      function (result: any) {},
+    );
+  });
 };

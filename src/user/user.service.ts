@@ -5,6 +5,9 @@ import { GetUserInput, UserModify } from '../interfaces/user';
 import Post from '../models/post';
 import { Sequelize } from 'sequelize-typescript';
 import Follow from '../models/follow';
+import { IImageDetail } from '../interfaces/image';
+import ProfileImage from '../models/profile-image';
+import { v2 as cloudinary } from 'cloudinary';
 
 export const getAllUsers = async (): Promise<User[] | null> => {
   const allUser = await User.findAll({
@@ -94,4 +97,31 @@ export const modifyUser = async (
     console.log('modify:' + e);
     return null;
   }
+};
+
+export const createprofileImage = async (
+  imageInfo: IImageDetail,
+): Promise<ProfileImage | null> => {
+  try {
+    const result = await ProfileImage.create({
+      name: imageInfo.name,
+      type: imageInfo.type,
+      path: imageInfo.path,
+    });
+    console.log(result.get().id);
+    return result.get();
+  } catch (e) {
+    console.log(e);
+    throw Error('프로필 수정을 실패했습니다.');
+  }
+};
+export const deleteProfileImage = async (profileimgId: number) => {
+  const profileImage = await ProfileImage.findByPk(profileimgId);
+  const id = profileImage?.dataValues.name;
+  cloudinary.uploader.destroy(id, function (result: any) {});
+  await ProfileImage.destroy({
+    where: {
+      id: profileimgId,
+    },
+  });
 };

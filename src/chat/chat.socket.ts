@@ -1,6 +1,6 @@
 const SocketIO = require('socket.io');
 const jwt = require('jsonwebtoken');
-import jwtKey from '../../common/config';
+import jwtKey from '../common/config';
 import { Server as HTTPServer } from 'http';
 import { Server as HTTPSServer } from 'https';
 import { Application } from 'express';
@@ -18,7 +18,7 @@ import {
   joinChatRoom,
   sendMessage,
   verifyRoomExists,
-} from '../../services/chat';
+} from './chat.service';
 
 const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
   const io = SocketIO(server, {

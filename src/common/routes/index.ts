@@ -2,11 +2,11 @@ import { Router } from "express";
 import users from "../../user/user.routes";
 import auth from "../../auth/auth.routes";
 import post from "../../post/post.routes";
-import follow from "./follow";
+import follow from "../../follow/follow.routes";
 import comment from "../../comment/comment.routes";
-import like from "./like";
-import bookmark from "./bookmark";
-import search from "./search";
+import like from "../../like/like.routes";
+import bookmark from "../../bookmark/bookmark.routes";
+import search from "../../search/search.routes";
 const router = Router();
 
 router.use("/users", users);

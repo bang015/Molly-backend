@@ -1,11 +1,16 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { celebrate, Joi, Segments } from 'celebrate';
 import { GetUserInput } from '../interfaces/user';
-import { getUser, getAllUsers, modifyUser } from './user.service';
+import {
+  getUser,
+  getAllUsers,
+  modifyUser,
+  deleteProfileImage,
+  createprofileImage,
+} from './user.service';
 import { checkJWT } from '../common/middleware/checkJwt';
 import { IJwtRequest } from '../interfaces/auth';
 import { uploadProfileImage } from '../common/middleware/multer';
-import { deleteProfileImage, createprofileImage } from '../services/image';
 import { v2 as cloudinary } from 'cloudinary';
 
 const userRouter = Router();

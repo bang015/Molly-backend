@@ -1,7 +1,6 @@
 import { Op, Sequelize } from "sequelize";
 import User from "../models/user";
 import Tag from "../models/tag";
-import PostTag from "../models/post-tag";
 import ProfileImage from "../models/profile-image";
 import Post from "../models/post";
 

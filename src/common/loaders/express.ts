@@ -4,7 +4,7 @@ import methodOverride from 'method-override';
 import { errors } from 'celebrate';
 import morgan from 'morgan';
 import config from '../config';
-import routes from '../../api/routes';
+import routes from '../routes';
 
 export default ({ app }: { app: Application }) => {
   app.get('/', (req: Request, res: Response) => {

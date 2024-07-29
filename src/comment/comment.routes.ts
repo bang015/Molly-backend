@@ -100,7 +100,6 @@ commentRouter.patch(
       const userId = req.decoded?.id;
       const id = parseInt(req.params.id, 10);
       const { content } = req.body;
-      console.log(req.body)
       await verifyCommentUser(id, userId);
       const update = await updateComment(id, content);
       if (update > 0) {

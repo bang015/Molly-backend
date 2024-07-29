@@ -101,7 +101,6 @@ export const commentList = async (
   const commentList = result.rows.map((comment) => ({
     ...comment.toJSON(),
   }));
-  console.log(commentList);
   return { commentList, totalPages };
 };
 

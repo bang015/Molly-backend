@@ -1,7 +1,7 @@
 import Like from "../models/like"
 
 
-export const checkLikedPost = async(postId: number, userId: number) => {
+export const isPostLiked  = async(postId: number, userId: number) => {
   const result = await Like.findOne({
     where: {
       postId,
@@ -11,14 +11,14 @@ export const checkLikedPost = async(postId: number, userId: number) => {
   return !!result;
 };
 
-export const addLikePost = async(postId: number, userId: number) => {
+export const likePost  = async(postId: number, userId: number) => {
   await Like.create({
     postId,
     userId
   });
 };
 
-export const unLikePost = async(postId: number, userId: number) => {
+export const unlikePost  = async(postId: number, userId: number) => {
   await Like.destroy({
     where: {
       postId,
@@ -27,7 +27,7 @@ export const unLikePost = async(postId: number, userId: number) => {
   });
 };
 
-export const postLikeCount = async( postId: number) => {
+export const getPostLikeCount  = async( postId: number) => {
   const count = await Like.count({
     where: {
       postId
