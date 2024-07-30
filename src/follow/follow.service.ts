@@ -1,8 +1,9 @@
 import { Op, Sequelize } from 'sequelize';
-import Follow from '../models/follow';
-import ProfileImage from '../models/profile-image';
-import User from '../models/user';
+import Follow from './models/follow.model';
+import User from '../user/models/user.model';
+import ProfileImage from '../user/models/profile-image.model';
 
+// 팔로윙 목록 / 검색
 export const selectFollowing = async (
   userId: number,
   query?: string,
@@ -49,6 +50,7 @@ export const selectFollowing = async (
   return formattedFollowings;
 };
 
+// 팔로워 목록 / 검색
 export const selectFollower = async (
   userId: number,
   query?: string,
@@ -94,6 +96,7 @@ export const selectFollower = async (
   return formattedFollowers;
 };
 
+// 유저 추천
 export const suggestFollowers = async (userId: number, limit: number) => {
   const followers = await selectFollower(userId);
   const suggestionPromises = followers.map(async (follow) => {
@@ -140,6 +143,7 @@ export const suggestFollowers = async (userId: number, limit: number) => {
   return [...suggestedFollowers, ...formattedFollowers];
 };
 
+// 팔로우
 export const follow = async (payload: { userId: number; targetId: number }) => {
   const result = await Follow.create({
     followerId: payload.userId,
@@ -148,6 +152,7 @@ export const follow = async (payload: { userId: number; targetId: number }) => {
   return result.get();
 };
 
+// 언팔로우
 export const unfollow = async (payload: {
   userId: number;
   targetId: number;
@@ -160,6 +165,7 @@ export const unfollow = async (payload: {
   });
 };
 
+// 현재 팔로우 상태 확인
 export const isFollowing = async (payload: {
   userId: number;
   targetId: number;

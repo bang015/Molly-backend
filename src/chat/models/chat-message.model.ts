@@ -5,9 +5,9 @@ import {
   ForeignKey,
   Table,
 } from 'sequelize-typescript';
-import User from './user';
-import ChatRoom from './chat-room';
-import { BaseModel } from '../common/models/base.model';
+import User from '../../user/models/user.model';
+import ChatRoom from './chat-room.model';
+import BaseModel from '../../common/models/base.model';
 
 @Table({ tableName: 'ChatMessage' })
 class ChatMessage extends BaseModel {
@@ -20,7 +20,7 @@ class ChatMessage extends BaseModel {
 
   @ForeignKey(() => ChatRoom)
   @Column({ type: DataType.INTEGER, allowNull: false })
-  roomId: number; 
+  roomId: number;
 
   @BelongsTo(() => ChatRoom, 'roomId')
   room: User;

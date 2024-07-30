@@ -1,10 +1,9 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { celebrate, Joi, Segments } from 'celebrate';
-import { Signin, IJwtRequest } from '../interfaces/auth';
 import { signin, createUser, refreshTokens } from './auth.service';
 import { checkJWT } from '../common/middleware/checkJwt';
-import { SignupInput } from '../interfaces/user';
 import { getUser } from '../user/user.service';
+import { JwtRequest, Signin, SignupInput } from './auth.interfaces';
 const authRouter = Router();
 
 // 회원가입
@@ -53,11 +52,11 @@ authRouter.post(
 authRouter.get(
   '/',
   checkJWT,
-  async (req: IJwtRequest, res: Response, next: NextFunction) => {
+  async (req: JwtRequest, res: Response, next: NextFunction) => {
     try {
       const userId = req.decoded?.id;
       const user = await getUser({ id: userId });
-      if(!user){
+      if (!user) {
         return res.status(404).end();
       }
       return res.status(200).json(user);

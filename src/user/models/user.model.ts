@@ -8,16 +8,16 @@ import {
   IsEmail,
   Table,
 } from 'sequelize-typescript';
-import ProfileImage from './profile-image';
-import Post from './post';
-import Bookmark from './bookmark.modal';
-import Like from './like';
-import Follow from './follow';
-import ChatRoom from './chat-room';
-import ChatMembers from './chat-users';
-import Comment from './comment';
+import Comment from '../../comment/models/comment.model';
 import bcrypt from 'bcrypt';
-import { BaseModel } from '../common/models/base.model';
+import Bookmark from '../../bookmark/models/bookmark.model';
+import Post from '../../post/models/post.model';
+import ChatRoom from '../../chat/models/chat-room.model';
+import Follow from '../../follow/models/follow.model';
+import Like from '../../like/models/like.model';
+import ProfileImage from './profile-image.model';
+import ChatMembers from '../../chat/models/chat-members.model';
+import BaseModel from '../../common/models/base.model';
 
 @Table({ tableName: 'User' })
 export class User extends BaseModel {

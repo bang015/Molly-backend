@@ -5,8 +5,8 @@ import {
   ForeignKey,
   Table,
 } from 'sequelize-typescript';
-import User from './user';
-import { BaseModel } from '../common/models/base.model';
+import User from '../../user/models/user.model';
+import BaseModel from '../../common/models/base.model';
 
 @Table({ tableName: 'Follow' })
 class Follow extends BaseModel {

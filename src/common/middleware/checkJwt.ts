@@ -1,10 +1,10 @@
 import { Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
 import config from '../config';
-import { IJwtRequest, IJwtInfo } from '../../interfaces/auth';
+import { JwtInfo, JwtRequest } from '../../auth/auth.interfaces';
 
 export const checkJWT = (
-  req: IJwtRequest,
+  req: JwtRequest,
   res: Response,
   next: NextFunction,
 ) => {
@@ -18,7 +18,7 @@ export const checkJWT = (
       token,
       config.jwtAccessKey.toString(),
     ) as jwt.JwtPayload;
-    const convertedDecoded: IJwtInfo = { id: decoded.userId };
+    const convertedDecoded: JwtInfo = { id: decoded.userId };
     req.decoded = convertedDecoded;
     next();
   } catch (e: any) {

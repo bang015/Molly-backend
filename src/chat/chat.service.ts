@@ -1,33 +1,36 @@
-import { Op, Sequelize } from "sequelize";
-import ChatRoom from "../models/chat-room";
-import ChatUsers from "../models/chat-users";
-import ChatMessage from "../models/chat-message";
-import User from "../models/user";
-import ProfileImage from "../models/profile-image";
+import { Op, Sequelize } from 'sequelize';
+import ChatMembers from './models/chat-members.model';
+import ChatRoom from './models/chat-room.model';
+import User from '../user/models/user.model';
+import ProfileImage from '../user/models/profile-image.model';
+import ChatMessage from './models/chat-message.model';
 
+// 채팅방 생성
 export const createChatRoom = async () => {
-  // 채팅방 생성
   const result = await ChatRoom.create();
   return result.dataValues.id;
 };
+
+// 해당 채팅방이 존재하는 지 확인
 export const verifyRoomExists = async (roomId: number) => {
   const result = await ChatRoom.findByPk(roomId);
   return result;
 };
+
+// 이미 만들어진 채팅방이있는지 확인
 export const findExistingChatRoom = async (
-  // 이미 만들어진 채팅방이있는지 확인
   user1Id: number,
-  user2Id: number
+  user2Id: number,
 ) => {
-  const result = await ChatUsers.findAll({
+  const result = await ChatMembers.findAll({
     where: {
       userId: {
         [Op.or]: [user1Id, user2Id],
       },
     },
-    attributes: ["roomId"],
-    group: "roomId",
-    having: Sequelize.literal("COUNT(*) = 2"),
+    attributes: ['roomId'],
+    group: 'roomId',
+    having: Sequelize.literal('COUNT(*) = 2'),
   });
   if (result.length > 0) {
     return result[0].dataValues.roomId;
@@ -35,11 +38,12 @@ export const findExistingChatRoom = async (
     return null;
   }
 };
+
+// 생성된 채팅방에 유저 참여
 export const joinChatRoom = async (users: number[], roomId: number) => {
-  // 생성된 채팅방에 유저 참여
   try {
     users.forEach((user) => {
-      ChatUsers.create({
+      ChatMembers.create({
         userId: user,
         roomId: roomId,
       });
@@ -49,17 +53,18 @@ export const joinChatRoom = async (users: number[], roomId: number) => {
     return false;
   }
 };
+
+// 채팅방 참여유저 정보(본인 제외)
 export const getJoinRoomUser = async (roomId: number, userId: number) => {
-  // 채팅방 참여유저 정보(본인 제외)
-  const result = await ChatUsers.findOne({
+  const result = await ChatMembers.findOne({
     where: { roomId: roomId, userId: { [Op.not]: userId } },
     attributes: [],
     include: [
       {
         model: User,
-        as: "cUsers",
-        attributes: ["name", "nickname", "id"],
-        include: [{ model: ProfileImage, attributes: ["path"] }],
+        as: 'cUsers',
+        attributes: ['name', 'nickname', 'id'],
+        include: [{ model: ProfileImage, attributes: ['path'] }],
       },
     ],
   });
@@ -69,19 +74,20 @@ export const getJoinRoomUser = async (roomId: number, userId: number) => {
     return null;
   }
 };
+
+// 채팅방 메시지
 export const getChatRoomMessage = async (roomId: number) => {
-  // 채팅방 메시지
   const result = await ChatMessage.findAll({
     where: { roomId: roomId },
     include: [
       {
         model: User,
-        as: "userMessage",
-        attributes: ["name", "id"],
-        include: [{ model: ProfileImage, attributes: ["path"] }],
+        as: 'userMessage',
+        attributes: ['name', 'id'],
+        include: [{ model: ProfileImage, attributes: ['path'] }],
       },
     ],
-    order: [["createdAt", "DESC"]],
+    order: [['createdAt', 'DESC']],
   });
   const message = result.map((msg) => {
     return msg.toJSON();
@@ -89,11 +95,11 @@ export const getChatRoomMessage = async (roomId: number) => {
   return message;
 };
 
+// 메시지 저장
 export const sendMessage = async (
-  // 메시지 저장
   roomId: number,
   userId: number,
-  message: string
+  message: string,
 ) => {
   const result = await ChatMessage.create({
     userId,
@@ -103,16 +109,16 @@ export const sendMessage = async (
   return result.dataValues.id;
 };
 
+// 저장한 메시지 가공된 정보 보내기
 export const getMessageById = async (id: number) => {
-  // 저장한 메시지 가공된 정보 보내기
   const result = await ChatMessage.findOne({
     where: { id },
     include: [
       {
         model: User,
-        as: "userMessage",
-        attributes: ["name", "id"],
-        include: [{ model: ProfileImage, attributes: ["path"] }],
+        as: 'userMessage',
+        attributes: ['name', 'id'],
+        include: [{ model: ProfileImage, attributes: ['path'] }],
       },
     ],
   });
@@ -123,11 +129,11 @@ export const getMessageById = async (id: number) => {
   }
 };
 
+// 채팅방 리스트
 export const getChatRoomList = async (userId: number) => {
-  // 채팅방 리스트
-  const rooms = await ChatUsers.findAll({
+  const rooms = await ChatMembers.findAll({
     where: { userId: userId },
-    attributes: ["roomId"],
+    attributes: ['roomId'],
   });
   if (!rooms) {
     return [];
@@ -144,37 +150,40 @@ export const getChatRoomList = async (userId: number) => {
   }
   return roomsWithMessages;
 };
-export const MessageRead = async(roomId: number, userId: number) => {
+
+// 메시지 읽음 처리
+export const MessageRead = async (roomId: number, userId: number) => {
   ChatMessage.update(
-    {isRead: true},
+    { isRead: true },
     {
       where: {
         roomId: roomId,
-        userId: { [Op.ne] : userId}
-      }
-    }
+        userId: { [Op.ne]: userId },
+      },
+    },
   );
-}
+};
+
+//채팅방의 읽지않은 메시지 카운트
 export const getNotReadMessage = async (roomId: number, userId: number) => {
-  //채팅방의 읽지않은 메시지 카운트
   const result = await ChatMessage.count({
     where: {
       roomId: roomId,
       userId: {
         [Op.not]: userId,
       },
-      isRead: false
+      isRead: false,
     },
   });
   return result;
 };
 
+// 최근 메시지
 export const getLatestMessage = async (roomId: number) => {
-  // 최근 메시지
   const result = await ChatMessage.findOne({
     where: { roomId },
-    attributes: ["message", "createdAt"],
-    order: [["createdAt", "DESC"]],
+    attributes: ['message', 'createdAt'],
+    order: [['createdAt', 'DESC']],
   });
   return result?.toJSON();
 };

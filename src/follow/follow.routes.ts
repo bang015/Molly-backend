@@ -9,7 +9,7 @@ import {
   unfollow,
 } from './follow.service';
 import { checkJWT } from '../common/middleware/checkJwt';
-import { IJwtRequest } from '../interfaces/auth';
+import { JwtRequest } from '../auth/auth.interfaces';
 
 const followRouter = Router();
 
@@ -22,7 +22,7 @@ followRouter.post(
       followUserId: Joi.number().required(),
     }),
   }),
-  async (req: IJwtRequest, res: Response, next: NextFunction) => {
+  async (req: JwtRequest, res: Response, next: NextFunction) => {
     try {
       const payload = {
         userId: req.decoded.id,
@@ -47,7 +47,7 @@ followRouter.post(
 followRouter.get(
   '/',
   checkJWT,
-  async (req: IJwtRequest, res: Response, next: NextFunction) => {
+  async (req: JwtRequest, res: Response, next: NextFunction) => {
     try {
       const userId = req.decoded?.id;
       let limit = parseInt(req.query.limit as string);
@@ -81,7 +81,7 @@ followRouter.get('/r/:id', async (req: Request, res: Response) => {
 followRouter.get(
   '/check/:followUserId',
   checkJWT,
-  async (req: IJwtRequest, res: Response) => {
+  async (req: JwtRequest, res: Response) => {
     const payload = {
       userId: req.decoded.id,
       targetId: Number(req.body.followUserId),

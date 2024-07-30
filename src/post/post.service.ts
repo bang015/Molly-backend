@@ -1,14 +1,14 @@
 import { Op, Sequelize, where } from 'sequelize';
-import Post from '../models/post';
-import PostMedia from '../models/post-media';
-import ProfileImage from '../models/profile-image';
-import User from '../models/user';
-import PostTag from '../models/post-tag';
 import sequelize from '../common/config/database';
-import { CreatePostInput, MediaType } from '../interfaces/post';
-import Tag from '../models/tag';
-import Bookmark from '../models/bookmark.modal';
 import { v2 as cloudinary } from 'cloudinary';
+import Post from './models/post.model';
+import PostMedia from './models/post-media.model';
+import Tag from './models/tag.model';
+import PostTag from './models/post-tag.model';
+import User from '../user/models/user.model';
+import ProfileImage from '../user/models/profile-image.model';
+import Bookmark from '../bookmark/models/bookmark.model';
+import { CreatePostInput, MediaType } from './post.interfaces';
 
 // 게시물 생성
 export const createPost = async (

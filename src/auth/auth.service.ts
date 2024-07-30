@@ -1,11 +1,10 @@
 import * as jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import User from '../models/user';
-import Image from '../models/profile-image';
 import config from '../common/config';
-import { Signin, Token } from '../interfaces/auth';
-import { SignupInput } from '../interfaces/user';
+import User from '../user/models/user.model';
+import { Signin, SignupInput, Token } from './auth.interfaces';
 
+// 유저 생성
 export const createUser = async (payload: SignupInput): Promise<Token> => {
   try {
     const user = await User.create({ ...payload });
@@ -15,6 +14,7 @@ export const createUser = async (payload: SignupInput): Promise<Token> => {
   }
 };
 
+// 로그인
 export const signin = async (payload: Signin): Promise<Token> => {
   const user = await User.findOne({
     where: {
@@ -31,6 +31,7 @@ export const signin = async (payload: Signin): Promise<Token> => {
   return generateTokens({ userId: user.id });
 };
 
+// 토큰 생성
 const generateTokens = (payload: { userId: number }) => {
   return {
     accessToken: generateAccessToken(payload),
@@ -38,6 +39,7 @@ const generateTokens = (payload: { userId: number }) => {
   };
 };
 
+// 엑세스 토큰 생성
 const generateAccessToken = (payload: { userId: number }): string => {
   const token = jwt.sign(payload, config.jwtAccessKey.toString(), {
     expiresIn: '10m',
@@ -46,6 +48,7 @@ const generateAccessToken = (payload: { userId: number }): string => {
   return token;
 };
 
+// 리프레쉬 토큰 생성
 const generateRefreshToken = (payload: { userId: number }): string => {
   const token = jwt.sign(payload, config.jwtRefreshKey.toString(), {
     expiresIn: '7d',
@@ -54,6 +57,7 @@ const generateRefreshToken = (payload: { userId: number }): string => {
   return token;
 };
 
+// 토큰 재발급
 export const refreshTokens = (token: string) => {
   try {
     const payload = jwt.verify(token, config.jwtRefreshKey) as jwt.JwtPayload;

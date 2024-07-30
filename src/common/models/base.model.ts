@@ -10,7 +10,7 @@ import {
 } from 'sequelize-typescript';
 
 @Table({ timestamps: true })
-export class BaseModel extends Model {
+class BaseModel extends Model {
   @PrimaryKey
   @AutoIncrement
   @Column({ type: DataType.INTEGER })
@@ -24,3 +24,4 @@ export class BaseModel extends Model {
   @Column({ type: DataType.DATE })
   updatedAt: Date;
 }
+export default BaseModel;

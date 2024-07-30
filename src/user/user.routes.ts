@@ -1,6 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { celebrate, Joi, Segments } from 'celebrate';
-import { GetUserInput } from '../interfaces/user';
 import {
   getUser,
   getAllUsers,
@@ -9,9 +8,10 @@ import {
   createprofileImage,
 } from './user.service';
 import { checkJWT } from '../common/middleware/checkJwt';
-import { IJwtRequest } from '../interfaces/auth';
 import { uploadProfileImage } from '../common/middleware/multer';
 import { v2 as cloudinary } from 'cloudinary';
+import { JwtRequest } from '../auth/auth.interfaces';
+import { GetUserInput } from './user.interfaces';
 
 const userRouter = Router();
 
@@ -54,7 +54,7 @@ userRouter.patch(
       introduce: Joi.string().allow('', null),
     }),
   }),
-  async (req: IJwtRequest, res: Response, next: NextFunction) => {
+  async (req: JwtRequest, res: Response, next: NextFunction) => {
     try {
       const userId = req.decoded.id;
       let modifyDetail = { id: userId, ...req.body };

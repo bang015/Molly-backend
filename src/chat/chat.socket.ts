@@ -29,6 +29,7 @@ const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
   });
   app.set('socket.io', io);
   io.on('connection', (socket: Socket) => {
+    // 채팅방 생성
     socket.on('create-room', async (data): Promise<void> => {
       const chatUser = [parseInt(data.chatUser)];
       const userId = verifyToken(data.token);
@@ -49,6 +50,8 @@ const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
         }
       }
     });
+
+    // 채팅방 참여
     socket.on('joinChatRoom', async (data): Promise<void> => {
       socket.join(`room${data.roomId}`);
       const userId = verifyToken(data.token);
@@ -59,13 +62,18 @@ const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
         socket.emit('joinRoomSuccess', { room, user });
       }
     });
+
     socket.on('leaveRoom', (data) => {
       socket.leave(`room${data}`);
     });
+
+    // 메시지 읽음
     socket.on('messageRead', (data) => {
       const userId = verifyToken(data.token);
       MessageRead(data.roomId, userId);
     });
+
+    // 메시지 보내기
     socket.on('sendMessage', async (data): Promise<void> => {
       const userId = verifyToken(data.token);
       if (userId) {
@@ -78,6 +86,8 @@ const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
         }
       }
     });
+
+    // 채팅방 목록
     socket.on('getChatRoomList', async (data): Promise<void> => {
       const userId = verifyToken(data);
       if (userId) {
@@ -85,6 +95,8 @@ const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
         socket.emit(`getChatRoomList${userId}`, room);
       }
     });
+
+    // 채팅방 정보
     socket.on('getRoomInfo', async (data): Promise<void> => {
       const userId = verifyToken(data.token);
       if (userId) {
@@ -98,6 +110,8 @@ const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
         });
       }
     });
+
+    // 읽지 않은 메시지
     socket.on('getNotReadMessage', async (data) => {
       const userId = verifyToken(data);
       if (userId) {
@@ -112,16 +126,17 @@ const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
         socket.emit('allNotReadMessage', totalUnreadMessages);
       }
     });
+    // 토큰 확인
+    function verifyToken(token: string) {
+      try {
+        const payload = jwt.verify(token, jwtKey.toString());
+        return payload.id;
+      } catch (e) {
+        socket.emit('auth_error')
+        return null;
+      }
+    }
   });
 };
-
-function verifyToken(token: string) {
-  try {
-    const payload = jwt.verify(token, jwtKey.toString());
-    return payload.id;
-  } catch {
-    return null;
-  }
-}
 
 export default socket;

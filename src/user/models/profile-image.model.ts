@@ -1,5 +1,5 @@
 import { Column, DataType, Table } from 'sequelize-typescript';
-import { BaseModel } from '../common/models/base.model';
+import BaseModel from '../../common/models/base.model';
 
 @Table({ tableName: 'ProfileImage' })
 class ProfileImage extends BaseModel {

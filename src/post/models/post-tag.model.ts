@@ -1,7 +1,7 @@
 import { Column, DataType, ForeignKey, Table } from 'sequelize-typescript';
-import Post from './post';
-import Tag from './tag';
-import { BaseModel } from '../common/models/base.model';
+import Post from './post.model';
+import Tag from './tag.model';
+import BaseModel from '../../common/models/base.model';
 
 @Table({ tableName: 'PostTag' })
 class PostTag extends BaseModel {

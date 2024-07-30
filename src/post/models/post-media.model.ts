@@ -5,8 +5,8 @@ import {
   ForeignKey,
   Table,
 } from 'sequelize-typescript';
-import Post from './post';
-import { BaseModel } from '../common/models/base.model';
+import Post from './post.model';
+import BaseModel from '../../common/models/base.model';
 
 @Table({ tableName: 'PostMedia' })
 class PostMedia extends BaseModel {

@@ -1,15 +1,16 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { addBookmark, isBookmarked, removeBookmark } from './bookmark.service';
 import { checkJWT } from '../common/middleware/checkJwt';
-import { IJwtRequest } from '../interfaces/auth';
 import { getUser } from '../user/user.service';
+import { JwtRequest } from '../auth/auth.interfaces';
 
 const bookmarkRouter = Router();
 
+// 북마크 생성 / 삭제
 bookmarkRouter.post(
   '/',
   checkJWT,
-  async (req: IJwtRequest, res: Response, next: NextFunction) => {
+  async (req: JwtRequest, res: Response, next: NextFunction) => {
     const userId = req.decoded?.id;
     const { postId } = req.body;
     try {
@@ -30,10 +31,12 @@ bookmarkRouter.post(
     }
   },
 );
+
+// 현재 북마크 상태 확인
 bookmarkRouter.get(
   '/:postId',
   checkJWT,
-  async (req: IJwtRequest, res: Response) => {
+  async (req: JwtRequest, res: Response) => {
     const userId = req.decoded?.id;
     const postId = parseInt(req.params.postId, 10);
     const bookmark = await isBookmarked(postId, userId);

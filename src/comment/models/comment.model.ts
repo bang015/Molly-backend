@@ -1,18 +1,14 @@
 import {
-  AutoIncrement,
   BelongsTo,
   Column,
-  CreatedAt,
   DataType,
   ForeignKey,
   HasMany,
-  PrimaryKey,
   Table,
-  UpdatedAt,
 } from 'sequelize-typescript';
-import Post from './post';
-import User from './user';
-import { BaseModel } from '../common/models/base.model';
+import Post from '../../post/models/post.model';
+import User from '../../user/models/user.model';
+import BaseModel from '../../common/models/base.model';
 
 @Table({ tableName: 'Comment' })
 class Comment extends BaseModel {

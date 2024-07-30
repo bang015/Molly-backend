@@ -10,9 +10,9 @@ import {
   updateComment,
   getComment,
 } from './comment.service';
-import { IJwtRequest } from '../interfaces/auth';
 import { checkJWT } from '../common/middleware/checkJwt';
 import { getUser } from '../user/user.service';
+import { JwtRequest } from '../auth/auth.interfaces';
 
 const commentRouter = Router();
 
@@ -27,7 +27,7 @@ commentRouter.post(
       content: Joi.string().required(),
     }),
   }),
-  async (req: IJwtRequest, res: Response, next: NextFunction) => {
+  async (req: JwtRequest, res: Response, next: NextFunction) => {
     try {
       const userId = req.decoded?.id;
       const user = getUser({ id: userId });
@@ -53,7 +53,7 @@ commentRouter.post(
 commentRouter.get(
   '/:postId',
   checkJWT,
-  async (req: IJwtRequest, res: Response, next: NextFunction) => {
+  async (req: JwtRequest, res: Response, next: NextFunction) => {
     const userId = req.decoded.id;
     const postId = parseInt(req.params.postId, 10);
     const { page } = req.query as any;
@@ -82,7 +82,7 @@ commentRouter.get(
 commentRouter.get(
   '/my/:postId',
   checkJWT,
-  async (req: IJwtRequest, res: Response) => {
+  async (req: JwtRequest, res: Response) => {
     const userId = req.decoded.id;
     const postId = parseInt(req.params.postId, 10);
     const comment = await getMyCommentByPost(userId, postId);
@@ -95,7 +95,7 @@ commentRouter.get(
 commentRouter.patch(
   '/:id',
   checkJWT,
-  async (req: IJwtRequest, res: Response, next: NextFunction) => {
+  async (req: JwtRequest, res: Response, next: NextFunction) => {
     try {
       const userId = req.decoded?.id;
       const id = parseInt(req.params.id, 10);
@@ -116,7 +116,7 @@ commentRouter.patch(
 commentRouter.delete(
   '/:id',
   checkJWT,
-  async (req: IJwtRequest, res: Response, next: NextFunction) => {
+  async (req: JwtRequest, res: Response, next: NextFunction) => {
     try {
       const userId = req.decoded?.id;
       const id = parseInt(req.params.id, 10);

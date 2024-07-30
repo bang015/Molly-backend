@@ -1,8 +1,8 @@
 import { Op } from 'sequelize';
-import Comment from '../models/comment';
-import ProfileImage from '../models/profile-image';
-import User from '../models/user';
+import Comment from './models/comment.model';
 import { Sequelize } from 'sequelize-typescript';
+import User from '../user/models/user.model';
+import ProfileImage from '../user/models/profile-image.model';
 
 // 댓글 생성
 export const createComment = async (

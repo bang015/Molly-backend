@@ -2,7 +2,6 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { celebrate, Joi, Segments } from 'celebrate';
 import { checkJWT } from '../common/middleware/checkJwt';
 import { uploadPostMedias } from '../common/middleware/multer';
-import { IJwtRequest } from '..//interfaces/auth';
 import {
   explorePostList,
   postList,
@@ -13,12 +12,13 @@ import {
   verifyPostUser,
   createPost,
   bookmarkPostList,
-  deletePostImage
+  deletePostImage,
 } from './post.service';
-import { MediaType } from '../interfaces/post';
 import { v2 as cloudinary } from 'cloudinary';
 import { getUser } from '../user/user.service';
 import { selectFollowing } from '../follow/follow.service';
+import { JwtRequest } from '../auth/auth.interfaces';
+import { MediaType } from './post.interfaces';
 
 const postRouter = Router();
 // 게시물 생성
@@ -26,7 +26,7 @@ postRouter.post(
   '/',
   checkJWT,
   uploadPostMedias,
-  async (req: IJwtRequest, res: Response, next: NextFunction) => {
+  async (req: JwtRequest, res: Response, next: NextFunction) => {
     try {
       const userId = req.decoded.id;
       const { content, hashtags } = req.body;
@@ -64,7 +64,7 @@ postRouter.patch(
   '/',
   checkJWT,
   uploadPostMedias,
-  async (req: IJwtRequest, res: Response, next: NextFunction) => {
+  async (req: JwtRequest, res: Response, next: NextFunction) => {
     try {
       const userId = req.decoded?.id;
       const { postId, content, hashtags } = req.body;
@@ -81,7 +81,7 @@ postRouter.patch(
 postRouter.get(
   '/main',
   checkJWT,
-  async (req: IJwtRequest, res: Response, next: NextFunction) => {
+  async (req: JwtRequest, res: Response, next: NextFunction) => {
     try {
       const userId = req.decoded.id;
       const { page } = req.query as any;
@@ -103,7 +103,7 @@ postRouter.get(
 postRouter.get(
   '/',
   checkJWT,
-  async (req: IJwtRequest, res: Response, next: NextFunction) => {
+  async (req: JwtRequest, res: Response, next: NextFunction) => {
     try {
       const userId = req.decoded.id;
       const { page } = req.query as any;
@@ -189,7 +189,7 @@ postRouter.get(
 postRouter.delete(
   '/:id',
   checkJWT,
-  async (req: IJwtRequest, res: Response, next: NextFunction) => {
+  async (req: JwtRequest, res: Response, next: NextFunction) => {
     try {
       const userId = req.decoded?.id;
       const postId = parseInt(req.params.id, 10);

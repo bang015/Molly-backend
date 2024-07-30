@@ -1,17 +1,17 @@
-import { Op, Sequelize } from "sequelize";
-import User from "../models/user";
-import Tag from "../models/tag";
-import ProfileImage from "../models/profile-image";
-import Post from "../models/post";
+import { Op, Sequelize } from 'sequelize';
+import User from '../user/models/user.model';
+import ProfileImage from '../user/models/profile-image.model';
+import Tag from '../post/models/tag.model';
+import Post from '../post/models/post.model';
 
 export const getSearchResult = async (searchKeyword: string, type: string) => {
   const limit = 50;
   let userSearch = false;
   let tagSearch = false;
-  if (type === "user") {
+  if (type === 'user') {
     userSearch = true;
     tagSearch = false;
-  } else if (type === "tag") {
+  } else if (type === 'tag') {
     userSearch = false;
     tagSearch = true;
   } else {
@@ -21,7 +21,7 @@ export const getSearchResult = async (searchKeyword: string, type: string) => {
   const [users, tags] = await Promise.all([
     userSearch
       ? User.findAll({
-          attributes: ["id", "name", "nickname"],
+          attributes: ['id', 'name', 'nickname'],
           where: {
             [Op.or]: [
               { nickname: { [Op.like]: `%${searchKeyword}%` } },
@@ -30,16 +30,16 @@ export const getSearchResult = async (searchKeyword: string, type: string) => {
           },
           include: {
             model: ProfileImage,
-            attributes: ["path"],
+            attributes: ['path'],
           },
         })
       : Promise.resolve([]),
     tagSearch
       ? Tag.findAll({
           attributes: [
-            "id",
-            "name",
-            [Sequelize.fn("COUNT", Sequelize.col("posts.id")), "tagCount"],
+            'id',
+            'name',
+            [Sequelize.fn('COUNT', Sequelize.col('posts.id')), 'tagCount'],
           ],
           where: {
             name: { [Op.like]: `%${searchKeyword}%` },
@@ -50,21 +50,21 @@ export const getSearchResult = async (searchKeyword: string, type: string) => {
               as: 'posts',
               attributes: [],
               required: false,
-              through: { attributes: [] }
+              through: { attributes: [] },
             },
           ],
-          group: ["Tag.id"],
+          group: ['Tag.id'],
         })
       : Promise.resolve([]),
   ]);
   const usersWithType = users.map((user) => ({
     ...user.toJSON(),
-    type: "user",
+    type: 'user',
   }));
-  const tagsWithType = tags.map((tag) => ({ ...tag.toJSON(), type: "tag" }));
+  const tagsWithType = tags.map((tag) => ({ ...tag.toJSON(), type: 'tag' }));
 
   const result = [...usersWithType, ...tagsWithType].sort(
-    () => Math.random() - 0.5
+    () => Math.random() - 0.5,
   );
   return result;
 };

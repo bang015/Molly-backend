@@ -1,8 +1,7 @@
-export interface SignupInput {
-  email: string;
-  nickname: string;
-  password: string;
+export interface ProfileImageDetail {
   name: string;
+  type: string;
+  path: string;
 }
 
 export interface GetUserInput {

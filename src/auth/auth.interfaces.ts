@@ -1,14 +1,23 @@
 import { Request } from 'express';
 
+export interface SignupInput {
+  email: string;
+  nickname: string;
+  password: string;
+  name: string;
+}
+
 export interface Token {
   accessToken: string;
   refreshToken: string;
 }
+
 export interface Signin {
   email: string;
   password: string;
 }
-export interface IJwtInfo {
+
+export interface JwtInfo {
   id?: number;
   email?: string;
   iat?: number;
@@ -17,6 +26,6 @@ export interface IJwtInfo {
   sub?: string;
 }
 
-export interface IJwtRequest extends Request {
-  decoded?: IJwtInfo;
+export interface JwtRequest extends Request {
+  decoded?: JwtInfo;
 }

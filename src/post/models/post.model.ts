@@ -1,11 +1,6 @@
-import { BaseModel } from '../common/models/base.model';
-import Bookmark from './bookmark.modal';
-import Comment from './comment';
-import Like from './like';
-import PostMedia from './post-media';
-import PostTag from './post-tag';
-import Tag from './tag';
-import User from './user';
+import Bookmark from '../../bookmark/models/bookmark.model';
+import User from '../../user/models/user.model';
+import Comment from '../../comment/models/comment.model';
 import {
   BelongsTo,
   BelongsToMany,
@@ -15,6 +10,11 @@ import {
   HasMany,
   Table,
 } from 'sequelize-typescript';
+import Like from '../../like/models/like.model';
+import PostMedia from './post-media.model';
+import PostTag from './post-tag.model';
+import Tag from './tag.model';
+import BaseModel from '../../common/models/base.model';
 
 @Table({ tableName: 'Post' })
 class Post extends BaseModel {

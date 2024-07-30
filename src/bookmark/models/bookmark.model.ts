@@ -5,9 +5,9 @@ import {
   ForeignKey,
   Table,
 } from 'sequelize-typescript';
-import User from './user';
-import Post from './post';
-import { BaseModel } from '../common/models/base.model';
+import Post from '../../post/models/post.model';
+import User from '../../user/models/user.model';
+import BaseModel from '../../common/models/base.model';
 
 @Table({
   tableName: 'Bookmark',

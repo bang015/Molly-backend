@@ -1,25 +1,30 @@
 import { Op } from 'sequelize';
-import User from '../models/user';
-import Image from '../models/profile-image';
-import { GetUserInput, UserModify } from '../interfaces/user';
-import Post from '../models/post';
 import { Sequelize } from 'sequelize-typescript';
-import Follow from '../models/follow';
-import { IImageDetail } from '../interfaces/image';
-import ProfileImage from '../models/profile-image';
 import { v2 as cloudinary } from 'cloudinary';
+import User from './models/user.model';
+import Post from '../post/models/post.model';
+import Follow from '../follow/models/follow.model';
+import ProfileImage from './models/profile-image.model';
+import {
+  GetUserInput,
+  ProfileImageDetail,
+  UserModify,
+} from './user.interfaces';
 
+// 모든 유저 목록
 export const getAllUsers = async (): Promise<User[] | null> => {
   const allUser = await User.findAll({
     include: [
       {
-        model: Image,
+        model: ProfileImage,
         attributes: ['id', 'path'],
       },
     ],
   });
   return allUser;
 };
+
+// 유저 정보
 export const getUser = async (userInfo: GetUserInput): Promise<User | null> => {
   const user = await User.findOne({
     where: {
@@ -31,7 +36,7 @@ export const getUser = async (userInfo: GetUserInput): Promise<User | null> => {
     },
     include: [
       {
-        model: Image,
+        model: ProfileImage,
         attributes: ['id', 'path'],
       },
       {
@@ -70,6 +75,7 @@ export const getUser = async (userInfo: GetUserInput): Promise<User | null> => {
   return user.get();
 };
 
+// 유저 정보 수정
 export const modifyUser = async (
   userInfo: UserModify,
 ): Promise<User | null> => {
@@ -99,8 +105,9 @@ export const modifyUser = async (
   }
 };
 
+// 유저 프로필 이미지 생성
 export const createprofileImage = async (
-  imageInfo: IImageDetail,
+  imageInfo: ProfileImageDetail,
 ): Promise<ProfileImage | null> => {
   try {
     const result = await ProfileImage.create({
@@ -115,6 +122,8 @@ export const createprofileImage = async (
     throw Error('프로필 수정을 실패했습니다.');
   }
 };
+
+// 유저 프로필 이미지 삭제
 export const deleteProfileImage = async (profileimgId: number) => {
   const profileImage = await ProfileImage.findByPk(profileimgId);
   const id = profileImage?.dataValues.name;
