@@ -1,6 +1,6 @@
 const SocketIO = require('socket.io');
 const jwt = require('jsonwebtoken');
-import jwtKey from '../common/config';
+import config from '../common/config';
 import { Server as HTTPServer } from 'http';
 import { Server as HTTPSServer } from 'https';
 import { Application } from 'express';
@@ -19,6 +19,7 @@ import {
   sendMessage,
   verifyRoomExists,
 } from './chat.service';
+import { CustomSocket } from './chat.interfaces';
 
 const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
   const io = SocketIO(server, {
@@ -28,14 +29,31 @@ const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
     },
   });
   app.set('socket.io', io);
-  io.on('connection', (socket: Socket) => {
+  io.use((socket, next) => {
+    const token = socket.handshake.auth.token;
+    if (!token) {
+      return next(new Error('Token not provided'));
+    }
+    jwt.verify(token, config.jwtAccessKey.toString(), (err, decoded) => {
+      if (err) {
+        if (err.name === 'TokenExpiredError') {
+          return next(new Error('Token expired'));
+        }
+        return next(new Error('Authentication error'));
+      }
+      socket.userId = decoded.userId;
+      next();
+    });
+  });
+  io.on('connection', (socket: CustomSocket) => {
     // 채팅방 생성
     socket.on('create-room', async (data): Promise<void> => {
       const chatUser = [parseInt(data.chatUser)];
-      const userId = verifyToken(data.token);
+      const userId = socket.userId;
       if (userId) {
         chatUser.push(userId);
         const check = await findExistingChatRoom(chatUser[0], userId);
+        console.log(check);
         if (check) {
           socket.emit('room-created-success', check);
           return;
@@ -54,12 +72,12 @@ const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
     // 채팅방 참여
     socket.on('joinChatRoom', async (data): Promise<void> => {
       socket.join(`room${data.roomId}`);
-      const userId = verifyToken(data.token);
+      const userId = socket.userId;
       if (userId) {
-        const room = await getChatRoomMessage(data.roomId);
+        const message = await getChatRoomMessage(data.roomId);
         const user = await getJoinRoomUser(data.roomId, userId);
         MessageRead(data.roomId, userId);
-        socket.emit('joinRoomSuccess', { room, user });
+        socket.emit('joinRoomSuccess', { message, user });
       }
     });
 
@@ -69,13 +87,13 @@ const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
 
     // 메시지 읽음
     socket.on('messageRead', (data) => {
-      const userId = verifyToken(data.token);
+      const userId = socket.userId;
       MessageRead(data.roomId, userId);
     });
 
     // 메시지 보내기
     socket.on('sendMessage', async (data): Promise<void> => {
-      const userId = verifyToken(data.token);
+      const userId = socket.userId;
       if (userId) {
         const messageId = await sendMessage(data.roomId, userId, data.message);
         if (messageId) {
@@ -89,7 +107,7 @@ const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
 
     // 채팅방 목록
     socket.on('getChatRoomList', async (data): Promise<void> => {
-      const userId = verifyToken(data);
+      const userId = socket.userId;
       if (userId) {
         const room = await getChatRoomList(userId);
         socket.emit(`getChatRoomList${userId}`, room);
@@ -98,7 +116,7 @@ const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
 
     // 채팅방 정보
     socket.on('getRoomInfo', async (data): Promise<void> => {
-      const userId = verifyToken(data.token);
+      const userId = socket.userId;
       if (userId) {
         const user = await getJoinRoomUser(data.roomId, userId);
         const _message = await getNotReadMessage(data.roomId, userId);
@@ -112,8 +130,8 @@ const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
     });
 
     // 읽지 않은 메시지
-    socket.on('getNotReadMessage', async (data) => {
-      const userId = verifyToken(data);
+    socket.on('getNotReadMessage', async () => {
+      const userId = socket.userId;
       if (userId) {
         const rooms = await getChatRoomList(userId);
         const counts = await Promise.all(
@@ -126,16 +144,6 @@ const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
         socket.emit('allNotReadMessage', totalUnreadMessages);
       }
     });
-    // 토큰 확인
-    function verifyToken(token: string) {
-      try {
-        const payload = jwt.verify(token, jwtKey.toString());
-        return payload.id;
-      } catch (e) {
-        socket.emit('auth_error')
-        return null;
-      }
-    }
   });
 };
 

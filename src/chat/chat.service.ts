@@ -62,14 +62,14 @@ export const getJoinRoomUser = async (roomId: number, userId: number) => {
     include: [
       {
         model: User,
-        as: 'cUsers',
+        as: 'user',
         attributes: ['name', 'nickname', 'id'],
         include: [{ model: ProfileImage, attributes: ['path'] }],
       },
     ],
   });
   if (result) {
-    return result.toJSON();
+    return result.toJSON().user;
   } else {
     return null;
   }
@@ -82,7 +82,7 @@ export const getChatRoomMessage = async (roomId: number) => {
     include: [
       {
         model: User,
-        as: 'userMessage',
+        as: 'user',
         attributes: ['name', 'id'],
         include: [{ model: ProfileImage, attributes: ['path'] }],
       },
@@ -116,7 +116,7 @@ export const getMessageById = async (id: number) => {
     include: [
       {
         model: User,
-        as: 'userMessage',
+        as: 'user',
         attributes: ['name', 'id'],
         include: [{ model: ProfileImage, attributes: ['path'] }],
       },

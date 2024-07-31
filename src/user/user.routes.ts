@@ -21,7 +21,7 @@ userRouter.get(
     [Segments.QUERY]: {
       id: Joi.number().integer(),
       email: Joi.string().email(),
-      nickname: Joi.string(),
+      nickname: Joi.string(), 
     },
   }),
   async (req: Request, res: Response, next: NextFunction) => {

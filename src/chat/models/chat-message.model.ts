@@ -23,7 +23,7 @@ class ChatMessage extends BaseModel {
   roomId: number;
 
   @BelongsTo(() => ChatRoom, 'roomId')
-  room: User;
+  room: ChatRoom;
 
   @Column({
     type: DataType.TEXT,

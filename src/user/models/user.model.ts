@@ -58,11 +58,11 @@ export class User extends BaseModel {
   @HasMany(() => Follow, 'followingId')
   followers: User[];
 
+  @HasMany(() => ChatMembers, 'userId')
+  ChatRooms: ChatRoom[];
+
   @BelongsToMany(() => Post, () => Like)
   likePosts: Post[];
-
-  @BelongsToMany(() => ChatRoom, () => ChatMembers)
-  ChatRooms: ChatRoom[];
 
   @BeforeCreate
   static async encryptPassword(user: User) {

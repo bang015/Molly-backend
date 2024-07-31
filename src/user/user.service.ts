@@ -115,7 +115,6 @@ export const createprofileImage = async (
       type: imageInfo.type,
       path: imageInfo.path,
     });
-    console.log(result.get().id);
     return result.get();
   } catch (e) {
     console.log(e);

@@ -28,7 +28,7 @@ followRouter.post(
         userId: req.decoded.id,
         targetId: Number(req.body.followUserId),
       };
-
+      console.log(payload)
       let isFollowingUser = await isFollowing(payload);
       if (isFollowingUser) {
         await unfollow(payload);
@@ -84,7 +84,7 @@ followRouter.get(
   async (req: JwtRequest, res: Response) => {
     const payload = {
       userId: req.decoded.id,
-      targetId: Number(req.body.followUserId),
+      targetId: parseInt(req.params.followUserId, 10),
     };
     const check = await isFollowing(payload);
     return res.status(200).json(check);
