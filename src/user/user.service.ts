@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { literal, Op } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { v2 as cloudinary } from 'cloudinary';
 import User from './models/user.model';
@@ -39,40 +39,41 @@ export const getUser = async (userInfo: GetUserInput): Promise<User | null> => {
         model: ProfileImage,
         attributes: ['id', 'path'],
       },
-      {
-        model: Post,
-        as: 'posts',
-        attributes: [],
-      },
-      {
-        model: Follow,
-        as: 'followers',
-        attributes: [],
-      },
-      {
-        model: Follow,
-        as: 'following',
-        attributes: [],
-      },
     ],
-    subQuery: false,
     attributes: {
       exclude: ['password'],
       include: [
-        [Sequelize.fn('COUNT', Sequelize.col('posts.id')), 'postCount'],
-        [Sequelize.fn('COUNT', Sequelize.col('followers.id')), 'followerCount'],
         [
-          Sequelize.fn('COUNT', Sequelize.col('following.id')),
+          literal(`(
+          SELECT COUNT(*)
+          FROM \`Post\`
+          WHERE \`Post\`.\`userId\` = \`User\`.\`id\`
+        )`),
+          'postCount',
+        ],
+        [
+          literal(`(
+          SELECT COUNT(DISTINCT \`followers\`.\`id\`)
+          FROM \`Follow\` AS \`followers\`
+          WHERE \`followers\`.\`followingId\` = \`User\`.\`id\`
+        )`),
+          'followerCount',
+        ],
+        [
+          literal(`(
+          SELECT COUNT(DISTINCT \`following\`.\`id\`)
+          FROM \`Follow\` AS \`following\`
+          WHERE \`following\`.\`followerId\` = \`User\`.\`id\`
+        )`),
           'followingCount',
         ],
       ],
     },
-    group: ['User.id'],
   });
   if (!user) {
     return null;
   }
-  return user.get();
+  return user;
 };
 
 // 유저 정보 수정
@@ -100,8 +101,7 @@ export const modifyUser = async (
     const user = await existUser.update(updateFields);
     return user.get();
   } catch (e) {
-    console.log('modify:' + e);
-    return null;
+    throw Error('유저 정보 수정에 실패했습니다.')
   }
 };
 

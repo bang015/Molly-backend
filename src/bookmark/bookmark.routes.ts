@@ -36,11 +36,15 @@ bookmarkRouter.post(
 bookmarkRouter.get(
   '/:postId',
   checkJWT,
-  async (req: JwtRequest, res: Response) => {
-    const userId = req.decoded?.id;
-    const postId = parseInt(req.params.postId, 10);
-    const bookmark = await isBookmarked(postId, userId);
-    return res.status(200).json(bookmark);
+  async (req: JwtRequest, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.decoded?.id;
+      const postId = parseInt(req.params.postId, 10);
+      const bookmark = await isBookmarked(postId, userId);
+      return res.status(200).json(bookmark);
+    } catch (e) {
+      return next(e);
+    }
   },
 );
 

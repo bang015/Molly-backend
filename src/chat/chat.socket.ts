@@ -31,6 +31,7 @@ const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
   app.set('socket.io', io);
   io.use((socket, next) => {
     const token = socket.handshake.auth.token;
+    console.log(token)
     if (!token) {
       return next(new Error('Token not provided'));
     }

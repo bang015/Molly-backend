@@ -54,12 +54,16 @@ commentRouter.get(
   '/:postId',
   checkJWT,
   async (req: JwtRequest, res: Response, next: NextFunction) => {
-    const userId = req.decoded.id;
-    const postId = parseInt(req.params.postId, 10);
-    const { page } = req.query as any;
-    const response = await commentList(postId, userId, page);
-    if (response) {
-      return res.status(200).json(response);
+    try {
+      const userId = req.decoded.id;
+      const postId = parseInt(req.params.postId, 10);
+      const { page } = req.query as any;
+      const response = await commentList(postId, userId, page);
+      if (response) {
+        return res.status(200).json(response);
+      }
+    } catch (e) {
+      return next(e);
     }
   },
 );
@@ -68,12 +72,16 @@ commentRouter.get(
 commentRouter.get(
   '/sub/:postId/:id',
   async (req: Request, res: Response, next: NextFunction) => {
-    const postId = parseInt(req.params.postId, 10);
-    const id = parseInt(req.params.id, 10);
-    const { page } = req.query as any;
-    const response = await getSubComment(postId, id, page);
-    if (response) {
-      return res.status(200).json(response);
+    try {
+      const postId = parseInt(req.params.postId, 10);
+      const id = parseInt(req.params.id, 10);
+      const { page } = req.query as any;
+      const response = await getSubComment(postId, id, page);
+      if (response) {
+        return res.status(200).json(response);
+      }
+    } catch (e) {
+      return next(e);
     }
   },
 );
@@ -82,12 +90,15 @@ commentRouter.get(
 commentRouter.get(
   '/my/:postId',
   checkJWT,
-  async (req: JwtRequest, res: Response) => {
-    const userId = req.decoded.id;
-    const postId = parseInt(req.params.postId, 10);
-    const comment = await getMyCommentByPost(userId, postId);
-    console.log(comment);
-    return res.status(200).json(comment);
+  async (req: JwtRequest, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.decoded.id;
+      const postId = parseInt(req.params.postId, 10);
+      const comment = await getMyCommentByPost(userId, postId);
+      return res.status(200).json(comment);
+    } catch (e) {
+      return next(e);
+    }
   },
 );
 

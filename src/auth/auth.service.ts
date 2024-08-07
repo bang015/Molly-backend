@@ -21,12 +21,8 @@ export const signin = async (payload: Signin): Promise<Token> => {
       email: payload.email,
     },
   });
-  if (!user) {
-    throw new Error('등록되지 않은 이메일입니다.');
-  }
-  const isPasswordMatch = bcrypt.compareSync(payload.password, user.password);
-  if (!isPasswordMatch) {
-    throw new Error('비밀번호가 틀렸습니다.');
+  if (!user || !bcrypt.compareSync(payload.password, user.password)) {
+    throw new Error('이메일 또는 비밀번호가 틀렸습니다.');
   }
   return generateTokens({ userId: user.id });
 };

@@ -57,29 +57,32 @@ export const explorePostList = async (
   limit: number = 30,
 ) => {
   const offset = limit * (page - 1);
-  const result = await Post.findAll({
-    attributes: ['id', 'createdAt'],
-    where: {
-      userId: {
-        [Op.notIn]: userIds,
+  try {
+    const result = await Post.findAndCountAll({
+      attributes: ['id', 'createdAt'],
+      where: {
+        userId: {
+          [Op.notIn]: userIds,
+        },
       },
-    },
-    include: [
-      {
-        model: PostMedia,
-        attributes: ['id', 'path'],
-      },
-    ],
-    offset,
-    limit,
-    order: Sequelize.literal('RAND()'),
-  });
-
-  const postList = result.map((post) => {
-    return post.toJSON();
-  });
-
-  return postList;
+      include: [
+        {
+          model: PostMedia,
+          attributes: ['id', 'path'],
+        },
+      ],
+      offset,
+      limit,
+      order: Sequelize.literal('RAND()'),
+    });
+    const totalPages = Math.ceil(result.count / limit);
+    const postList = result.rows.map((post) => {
+      return post.toJSON();
+    });
+    return { postList, totalPages };
+  } catch (e) {
+    throw Error('게시물을 가져오는데 실패했습니다.');
+  }
 };
 
 // 게시물
@@ -89,34 +92,38 @@ export const postList = async (
   limit: number = 5,
 ) => {
   const offset = limit * (page - 1);
-  const result = await Post.findAndCountAll({
-    where: {
-      userId: userIds,
-    },
-    include: [
-      {
-        model: PostMedia,
-        attributes: ['id', 'path'],
+  try {
+    const result = await Post.findAndCountAll({
+      where: {
+        userId: userIds,
       },
-      {
-        model: User,
-        as: 'user',
-        attributes: ['nickname'],
-        include: [{ model: ProfileImage, attributes: ['path'] }],
-      },
-    ],
-    offset,
-    limit,
-    order: [['createdAt', 'DESC']],
-  });
-  if (!result) {
-    return null;
+      include: [
+        {
+          model: PostMedia,
+          attributes: ['id', 'path'],
+        },
+        {
+          model: User,
+          as: 'user',
+          attributes: ['nickname'],
+          include: [{ model: ProfileImage, attributes: ['path'] }],
+        },
+      ],
+      offset,
+      limit,
+      order: [['createdAt', 'DESC']],
+    });
+    if (!result) {
+      return null;
+    }
+    const totalPages = Math.ceil(result.count / limit);
+    const post = result.rows.map((post) => {
+      return post.toJSON();
+    });
+    return { post, totalPages };
+  } catch (e) {
+    throw Error('게시물을 가져오는데 실패했습니다.');
   }
-  const totalPages = Math.ceil(result.count / limit);
-  const post = result.rows.map((post) => {
-    return post.toJSON();
-  });
-  return { post, totalPages };
 };
 
 // 게시물 태그 검색
@@ -156,33 +163,35 @@ export const bookmarkPostList = async (
   limit: number = 12,
 ) => {
   const offset = limit * (page - 1);
-  const result = await Bookmark.findAll({
-    where: {
-      userId,
-    },
-    include: [
-      {
-        model: Post,
-        attributes: ['id', 'createdAt'],
-        include: [
-          {
-            model: PostMedia,
-            attributes: ['id', 'path'],
-          },
-        ],
+  try {
+    const result = await Bookmark.findAndCountAll({
+      where: {
+        userId,
       },
-    ],
-    offset,
-    limit,
-    order: [['createdAt', 'DESC']],
-  });
-  if (!result) {
-    throw Error('게시물이 존재하지않습니다.');
+      include: [
+        {
+          model: Post,
+          attributes: ['id', 'createdAt'],
+          include: [
+            {
+              model: PostMedia,
+              attributes: ['id', 'path'],
+            },
+          ],
+        },
+      ],
+      offset,
+      limit,
+      order: [['createdAt', 'DESC']],
+    });
+    const totalPages = Math.ceil(result.count / limit);
+    const post = result.rows.map((post) => {
+      return post.toJSON();
+    });
+    return { post, totalPages };
+  } catch (e) {
+    throw Error('게시물을 가져오는데 실패했습니다.');
   }
-  const bookmarkList = result.map((bookmark) => {
-    return bookmark.get('Post');
-  });
-  return bookmarkList;
 };
 
 // 게시물 상세정보
@@ -292,6 +301,7 @@ export const postDelete = async (postId: number) => {
   }
 };
 
+// 미사용 태그 삭제
 export const deleteUnusedTag = async (tags: number[]) => {
   tags.forEach(async (tag) => {
     const tagExists = await PostTag.findOne({ where: { TagId: tag } });

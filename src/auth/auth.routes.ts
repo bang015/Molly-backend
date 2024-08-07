@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { celebrate, Joi, Segments } from 'celebrate';
 import { signin, createUser, refreshTokens } from './auth.service';
 import { checkJWT } from '../common/middleware/checkJwt';
-import { getUser } from '../user/user.service';
+import { getUser,  } from '../user/user.service';
 import { JwtRequest, Signin, SignupInput } from './auth.interfaces';
 const authRouter = Router();
 

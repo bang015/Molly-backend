@@ -14,7 +14,7 @@ import { JwtRequest } from '../auth/auth.interfaces';
 import { GetUserInput } from './user.interfaces';
 
 const userRouter = Router();
-
+// 유저 찾기
 userRouter.get(
   '/',
   celebrate({
@@ -42,6 +42,7 @@ userRouter.get(
   },
 );
 
+// 유저 정보 수정
 userRouter.patch(
   '/',
   checkJWT,
@@ -85,7 +86,6 @@ userRouter.patch(
     } catch (e) {
       const file = req.file as Express.Multer.File;
       cloudinary.uploader.destroy(file.filename, function (result: any) {});
-      console.log('routes:' + e);
       return next(e);
     }
   },

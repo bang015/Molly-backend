@@ -28,7 +28,6 @@ followRouter.post(
         userId: req.decoded.id,
         targetId: Number(req.body.followUserId),
       };
-      console.log(payload)
       let isFollowingUser = await isFollowing(payload);
       if (isFollowingUser) {
         await unfollow(payload);
@@ -60,34 +59,52 @@ followRouter.get(
 );
 
 // 팔로윙 목록
-followRouter.get('/:id', async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id, 10);
-  const { query } = req.query as any;
-  const { page } = req.query as any;
-  const result = await selectFollowing(id, query, page);
-  return res.status(200).json(result);
-});
+followRouter.get(
+  '/:id',
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      const { query } = req.query as any;
+      const { page } = req.query as any;
+      const result = await selectFollowing(id, query, page);
+      return res.status(200).json(result);
+    } catch (e) {
+      return next(e);
+    }
+  },
+);
 
 // 팔로워 목록
-followRouter.get('/r/:id', async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id, 10);
-  const { query } = req.query as any;
-  const { page } = req.query as any;
-  const result = await selectFollower(id, query, page);
-  return res.status(200).json(result);
-});
+followRouter.get(
+  '/r/:id',
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      const { query } = req.query as any;
+      const { page } = req.query as any;
+      const result = await selectFollower(id, query, page);
+      return res.status(200).json(result);
+    } catch (e) {
+      return next(e);
+    }
+  },
+);
 
 // 팔로우 상태
 followRouter.get(
   '/check/:followUserId',
   checkJWT,
-  async (req: JwtRequest, res: Response) => {
-    const payload = {
-      userId: req.decoded.id,
-      targetId: parseInt(req.params.followUserId, 10),
-    };
-    const check = await isFollowing(payload);
-    return res.status(200).json(check);
+  async (req: JwtRequest, res: Response, next: NextFunction) => {
+    try {
+      const payload = {
+        userId: req.decoded.id,
+        targetId: parseInt(req.params.followUserId, 10),
+      };
+      const check = await isFollowing(payload);
+      return res.status(200).json(check);
+    } catch (e) {
+      return next(e);
+    }
   },
 );
 export default followRouter;

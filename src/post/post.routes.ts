@@ -88,7 +88,7 @@ postRouter.get(
       const followedUsers = await selectFollowing(userId);
       let userIds = [];
       if (followedUsers) {
-        userIds = followedUsers.map((follow) => follow.id);
+        userIds = followedUsers.followings.map((follow) => follow.id);
       }
       userIds.push(userId);
       const response = await postList(userIds, page);
@@ -110,12 +110,12 @@ postRouter.get(
       const followedUsers = await selectFollowing(userId);
       let userIds = [];
       if (followedUsers) {
-        userIds = followedUsers.map((follow) => follow.id);
+        userIds = followedUsers.followings.map((follow) => follow.id);
       }
       userIds.push(userId);
-      const allPost = await explorePostList(userIds, page);
-      if (allPost) {
-        return res.status(200).json(allPost);
+      const posts = await explorePostList(userIds, page);
+      if (posts) {
+        return res.status(200).json(posts);
       }
     } catch (e) {
       return next(e);

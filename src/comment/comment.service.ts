@@ -26,33 +26,37 @@ export const createComment = async (
 
 // 댓글 상세 정보
 export const getComment = async (id: number) => {
-  const result = await Comment.findOne({
-    where: { id },
-    include: [
-      {
-        model: User,
-        as: 'user',
-        attributes: ['nickname'],
-        include: [{ model: ProfileImage, attributes: ['path'] }],
-      },
-      {
-        model: Comment,
-        as: 'subComments',
-        attributes: [],
-      },
-    ],
-    subQuery: false,
-    attributes: {
+  try {
+    const result = await Comment.findOne({
+      where: { id },
       include: [
-        [
-          Sequelize.fn('COUNT', Sequelize.col('subComments.id')),
-          'subCommentsCount',
-        ],
+        {
+          model: User,
+          as: 'user',
+          attributes: ['nickname'],
+          include: [{ model: ProfileImage, attributes: ['path'] }],
+        },
+        {
+          model: Comment,
+          as: 'subComments',
+          attributes: [],
+        },
       ],
-    },
-    group: ['Comment.id', 'user.id'],
-  });
-  return result.get();
+      subQuery: false,
+      attributes: {
+        include: [
+          [
+            Sequelize.fn('COUNT', Sequelize.col('subComments.id')),
+            'subCommentsCount',
+          ],
+        ],
+      },
+      group: ['Comment.id', 'user.id'],
+    });
+    return result.get();
+  } catch (e) {
+    throw Error('댓글 정보를 가져오는데 실패했습니다.');
+  }
 };
 
 // 댓글 목록
@@ -63,84 +67,92 @@ export const commentList = async (
   limit: number = 15,
 ) => {
   const offset = limit * (page - 1);
-  const result = await Comment.findAndCountAll({
-    where: {
-      postId: postId,
-      userId: { [Op.ne]: userId },
-      commentId: null,
-    },
-    include: [
-      {
-        model: User,
-        as: 'user',
-        attributes: ['nickname'],
-        include: [{ model: ProfileImage, attributes: ['path'] }],
+  try {
+    const result = await Comment.findAndCountAll({
+      where: {
+        postId: postId,
+        userId: { [Op.ne]: userId },
+        commentId: null,
       },
-      {
-        model: Comment,
-        as: 'subComments',
-        attributes: [],
-      },
-    ],
-    subQuery: false,
-    attributes: {
       include: [
-        [
-          Sequelize.fn('COUNT', Sequelize.col('subComments.id')),
-          'subcommentCount',
-        ],
+        {
+          model: User,
+          as: 'user',
+          attributes: ['nickname'],
+          include: [{ model: ProfileImage, attributes: ['path'] }],
+        },
+        {
+          model: Comment,
+          as: 'subComments',
+          attributes: [],
+        },
       ],
-    },
-    group: ['Comment.id', 'user.id', 'user->ProfileImage.id'],
-    offset,
-    limit,
-    order: [['createdAt', 'DESC']],
-    distinct: true,
-  });
-  const totalPages = Math.ceil(result.count.length / limit);
-  const commentList = result.rows.map((comment) => ({
-    ...comment.toJSON(),
-  }));
-  return { commentList, totalPages };
+      subQuery: false,
+      attributes: {
+        include: [
+          [
+            Sequelize.fn('COUNT', Sequelize.col('subComments.id')),
+            'subcommentCount',
+          ],
+        ],
+      },
+      group: ['Comment.id', 'user.id', 'user->ProfileImage.id'],
+      offset,
+      limit,
+      order: [['createdAt', 'DESC']],
+      distinct: true,
+    });
+    const totalPages = Math.ceil(result.count.length / limit);
+    const commentList = result.rows.map((comment) => ({
+      ...comment.toJSON(),
+    }));
+    return { commentList, totalPages };
+  } catch (e) {
+    throw Error('댓글을 가져오는데 실패했습니다.');
+  }
 };
 
 // 본인이 작성한 댓글목록
 export const getMyCommentByPost = async (userId: number, postId: number) => {
-  const result = await Comment.findAll({
-    where: {
-      postId: postId,
-      userId: userId,
-      commentId: null,
-    },
-    include: [
-      {
-        model: User,
-        as: 'user',
-        attributes: ['nickname'],
-        include: [{ model: ProfileImage, attributes: ['path'] }],
+  try {
+    const result = await Comment.findAll({
+      where: {
+        postId: postId,
+        userId: userId,
+        commentId: null,
       },
-      {
-        model: Comment,
-        as: 'subComments',
-        attributes: [],
-      },
-    ],
-    subQuery: false,
-    attributes: {
       include: [
-        [
-          Sequelize.fn('COUNT', Sequelize.col('subComments.id')),
-          'subCommentsCount',
-        ],
+        {
+          model: User,
+          as: 'user',
+          attributes: ['nickname'],
+          include: [{ model: ProfileImage, attributes: ['path'] }],
+        },
+        {
+          model: Comment,
+          as: 'subComments',
+          attributes: [],
+        },
       ],
-    },
-    group: ['Comment.id', 'user.id', 'user->ProfileImage.id'],
-    order: [['createdAt', 'DESC']],
-  });
-  const comment = result.map((comment) => {
-    return comment.toJSON();
-  });
-  return comment;
+      subQuery: false,
+      attributes: {
+        include: [
+          [
+            Sequelize.fn('COUNT', Sequelize.col('subComments.id')),
+            'subCommentsCount',
+          ],
+        ],
+      },
+      group: ['Comment.id', 'user.id', 'user->ProfileImage.id'],
+      order: [['createdAt', 'DESC']],
+    });
+    const comment = result.map((comment) => {
+      return comment.toJSON();
+    });
+    return comment;
+  } catch (e) {
+    throw Error('댓글을 가져오는데 실패했습니다.');
+  }
 };
 
 // 대댓글 목록
@@ -151,25 +163,29 @@ export const getSubComment = async (
   limit: number = 3,
 ) => {
   const offset = limit * (page - 1);
-  const result = await Comment.findAll({
-    where: {
-      postId: postId,
-      commentId: id,
-    },
-    include: {
-      model: User,
-      as: 'user',
-      attributes: ['nickname'],
-      include: [{ model: ProfileImage, attributes: ['path'] }],
-    },
-    offset,
-    limit,
-    order: [['createdAt', 'DESC']],
-  });
-  const comment = result.map((comment) => {
-    return comment.toJSON();
-  });
-  return comment;
+  try {
+    const result = await Comment.findAll({
+      where: {
+        postId: postId,
+        commentId: id,
+      },
+      include: {
+        model: User,
+        as: 'user',
+        attributes: ['nickname'],
+        include: [{ model: ProfileImage, attributes: ['path'] }],
+      },
+      offset,
+      limit,
+      order: [['createdAt', 'DESC']],
+    });
+    const comment = result.map((comment) => {
+      return comment.toJSON();
+    });
+    return comment;
+  } catch (e) {
+    throw Error('대댓글을 가져오는데 실패했습니다.');
+  }
 };
 
 // 권한 확인
@@ -187,19 +203,27 @@ export const verifyCommentUser = async (id: number, userId: number) => {
 
 // 댓글 삭제
 export const deleteComment = async (id: number) => {
-  const result = await Comment.destroy({
-    where: {
-      id: id,
-    },
-  });
-  return result;
+  try {
+    const result = await Comment.destroy({
+      where: {
+        id: id,
+      },
+    });
+    return result;
+  } catch (e) {
+    throw Error('댓글 삭제를 실패했습니다.');
+  }
 };
 
 // 댓글 수정
 export const updateComment = async (id: number, content: string) => {
-  const result = await Comment.update(
-    { content: content },
-    { where: { id: id } },
-  );
-  return result[0];
+  try {
+    const result = await Comment.update(
+      { content: content },
+      { where: { id: id } },
+    );
+    return result[0];
+  } catch (e) {
+    throw Error('댓글 수정를 실패했습니다.');
+  }
 };
