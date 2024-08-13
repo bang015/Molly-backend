@@ -21,7 +21,7 @@ userRouter.get(
     [Segments.QUERY]: {
       id: Joi.number().integer(),
       email: Joi.string().email(),
-      nickname: Joi.string(), 
+      nickname: Joi.string(),
     },
   }),
   async (req: Request, res: Response, next: NextFunction) => {
@@ -50,7 +50,8 @@ userRouter.patch(
   celebrate({
     [Segments.BODY]: Joi.object().keys({
       nickname: Joi.string(),
-      password: Joi.string(),
+      newPassword: Joi.string(),
+      currentPassword: Joi.string(),
       name: Joi.string(),
       introduce: Joi.string().allow('', null),
     }),
@@ -84,8 +85,13 @@ userRouter.patch(
         return res.status(200).json({ result, message });
       }
     } catch (e) {
-      const file = req.file as Express.Multer.File;
-      cloudinary.uploader.destroy(file.filename, function (result: any) {});
+      console.log(e)
+      if (req.file) {
+        const file = req.file as Express.Multer.File;
+        cloudinary.uploader.destroy(file.filename, function (result: any) {
+          console.log('파일 삭제 결과:', result);
+        });
+      }
       return next(e);
     }
   },

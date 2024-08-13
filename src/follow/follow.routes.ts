@@ -60,7 +60,7 @@ followRouter.get(
 
 // 팔로윙 목록
 followRouter.get(
-  '/:id',
+  '/following/:id',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = parseInt(req.params.id, 10);
@@ -76,7 +76,7 @@ followRouter.get(
 
 // 팔로워 목록
 followRouter.get(
-  '/r/:id',
+  '/follower/:id',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = parseInt(req.params.id, 10);

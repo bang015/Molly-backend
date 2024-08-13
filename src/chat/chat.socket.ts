@@ -4,22 +4,20 @@ import config from '../common/config';
 import { Server as HTTPServer } from 'http';
 import { Server as HTTPSServer } from 'https';
 import { Application } from 'express';
-import { Socket } from 'socket.io';
 import {
-  MessageRead,
   createChatRoom,
-  findExistingChatRoom,
-  getChatRoomList,
-  getChatRoomMessage,
+  createSystemMessage,
+  deleteChatRoom,
+  doesChatRoomExist,
   getJoinRoomUser,
-  getLatestMessage,
-  getMessageById,
-  getNotReadMessage,
-  joinChatRoom,
+  getUnreadMessageCounts,
+  leaveChatRoom,
+  MessageRead,
   sendMessage,
   verifyRoomExists,
 } from './chat.service';
 import { CustomSocket } from './chat.interfaces';
+import { getUser } from '../user/user.service';
 
 const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
   const io = SocketIO(server, {
@@ -31,12 +29,14 @@ const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
   app.set('socket.io', io);
   io.use((socket, next) => {
     const token = socket.handshake.auth.token;
-    console.log(token)
+    console.log(token);
     if (!token) {
       return next(new Error('Token not provided'));
     }
     jwt.verify(token, config.jwtAccessKey.toString(), (err, decoded) => {
       if (err) {
+        console.log(err);
+
         if (err.name === 'TokenExpiredError') {
           return next(new Error('Token expired'));
         }
@@ -47,102 +47,122 @@ const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
     });
   });
   io.on('connection', (socket: CustomSocket) => {
-    // 채팅방 생성
-    socket.on('create-room', async (data): Promise<void> => {
-      const chatUser = [parseInt(data.chatUser)];
-      const userId = socket.userId;
-      if (userId) {
-        chatUser.push(userId);
-        const check = await findExistingChatRoom(chatUser[0], userId);
-        console.log(check);
-        if (check) {
-          socket.emit('room-created-success', check);
-          return;
-        }
-        const roomId = await createChatRoom();
-        const roomExists = await verifyRoomExists(roomId);
-        if (roomExists) {
-          const joinRoom = await joinChatRoom(chatUser, roomId);
-          if (joinRoom) {
-            socket.emit('room-created-success', roomId);
-          }
-        }
-      }
-    });
-
+    const userId = socket.userId;
+    socket.join(`user-${userId}`);
     // 채팅방 참여
     socket.on('joinChatRoom', async (data): Promise<void> => {
-      socket.join(`room${data.roomId}`);
-      const userId = socket.userId;
-      if (userId) {
-        const message = await getChatRoomMessage(data.roomId);
-        const user = await getJoinRoomUser(data.roomId, userId);
-        MessageRead(data.roomId, userId);
-        socket.emit('joinRoomSuccess', { message, user });
+      if (socket.currentRoom) {
+        socket.leave(socket.currentRoom);
       }
+      socket.join(`room${data.roomId}`);
+      socket.currentRoom = `room${data.roomId}`;
+      MessageRead(data.roomId, userId);
     });
 
-    socket.on('leaveRoom', (data) => {
-      socket.leave(`room${data}`);
+    //채팅방 생성
+    socket.on('createChatRoom', async (data) => {
+      try {
+        const chatMembers = data.chatMembers;
+        const user = await getUser({ id: userId });
+        if (!user) {
+          return;
+        }
+        const updatedChatMembers = chatMembers.map((member) => member.id);
+        if (!updatedChatMembers.includes(userId)) {
+          updatedChatMembers.push(userId);
+        }
+        if (chatMembers.length === 1) {
+          const exist = await doesChatRoomExist(userId, chatMembers[0].id);
+          if (exist) {
+            return socket.emit('newChatRoom', { roomId: exist.get('roomId') });
+          }
+          const room = await createChatRoom(updatedChatMembers);
+          return socket.emit('newChatRoom', { roomId: room });
+        }
+        const room = await createChatRoom(updatedChatMembers, true);
+        const memberNames = chatMembers.map((member) => member.name).join(', ');
+        const sysMessage = await createSystemMessage(
+          room,
+          `${user.name}님이 ${memberNames}님을 초대했습니다.`,
+        );
+        chatMembers.push({ id: userId });
+        chatMembers.forEach(async (user) => {
+          io.to(`user-${user.id}`).emit('newMessage', {
+            latestMessage: sysMessage,
+            unReadCount: 0,
+            roomId: room,
+            members: chatMembers,
+          });
+        });
+        socket.emit('newChatRoom', { roomId: room });
+      } catch (e) {
+        console.log(e);
+      }
     });
 
     // 메시지 읽음
     socket.on('messageRead', (data) => {
-      const userId = socket.userId;
       MessageRead(data.roomId, userId);
     });
 
     // 메시지 보내기
     socket.on('sendMessage', async (data): Promise<void> => {
-      const userId = socket.userId;
-      if (userId) {
-        const messageId = await sendMessage(data.roomId, userId, data.message);
-        if (messageId) {
-          const message = await getMessageById(messageId);
-          io.to(`room${data.roomId}`).emit(`sendMessagesuccess`, message);
-          const user = await getJoinRoomUser(data.roomId, userId);
-          io.emit('newMessage', { user, sendUser: userId });
-        }
+      if (!userId) {
+        return;
       }
-    });
-
-    // 채팅방 목록
-    socket.on('getChatRoomList', async (data): Promise<void> => {
-      const userId = socket.userId;
-      if (userId) {
-        const room = await getChatRoomList(userId);
-        socket.emit(`getChatRoomList${userId}`, room);
-      }
-    });
-
-    // 채팅방 정보
-    socket.on('getRoomInfo', async (data): Promise<void> => {
-      const userId = socket.userId;
-      if (userId) {
-        const user = await getJoinRoomUser(data.roomId, userId);
-        const _message = await getNotReadMessage(data.roomId, userId);
-        const latestMessage = await getLatestMessage(data.roomId);
-        socket.emit(`getRoomInfo${data.roomId}`, {
-          user,
-          _message,
-          latestMessage,
+      try {
+        const message = await sendMessage(data.roomId, userId, data.message);
+        io.to(`room${data.roomId}`).emit(`sendMessagesuccess`, message);
+        const members = await getJoinRoomUser(data.roomId, userId);
+        const unReadCount = await getUnreadMessageCounts(data.roomId, userId);
+        io.to(`user-${userId}`).emit('newMessage', {
+          latestMessage: message,
+          unReadCount,
+          roomId: data.roomId,
+          members: members,
         });
+        members.forEach(async (user) => {
+          const unReadCount = await getUnreadMessageCounts(
+            data.roomId,
+            user.get('id'),
+          );
+          io.to(`user-${user.get('id')}`).emit('newMessage', {
+            latestMessage: message,
+            unReadCount,
+            roomId: data.roomId,
+            members: members,
+          });
+          io.to(`user-${user.get('id')}`).emit('updateCount', {});
+        });
+      } catch (e) {
+        console.log(e);
+        socket.emit('messageError', '메시지 전송에 실패했습니다.');
       }
     });
 
-    // 읽지 않은 메시지
-    socket.on('getNotReadMessage', async () => {
-      const userId = socket.userId;
-      if (userId) {
-        const rooms = await getChatRoomList(userId);
-        const counts = await Promise.all(
-          rooms.map(async (room): Promise<number> => {
-            const _message = await getNotReadMessage(room, userId);
-            return _message;
-          }),
+    // 채팅방 나가기
+    socket.on('leaveChatRoom', async (data) => {
+      const roomId = data.roomId;
+      const room = await verifyRoomExists(roomId);
+      const user = await getUser({ id: userId });
+      const updateMembers = await leaveChatRoom(roomId, userId);
+      socket.leave(`room${roomId}`);
+      if (updateMembers.length == 0) {
+        return await deleteChatRoom(roomId);
+      }
+      if (room.get('isGroupChat')) {
+        const sysMessage = await createSystemMessage(
+          roomId,
+          `${user.name}님이 채팅방을 나갔습니다.`,
         );
-        const totalUnreadMessages = counts.reduce((acc, cur) => acc + cur, 0);
-        socket.emit('allNotReadMessage', totalUnreadMessages);
+        updateMembers.forEach(async (member) => {
+          const members = await getJoinRoomUser(roomId, member.get('id'));
+          io.to(`user-${member.get('id')}`).emit(`userLeft`, {
+            roomId,
+            sysMessage,
+            members,
+          });
+        });
       }
     });
   });

@@ -16,7 +16,8 @@ export interface UserModify {
   email: string;
   nickname: string;
   name: string;
-  password?: string;
+  newPassword?: string;
+  currentPassword?: string;
   introduce?: string;
   profileImageId?: number;
 }

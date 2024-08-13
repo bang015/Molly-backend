@@ -1,10 +1,8 @@
 import { literal, Op } from 'sequelize';
-import { Sequelize } from 'sequelize-typescript';
 import { v2 as cloudinary } from 'cloudinary';
 import User from './models/user.model';
-import Post from '../post/models/post.model';
-import Follow from '../follow/models/follow.model';
 import ProfileImage from './models/profile-image.model';
+import bcrypt from 'bcrypt';
 import {
   GetUserInput,
   ProfileImageDetail,
@@ -84,6 +82,17 @@ export const modifyUser = async (
   if (!existUser) {
     return null;
   }
+  const newPassword = userInfo.newPassword;
+  const currentPassword = userInfo.currentPassword;
+  if (newPassword && currentPassword) {
+    if (!bcrypt.compareSync(currentPassword, existUser.get('password'))) {
+      throw Error(
+        '현재 비밀번호가 올바르지 않습니다. 확인 후 다시 입력해 주세요.',
+      );
+    }
+    const password = await bcrypt.hash(newPassword, 10);
+    existUser.update({ password: password });
+  }
   const updateFields: Partial<UserModify> = {};
   if (userInfo.name) {
     updateFields.name = userInfo.name;
@@ -101,7 +110,7 @@ export const modifyUser = async (
     const user = await existUser.update(updateFields);
     return user.get();
   } catch (e) {
-    throw Error('유저 정보 수정에 실패했습니다.')
+    throw new Error('유저 정보 수정에 실패했습니다.');
   }
 };
 
@@ -117,7 +126,6 @@ export const createprofileImage = async (
     });
     return result.get();
   } catch (e) {
-    console.log(e);
     throw Error('프로필 수정을 실패했습니다.');
   }
 };

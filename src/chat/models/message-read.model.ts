@@ -6,11 +6,18 @@ import {
   Table,
 } from 'sequelize-typescript';
 import User from '../../user/models/user.model';
-import ChatRoom from './chat-room.model';
 import BaseModel from '../../common/models/base.model';
+import ChatMessage from './chat-message.model';
 
-@Table({ tableName: 'ChatMembers' })
-class ChatMembers extends BaseModel {
+@Table({ tableName: 'MessageReadStatus' })
+class MessageReadStatus extends BaseModel {
+  @ForeignKey(() => ChatMessage)
+  @Column({ type: DataType.INTEGER, allowNull: false })
+  messageId: number;
+
+  @BelongsTo(() => ChatMessage, 'messageId')
+  message: ChatMessage;
+
   @ForeignKey(() => User)
   @Column({ type: DataType.INTEGER, allowNull: false })
   userId: number;
@@ -18,15 +25,8 @@ class ChatMembers extends BaseModel {
   @BelongsTo(() => User, 'userId')
   user: User;
 
-  @ForeignKey(() => ChatRoom)
-  @Column({ type: DataType.INTEGER, allowNull: false })
-  roomId: number;
-
-  @BelongsTo(() => ChatRoom, { foreignKey: 'roomId', onDelete: 'CASCADE' })
-  room: ChatRoom;
-
   @Column({ type: DataType.BOOLEAN, allowNull: false, defaultValue: false })
-  isActive: boolean;
+  isRead: boolean;
 }
 
-export default ChatMembers;
+export default MessageReadStatus;

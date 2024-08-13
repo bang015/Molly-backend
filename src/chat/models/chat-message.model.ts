@@ -3,16 +3,23 @@ import {
   Column,
   DataType,
   ForeignKey,
+  HasMany,
   Table,
 } from 'sequelize-typescript';
 import User from '../../user/models/user.model';
 import ChatRoom from './chat-room.model';
 import BaseModel from '../../common/models/base.model';
+import MessageReadStatus from './message-read.model';
+
+export enum MessageType {
+  USER = 'USER',
+  SYSTEM = 'SYSTEM',
+}
 
 @Table({ tableName: 'ChatMessage' })
 class ChatMessage extends BaseModel {
   @ForeignKey(() => User)
-  @Column({ type: DataType.INTEGER, allowNull: false })
+  @Column({ type: DataType.INTEGER, allowNull: true })
   userId: number;
 
   @BelongsTo(() => User, 'userId')
@@ -22,7 +29,7 @@ class ChatMessage extends BaseModel {
   @Column({ type: DataType.INTEGER, allowNull: false })
   roomId: number;
 
-  @BelongsTo(() => ChatRoom, 'roomId')
+  @BelongsTo(() => ChatRoom, { foreignKey: 'roomId', onDelete: 'CASCADE' })
   room: ChatRoom;
 
   @Column({
@@ -31,8 +38,15 @@ class ChatMessage extends BaseModel {
   })
   message: string;
 
-  @Column({ type: DataType.BOOLEAN, allowNull: false, defaultValue: false })
-  isRead: boolean;
+  @HasMany(() => MessageReadStatus)
+  readStatuses: MessageReadStatus[];
+
+  @Column({
+    type: DataType.ENUM(...Object.values(MessageType)),
+    allowNull: false,
+    defaultValue: MessageType.USER,
+  })
+  type: MessageType;
 }
 
 export default ChatMessage;

@@ -117,10 +117,10 @@ export const postList = async (
       return null;
     }
     const totalPages = Math.ceil(result.count / limit);
-    const post = result.rows.map((post) => {
+    const postList = result.rows.map((post) => {
       return post.toJSON();
     });
-    return { post, totalPages };
+    return { postList, totalPages };
   } catch (e) {
     throw Error('게시물을 가져오는데 실패했습니다.');
   }
@@ -133,7 +133,7 @@ export const getPostByTag = async (
   limit: number = 20,
 ) => {
   const offset = limit * (page - 1);
-  const result = await Tag.findOne({
+  const result = await Tag.findAndCountAll({
     attributes: [],
     where: { name: tagName },
     include: [
@@ -150,10 +150,13 @@ export const getPostByTag = async (
   if (!result) {
     throw Error('게시물이 존재하지않습니다.');
   }
-  const post = result.get('posts').map((post) => {
-    return post.toJSON();
+  const totalPages = Math.ceil(result.count / limit);
+
+  const postList = result.rows.flatMap((post) => {
+    return post.get('posts').map((p) => p.toJSON());
   });
-  return post;
+  console.log(postList)
+  return { postList, totalPages, tagCount: result.count };
 };
 
 // 북마크
@@ -185,10 +188,10 @@ export const bookmarkPostList = async (
       order: [['createdAt', 'DESC']],
     });
     const totalPages = Math.ceil(result.count / limit);
-    const post = result.rows.map((post) => {
+    const postList = result.rows.map((post) => {
       return post.toJSON();
     });
-    return { post, totalPages };
+    return { postList, totalPages };
   } catch (e) {
     throw Error('게시물을 가져오는데 실패했습니다.');
   }
