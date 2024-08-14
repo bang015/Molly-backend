@@ -53,13 +53,13 @@ export class User extends BaseModel {
   comments: Comment[];
 
   @HasMany(() => Follow, 'followerId')
-  following: User[];
+  following: Follow[];
 
   @HasMany(() => Follow, 'followingId')
-  followers: User[];
+  followers: Follow[];
 
   @HasMany(() => ChatMembers, 'userId')
-  ChatRooms: ChatRoom[];
+  ChatRooms: ChatMembers[];
 
   @BelongsToMany(() => Post, () => Like)
   likePosts: Post[];

@@ -5,6 +5,7 @@ export interface SignupInput {
   nickname: string;
   password: string;
   name: string;
+  code: string;
 }
 
 export interface Token {

@@ -106,14 +106,16 @@ postRouter.get(
   async (req: JwtRequest, res: Response, next: NextFunction) => {
     try {
       const userId = req.decoded.id;
-      const { page } = req.query as any;
+      const { page, limit } = req.query as any;
+      const pageNumber = parseInt(page, 10);
+      const limitNumber = parseInt(limit, 10);
       const followedUsers = await selectFollowing(userId);
       let userIds = [];
       if (followedUsers) {
         userIds = followedUsers.followings.map((follow) => follow.id);
       }
       userIds.push(userId);
-      const posts = await explorePostList(userIds, page);
+      const posts = await explorePostList(userIds, pageNumber, limitNumber);
       if (posts) {
         return res.status(200).json(posts);
       }

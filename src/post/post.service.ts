@@ -70,6 +70,12 @@ export const explorePostList = async (
           model: PostMedia,
           attributes: ['id', 'path'],
         },
+        {
+          model: User,
+          as: 'user',
+          attributes: ['nickname'],
+          include: [{ model: ProfileImage, attributes: ['path'] }],
+        },
       ],
       offset,
       limit,
@@ -81,6 +87,7 @@ export const explorePostList = async (
     });
     return { postList, totalPages };
   } catch (e) {
+    console.log(e)
     throw Error('게시물을 가져오는데 실패했습니다.');
   }
 };
@@ -155,7 +162,7 @@ export const getPostByTag = async (
   const postList = result.rows.flatMap((post) => {
     return post.get('posts').map((p) => p.toJSON());
   });
-  console.log(postList)
+  console.log(postList);
   return { postList, totalPages, tagCount: result.count };
 };
 

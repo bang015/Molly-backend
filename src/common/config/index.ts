@@ -7,11 +7,11 @@ if (process.env.NODE_ENV !== 'production') {
   if (envFound.error) throw new Error("Couldn't find .env file");
 }
 
-export default{
+export default {
   port: parseInt(process.env.PORT as string, 10),
   reqAddress: process.env.REQ_ADDRESS,
   database: {
-    dbname : process.env.DATABASE_NAME,
+    dbname: process.env.DATABASE_NAME,
     username: process.env.DATABASE_USERNAME,
     password: process.env.DATABASE_PASSWORD,
     host: process.env.DATABASE_HOST,
@@ -25,5 +25,9 @@ export default{
   jwtRefreshKey: process.env.JWT_REFRESH_SECRET,
   api: {
     prefix: '/api',
+  },
+  emailAuth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
 };
