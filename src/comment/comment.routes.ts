@@ -70,13 +70,12 @@ commentRouter.get(
 
 // 대댓글 목록
 commentRouter.get(
-  '/sub/:postId/:id',
+  '/sub/:id',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const postId = parseInt(req.params.postId, 10);
       const id = parseInt(req.params.id, 10);
       const { page } = req.query as any;
-      const response = await getSubComment(postId, id, page);
+      const response = await getSubComment( id, page);
       if (response) {
         return res.status(200).json(response);
       }

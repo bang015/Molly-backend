@@ -29,14 +29,12 @@ const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
   app.set('socket.io', io);
   io.use((socket, next) => {
     const token = socket.handshake.auth.token;
-    console.log(token);
     if (!token) {
       return next(new Error('Token not provided'));
     }
     jwt.verify(token, config.jwtAccessKey.toString(), (err, decoded) => {
       if (err) {
         console.log(err);
-
         if (err.name === 'TokenExpiredError') {
           return next(new Error('Token expired'));
         }
@@ -96,7 +94,7 @@ const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
         });
         socket.emit('newChatRoom', { roomId: room });
       } catch (e) {
-        console.log(e);
+        socket.emit('messageError', '채팅방 생성에 실패했습니다.');
       }
     });
 
@@ -135,7 +133,6 @@ const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
           io.to(`user-${user.get('id')}`).emit('updateCount', {});
         });
       } catch (e) {
-        console.log(e);
         socket.emit('messageError', '메시지 전송에 실패했습니다.');
       }
     });

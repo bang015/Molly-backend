@@ -87,7 +87,6 @@ export const explorePostList = async (
     });
     return { postList, totalPages };
   } catch (e) {
-    console.log(e)
     throw Error('게시물을 가져오는데 실패했습니다.');
   }
 };
@@ -162,7 +161,6 @@ export const getPostByTag = async (
   const postList = result.rows.flatMap((post) => {
     return post.get('posts').map((p) => p.toJSON());
   });
-  console.log(postList);
   return { postList, totalPages, tagCount: result.count };
 };
 

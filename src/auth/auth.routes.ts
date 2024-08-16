@@ -26,7 +26,6 @@ authRouter.post(
       await sendVerificationCode(email, code);
       return res.status(200).end();
     } catch (e) {
-      console.log(e);
       return next(e);
     }
   },
@@ -48,7 +47,6 @@ authRouter.post(
       await sendPasswordResetLink(email, code);
       return res.status(200).end();
     } catch (e) {
-      console.log(e);
       return next(e);
     }
   },
@@ -59,7 +57,6 @@ authRouter.post(
   '/reset/password',
   async (req: Request, res: Response, next: NextFunction) => {
     const { email, code, newPassword } = req.body;
-    console.log(email, code, newPassword);
     try {
       const user = await getUser({ email });
       if (!user) {

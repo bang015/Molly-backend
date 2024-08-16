@@ -92,7 +92,7 @@ export const commentList = async (
         include: [
           [
             Sequelize.fn('COUNT', Sequelize.col('subComments.id')),
-            'subcommentCount',
+            'subCommentsCount',
           ],
         ],
       },
@@ -157,7 +157,6 @@ export const getMyCommentByPost = async (userId: number, postId: number) => {
 
 // 대댓글 목록
 export const getSubComment = async (
-  postId: number,
   id: number,
   page: number = 1,
   limit: number = 3,
@@ -166,7 +165,6 @@ export const getSubComment = async (
   try {
     const result = await Comment.findAll({
       where: {
-        postId: postId,
         commentId: id,
       },
       include: {

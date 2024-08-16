@@ -45,7 +45,6 @@ chatRouter.post(
       );
       return res.status(200).json(room);
     } catch (e) {
-      console.log(e);
       return next(e);
     }
   },

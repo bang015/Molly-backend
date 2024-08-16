@@ -85,7 +85,6 @@ userRouter.patch(
         return res.status(200).json({ result, message });
       }
     } catch (e) {
-      console.log(e)
       if (req.file) {
         const file = req.file as Express.Multer.File;
         cloudinary.uploader.destroy(file.filename, function (result: any) {
