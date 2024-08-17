@@ -75,7 +75,7 @@ commentRouter.get(
     try {
       const id = parseInt(req.params.id, 10);
       const { page } = req.query as any;
-      const response = await getSubComment( id, page);
+      const response = await getSubComment(id, page);
       if (response) {
         return res.status(200).json(response);
       }

@@ -6,7 +6,7 @@ import {
   UpdatedAt,
   PrimaryKey,
   AutoIncrement,
-  Table
+  Table,
 } from 'sequelize-typescript';
 
 @Table({ timestamps: true })

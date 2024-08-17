@@ -98,7 +98,7 @@ export const resetPassword = async (
       transaction,
     });
     await transaction.commit();
-    return result
+    return result;
   } catch (e) {
     await transaction.rollback();
     throw new Error('비밀번호 재설정을 실패했습니다.');

@@ -28,7 +28,7 @@ followRouter.post(
         userId: req.decoded.id,
         targetId: Number(req.body.followUserId),
       };
-      let isFollowingUser = await isFollowing(payload);
+      const isFollowingUser = await isFollowing(payload);
       if (isFollowingUser) {
         await unfollow(payload);
         return res.status(200).json(true);
@@ -49,7 +49,7 @@ followRouter.get(
   async (req: JwtRequest, res: Response, next: NextFunction) => {
     try {
       const userId = req.decoded?.id;
-      let limit = parseInt(req.query.limit as string);
+      const limit = parseInt(req.query.limit as string);
       const suggestList = await suggestFollowers(userId!, limit);
       return res.status(200).json({ suggestFollowerList: suggestList });
     } catch (e) {

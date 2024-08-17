@@ -21,4 +21,3 @@ export interface UserModify {
   introduce?: string;
   profileImageId?: number;
 }
-
