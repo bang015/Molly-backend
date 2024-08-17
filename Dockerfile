@@ -1,8 +1,8 @@
 FROM node:20-alpine
 WORKDIR /app
-COPY backend/package*.json ./
+COPY server/package*.json ./
 RUN npm install
-COPY backend/ ./
+COPY server/ ./
 RUN npm run build
 EXPOSE 4000
 CMD ["node", "dist/index.js"]

@@ -12,7 +12,7 @@ export default ({ app }: { app: Application }) => {
     console.log('hi');
   });
   const corsOptions = {
-    origin: `${process.env.REQ_ADDRESS}`,
+    origin: `*`,
     optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
   };
   app.use(cors(corsOptions));
