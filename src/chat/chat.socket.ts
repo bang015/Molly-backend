@@ -22,7 +22,7 @@ import { getUser } from '../user/user.service';
 const socket = (server: HTTPServer | HTTPSServer, app: Application) => {
   const io = SocketIO(server, {
     cors: {
-      origin: 'http://localhost', // 허용할 클라이언트 주소
+      origin: '*', // 허용할 클라이언트 주소
       methods: ['GET', 'POST'], // 허용할 HTTP 메서드
     },
   });

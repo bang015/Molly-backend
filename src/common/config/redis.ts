@@ -1,6 +1,8 @@
+import config from './index';
+
 const redis = require('redis');
 
-const client = redis.createClient({ legacyMode: true });
+const client = redis.createClient({ legacyMode: true, socket: config.redis });
 client.on('connect', () => {
   console.info('Redis connected!');
 });

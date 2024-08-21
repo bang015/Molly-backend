@@ -31,10 +31,10 @@ followRouter.post(
       const isFollowingUser = await isFollowing(payload);
       if (isFollowingUser) {
         await unfollow(payload);
-        return res.status(200).json(true);
+        return res.status(200).json(false);
       } else {
         await follow(payload);
-        return res.status(200).json(false);
+        return res.status(200).json(true);
       }
     } catch (e) {
       return next(e);

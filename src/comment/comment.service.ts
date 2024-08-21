@@ -96,7 +96,7 @@ export const commentList = async (
           ],
         ],
       },
-      group: ['Comment.id', 'user.id', 'user->ProfileImage.id'],
+      group: ['Comment.id', 'user.id',],
       offset,
       limit,
       order: [['createdAt', 'DESC']],
@@ -143,7 +143,7 @@ export const getMyCommentByPost = async (userId: number, postId: number) => {
           ],
         ],
       },
-      group: ['Comment.id', 'user.id', 'user->ProfileImage.id'],
+      group: ['Comment.id', 'user.id',],
       order: [['createdAt', 'DESC']],
     });
     const comment = result.map((comment) => {
