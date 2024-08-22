@@ -1,11 +1,18 @@
+import * as dotenv from 'dotenv';
+
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+
+if (process.env.NODE_ENV !== 'production') {
+  const envFound = dotenv.config();
+  if (envFound.error) throw new Error("Couldn't find .env file");
+}
 
 const databaseHost =
   process.env.NODE_ENV === 'production'
     ? process.env.DATABASE_HOST
     : 'localhost';
 const redisHost =
-  process.env.NODE_ENV === 'production' ? process.env.REDIST_HOST : 'localhost';
+  process.env.NODE_ENV === 'production' ? process.env.REDIS_HOST : 'localhost';
 
 export default {
   port: parseInt(process.env.PORT as string, 10),
@@ -17,7 +24,7 @@ export default {
     host: databaseHost,
   },
   redis: {
-    port: 6397,
+    port: 6379,
     host: redisHost,
   },
   cloudinaryApi: {

@@ -59,7 +59,6 @@ export const explorePostList = async (
   const offset = limit * (page - 1);
   try {
     const result = await Post.findAndCountAll({
-      attributes: ['id', 'createdAt'],
       where: {
         userId: {
           [Op.notIn]: userIds,

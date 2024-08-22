@@ -1,8 +1,6 @@
 import { Sequelize } from 'sequelize-typescript';
 import config from './index';
 
-process.env.NODE_ENV = process.env.NODE_ENV || 'development';
-
 const sequelize = new Sequelize({
   database: config.database.dbname as string,
   dialect: 'mysql',
