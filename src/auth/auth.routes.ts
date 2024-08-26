@@ -41,7 +41,7 @@ authRouter.post(
       if (!user) {
         return res
           .status(404)
-          .json({ error: '해당 이메일로 등록된 계정이 없습니다.' });
+          .json({ message: '해당 이메일로 등록된 계정이 없습니다.' });
       }
       const code = await createVerificationCode(email);
       await sendPasswordResetLink(email, code);
@@ -62,13 +62,13 @@ authRouter.post(
       if (!user) {
         return res
           .status(404)
-          .json({ error: '해당 이메일로 등록된 계정이 없습니다.' });
+          .json({ message: '해당 이메일로 등록된 계정이 없습니다.' });
       }
       const result = await resetPassword(email, code, newPassword);
       if (result === 0) {
         return res
           .status(404)
-          .json({ error: '비밀번호 재설정을 실패했습니다.' });
+          .json({ message: '비밀번호 재설정을 실패했습니다.' });
       }
       return res
         .status(200)

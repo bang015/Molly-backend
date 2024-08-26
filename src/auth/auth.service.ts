@@ -89,8 +89,9 @@ export const resetPassword = async (
   await verificationCode(email, code);
   const transaction = await sequelize.transaction();
   try {
+    const password = await bcrypt.hash(newPassword, 10);
     const [result] = await User.update(
-      { password: newPassword },
+      { password: password },
       { where: { email }, transaction },
     );
     await Verification.destroy({
