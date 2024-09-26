@@ -49,6 +49,24 @@ commentRouter.post(
   },
 );
 
+// 본인이 작성한 댓글
+commentRouter.get(
+  '/my',
+  checkJWT,
+  async (req: JwtRequest, res: Response, next: NextFunction) => {
+    console.log(123423423);
+    try {
+      const userId = req.decoded.id;
+      const { postId } = req.query as any;
+      const comment = await getMyCommentByPost(userId, postId);
+      return res.status(200).json(comment);
+    } catch (e) {
+      console.log(e);
+      return next(e);
+    }
+  },
+);
+
 // 게시물 댓글 목록
 commentRouter.get(
   '/:postId',
@@ -79,22 +97,6 @@ commentRouter.get(
       if (response) {
         return res.status(200).json(response);
       }
-    } catch (e) {
-      return next(e);
-    }
-  },
-);
-
-// 본인이 작성한 댓글
-commentRouter.get(
-  '/my/:postId',
-  checkJWT,
-  async (req: JwtRequest, res: Response, next: NextFunction) => {
-    try {
-      const userId = req.decoded.id;
-      const postId = parseInt(req.params.postId, 10);
-      const comment = await getMyCommentByPost(userId, postId);
-      return res.status(200).json(comment);
     } catch (e) {
       return next(e);
     }

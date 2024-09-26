@@ -5,7 +5,6 @@ import Tag from '../post/models/tag.model';
 import Post from '../post/models/post.model';
 
 export const getSearchResult = async (searchKeyword: string, type: string) => {
-  const limit = 50;
   let userSearch = false;
   let tagSearch = false;
   if (type === 'user') {

@@ -33,7 +33,7 @@ export const getComment = async (id: number) => {
         {
           model: User,
           as: 'user',
-          attributes: ['nickname'],
+          attributes: ['id','nickname'],
           include: [{ model: ProfileImage, attributes: ['path'] }],
         },
         {
@@ -78,7 +78,7 @@ export const commentList = async (
         {
           model: User,
           as: 'user',
-          attributes: ['nickname'],
+          attributes: ['id','nickname'],
           include: [{ model: ProfileImage, attributes: ['path'] }],
         },
         {
@@ -125,7 +125,7 @@ export const getMyCommentByPost = async (userId: number, postId: number) => {
         {
           model: User,
           as: 'user',
-          attributes: ['nickname'],
+          attributes: ['id','nickname'],
           include: [{ model: ProfileImage, attributes: ['path'] }],
         },
         {
@@ -149,8 +149,10 @@ export const getMyCommentByPost = async (userId: number, postId: number) => {
     const comment = result.map((comment) => {
       return comment.toJSON();
     });
+    console.log(comment)
     return comment;
   } catch (e) {
+    console.log(e)
     throw Error('댓글을 가져오는데 실패했습니다.');
   }
 };
@@ -170,7 +172,7 @@ export const getSubComment = async (
       include: {
         model: User,
         as: 'user',
-        attributes: ['nickname'],
+        attributes: ['id','nickname'],
         include: [{ model: ProfileImage, attributes: ['path'] }],
       },
       offset,

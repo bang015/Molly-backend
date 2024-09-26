@@ -51,7 +51,7 @@ followRouter.get(
       const userId = req.decoded?.id;
       const limit = parseInt(req.query.limit as string);
       const suggestList = await suggestFollowers(userId!, limit);
-      return res.status(200).json({ suggestFollowerList: suggestList });
+      return res.status(200).json(suggestList);
     } catch (e) {
       return next(e);
     }
@@ -61,13 +61,25 @@ followRouter.get(
 // 팔로윙 목록
 followRouter.get(
   '/following/:id',
-  async (req: Request, res: Response, next: NextFunction) => {
+  checkJWT,
+  async (req: JwtRequest, res: Response, next: NextFunction) => {
     try {
-      const id = parseInt(req.params.id, 10);
+      const userId = req.decoded?.id;
+      const targetUserId = parseInt(req.params.id, 10);
       const { query } = req.query as any;
       const { page } = req.query as any;
-      const result = await selectFollowing(id, query, page);
-      return res.status(200).json(result);
+      const result = await selectFollowing(targetUserId, query, page);
+      const followings = await Promise.all(
+        result.followings.map(async (following) => {
+          const isFollowed = await isFollowing({
+            userId,
+            targetId: following.id,
+          });
+          return { ...following, isFollowed };
+        }),
+      );
+      const totalPages = result.totalPages;
+      return res.status(200).json({ followings, totalPages });
     } catch (e) {
       return next(e);
     }
@@ -77,13 +89,25 @@ followRouter.get(
 // 팔로워 목록
 followRouter.get(
   '/follower/:id',
-  async (req: Request, res: Response, next: NextFunction) => {
+  checkJWT,
+  async (req: JwtRequest, res: Response, next: NextFunction) => {
     try {
+      const userId = req.decoded?.id;
       const id = parseInt(req.params.id, 10);
       const { query } = req.query as any;
       const { page } = req.query as any;
       const result = await selectFollower(id, query, page);
-      return res.status(200).json(result);
+      const followers = await Promise.all(
+        result.followers.map(async (follower) => {
+          const isFollowed = await isFollowing({
+            userId,
+            targetId: follower.id,
+          });
+          return { ...follower, isFollowed };
+        }),
+      );
+      const totalPages = result.totalPages;
+      return res.status(200).json({ followers, totalPages });
     } catch (e) {
       return next(e);
     }

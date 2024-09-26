@@ -1,5 +1,4 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { celebrate, Joi, Segments } from 'celebrate';
 import { checkJWT } from '../common/middleware/checkJwt';
 import { uploadPostMedias } from '../common/middleware/multer';
 import {
@@ -16,7 +15,6 @@ import {
 } from './post.service';
 import { v2 as cloudinary } from 'cloudinary';
 import { getUser } from '../user/user.service';
-import { selectFollowing } from '../follow/follow.service';
 import { JwtRequest } from '../auth/auth.interfaces';
 import { MediaType } from './post.interfaces';
 
@@ -63,14 +61,13 @@ postRouter.post(
 postRouter.patch(
   '/',
   checkJWT,
-  uploadPostMedias,
   async (req: JwtRequest, res: Response, next: NextFunction) => {
     try {
       const userId = req.decoded?.id;
       const { postId, content, hashtags } = req.body;
       await verifyPostUser(postId, userId);
-      const updatedPost = await postUpdate(postId, content, hashtags || []);
-      return res.status(200).json({ updatedPost });
+      const post = await postUpdate(postId, content, hashtags || []);
+      return res.status(200).json({ post, message: '게시물이 공유 되었습니다.'});
     } catch (e) {
       return next(e);
     }
@@ -85,13 +82,7 @@ postRouter.get(
     try {
       const userId = req.decoded.id;
       const { page } = req.query as any;
-      const followedUsers = await selectFollowing(userId);
-      let userIds = [];
-      if (followedUsers) {
-        userIds = followedUsers.followings.map((follow) => follow.id);
-      }
-      userIds.push(userId);
-      const response = await postList(userIds, page);
+      const response = await postList(userId, page, 5, 'main');
       return res.status(200).json(response);
     } catch (e) {
       return next(e);
@@ -109,13 +100,7 @@ postRouter.get(
       const { page, limit } = req.query as any;
       const pageNumber = parseInt(page, 10);
       const limitNumber = parseInt(limit, 10);
-      const followedUsers = await selectFollowing(userId);
-      let userIds = [];
-      if (followedUsers) {
-        userIds = followedUsers.followings.map((follow) => follow.id);
-      }
-      userIds.push(userId);
-      const posts = await explorePostList(userIds, pageNumber, limitNumber);
+      const posts = await explorePostList(userId, pageNumber, limitNumber);
       if (posts) {
         return res.status(200).json(posts);
       }
@@ -149,7 +134,7 @@ postRouter.get(
     const userId = parseInt(req.params.userId, 10);
     const { page } = req.query as any;
     try {
-      const post = await postList(userId, page, 12);
+      const post = await postList(userId, page, 12, 'user');
       res.status(200).json(post);
     } catch (e) {
       next(e);

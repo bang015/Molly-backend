@@ -7,13 +7,13 @@ import {
   createVerificationCode,
   resetPassword,
 } from './auth.service';
-import { checkJWT } from '../common/middleware/checkJwt';
 import { getUser } from '../user/user.service';
-import { JwtRequest, Signin, SignupInput } from './auth.interfaces';
+import { Signin, SignupInput } from './auth.interfaces';
 import {
   sendPasswordResetLink,
   sendVerificationCode,
 } from '../common/service/email';
+import { GetUserInput } from '../user/user.interfaces';
 const authRouter = Router();
 
 // 이메일 인증번호 생성 및 이메일 보내기
@@ -122,24 +122,6 @@ authRouter.post(
   },
 );
 
-// 유저 정보
-authRouter.get(
-  '/',
-  checkJWT,
-  async (req: JwtRequest, res: Response, next: NextFunction) => {
-    try {
-      const userId = req.decoded?.id;
-      const user = await getUser({ id: userId });
-      if (!user) {
-        return res.status(404).end();
-      }
-      return res.status(200).json(user);
-    } catch (e) {
-      return next(e);
-    }
-  },
-);
-
 // refreshToken
 authRouter.post(
   '/token',
@@ -150,6 +132,27 @@ authRouter.post(
         return res.status(400).json({ message: 'Refresh token is required' });
       }
       return res.status(200).json(refreshTokens(refreshToken));
+    } catch (e) {
+      return next(e);
+    }
+  },
+);
+
+authRouter.get(
+  '/validateUnique',
+  celebrate({
+    [Segments.QUERY]: {
+      email: Joi.string().email(),
+      nickname: Joi.string(),
+    },
+  }),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const user = await getUser(req.query as GetUserInput);
+      if (!user) {
+        return res.status(204).end();
+      }
+      return res.status(200).json(user);
     } catch (e) {
       return next(e);
     }

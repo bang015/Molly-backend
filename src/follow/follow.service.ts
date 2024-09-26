@@ -29,7 +29,7 @@ export const selectFollowing = async (
         {
           model: User,
           as: 'following',
-          attributes: ['name', 'nickname'],
+          attributes: ['id', 'name', 'nickname'],
           where: searchCondition,
           include: [
             {
@@ -45,7 +45,6 @@ export const selectFollowing = async (
     const totalPages = Math.ceil(result.count / limit);
     const followings = result.rows.map((follow) => {
       return {
-        id: follow.toJSON().followingId,
         ...follow.toJSON().following,
       };
     });
@@ -116,7 +115,11 @@ export const suggestFollowers = async (userId: number, limit: number) => {
         targetId: follow.id,
       });
       if (!isFollowingUser) {
-        return { ...follow, message: '회원님을 팔로우합니다' };
+        return {
+          ...follow,
+          message: '회원님을 팔로우합니다',
+          isFollowed: false,
+        };
       }
     });
     const suggestedResults = await Promise.all(suggestionPromises);
@@ -148,7 +151,11 @@ export const suggestFollowers = async (userId: number, limit: number) => {
       limit: limit - suggestedFollowers.length,
     });
     const formattedFollowers = additionalFollowers.map((user) => {
-      return { ...user.toJSON(), message: '회원님을 위한 추천' };
+      return {
+        ...user.toJSON(),
+        message: '회원님을 위한 추천',
+        isFollowed: false,
+      };
     });
     return [...suggestedFollowers, ...formattedFollowers];
   } catch (e) {

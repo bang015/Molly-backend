@@ -9,6 +9,9 @@ import User from '../user/models/user.model';
 import ProfileImage from '../user/models/profile-image.model';
 import Bookmark from '../bookmark/models/bookmark.model';
 import { CreatePostInput, MediaType } from './post.interfaces';
+import { selectFollowing } from '../follow/follow.service';
+import { getPostLikeCount, isPostLiked } from '../like/like.service';
+import { isBookmarked } from '../bookmark/bookmark.service';
 
 // 게시물 생성
 export const createPost = async (
@@ -52,11 +55,17 @@ export const createPost = async (
 
 // 추천 게시물
 export const explorePostList = async (
-  userIds: number[],
+  userId: number,
   page: number = 1,
   limit: number = 30,
 ) => {
   const offset = limit * (page - 1);
+  const followedUsers = await selectFollowing(userId);
+  let userIds = [];
+  if (followedUsers) {
+    userIds = followedUsers.followings.map((follow) => follow.id);
+  }
+  userIds.push(userId);
   try {
     const result = await Post.findAndCountAll({
       where: {
@@ -72,7 +81,7 @@ export const explorePostList = async (
         {
           model: User,
           as: 'user',
-          attributes: ['nickname'],
+          attributes: ['id', 'nickname'],
           include: [{ model: ProfileImage, attributes: ['path'] }],
         },
       ],
@@ -81,9 +90,19 @@ export const explorePostList = async (
       order: Sequelize.literal('RAND()'),
     });
     const totalPages = Math.ceil(result.count / limit);
-    const postList = result.rows.map((post) => {
-      return post.toJSON();
-    });
+    const postList = await Promise.all(
+      result.rows.map(async (post) => {
+        const count = await getPostLikeCount(post.get('id'));
+        const isLiked = await isPostLiked(post.get('id'), userId);
+        const bookmark = await isBookmarked(post.get('id'), userId);
+        return {
+          ...post.toJSON(),
+          likeCount: count,
+          isLiked,
+          isBookmarked: bookmark,
+        };
+      }),
+    );
     return { postList, totalPages };
   } catch (e) {
     throw Error('게시물을 가져오는데 실패했습니다.');
@@ -92,11 +111,20 @@ export const explorePostList = async (
 
 // 게시물
 export const postList = async (
-  userIds: number[] | number,
+  userId: number,
   page: number = 1,
   limit: number = 5,
+  type: string,
 ) => {
   const offset = limit * (page - 1);
+  let userIds = [];
+  if (type === 'user') {
+    const followedUsers = await selectFollowing(userId);
+    if (followedUsers) {
+      userIds = followedUsers.followings.map((follow) => follow.id);
+    }
+  }
+  userIds.push(userId);
   try {
     const result = await Post.findAndCountAll({
       where: {
@@ -110,7 +138,7 @@ export const postList = async (
         {
           model: User,
           as: 'user',
-          attributes: ['nickname'],
+          attributes: ['id', 'nickname'],
           include: [{ model: ProfileImage, attributes: ['path'] }],
         },
       ],
@@ -122,9 +150,13 @@ export const postList = async (
       return null;
     }
     const totalPages = Math.ceil(result.count / limit);
-    const postList = result.rows.map((post) => {
-      return post.toJSON();
-    });
+    const postList = await Promise.all(
+      result.rows.map(async (post) => {
+        const count = await getPostLikeCount(post.get('id'));
+        const isLiked = await isPostLiked(post.get('id'), userId);
+        return { ...post.toJSON(), likeCount: count, isLiked };
+      }),
+    );
     return { postList, totalPages };
   } catch (e) {
     throw Error('게시물을 가져오는데 실패했습니다.');
@@ -160,7 +192,7 @@ export const getPostByTag = async (
   const postList = result.rows.flatMap((post) => {
     return post.get('posts').map((p) => p.toJSON());
   });
-  return { postList, totalPages, tagCount: result.count };
+  return { postList, totalPages, tagPostCount: result.count };
 };
 
 // 북마크
@@ -213,7 +245,7 @@ export const getPost = async (id: number) => {
       {
         model: User,
         as: 'user',
-        attributes: ['nickname'],
+        attributes: ['id', 'nickname'],
         include: [{ model: ProfileImage, attributes: ['path'] }],
       },
     ],

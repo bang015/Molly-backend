@@ -12,7 +12,6 @@ import Comment from '../../comment/models/comment.model';
 import bcrypt from 'bcrypt';
 import Bookmark from '../../bookmark/models/bookmark.model';
 import Post from '../../post/models/post.model';
-import ChatRoom from '../../chat/models/chat-room.model';
 import Follow from '../../follow/models/follow.model';
 import Like from '../../like/models/like.model';
 import ProfileImage from './profile-image.model';

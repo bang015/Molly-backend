@@ -8,7 +8,7 @@ const searchRouter = Router();
 
 // 검색
 searchRouter.get(
-  '/q/:type',
+  '/:type',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { query } = req.query as any;
@@ -109,7 +109,7 @@ searchRouter.delete(
   checkJWT,
   async (req: JwtRequest, res: Response, next: NextFunction) => {
     const userId = req.decoded?.id;
-    const history = req.query.history as any;
+    const history = req.body;
     const cacheKey = `searchUId:${userId}`;
     if (!history) {
       client.del(cacheKey, (err: Error | null, reply: string | null) => {

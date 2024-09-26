@@ -55,7 +55,7 @@ export const getUser = async (userInfo: GetUserInput): Promise<User | null> => {
           FROM \`Follow\` AS \`followers\`
           WHERE \`followers\`.\`followingId\` = \`User\`.\`id\`
         )`),
-          'followerCount',
+          'followingCount',
         ],
         [
           literal(`(
@@ -63,7 +63,7 @@ export const getUser = async (userInfo: GetUserInput): Promise<User | null> => {
           FROM \`Follow\` AS \`following\`
           WHERE \`following\`.\`followerId\` = \`User\`.\`id\`
         )`),
-          'followingCount',
+          'followerCount',
         ],
       ],
     },

@@ -42,6 +42,24 @@ userRouter.get(
   },
 );
 
+// 유저 정보
+userRouter.get(
+  '/me',
+  checkJWT,
+  async (req: JwtRequest, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.decoded?.id;
+      const user = await getUser({ id: userId });
+      if (!user) {
+        return res.status(404).end();
+      }
+      return res.status(200).json(user);
+    } catch (e) {
+      return next(e);
+    }
+  },
+);
+
 // 유저 정보 수정
 userRouter.patch(
   '/',
